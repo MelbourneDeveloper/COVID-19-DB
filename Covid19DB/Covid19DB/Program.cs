@@ -35,18 +35,47 @@ namespace Covid19DB
             }).ToList();
 
             var regionGroupings = aggregatedData.Where(a => !string.IsNullOrEmpty(a.Country_Region)).GroupBy(a => a.Country_Region).ToList();
-            var provinces = aggregatedData.Where(a => !string.IsNullOrEmpty(a.Province_State)).GroupBy(a => a.Province_State).ToList();
+            var provinceGroupings = aggregatedData.Where(a => !string.IsNullOrEmpty(a.Province_State)).GroupBy(a => a.Province_State).ToList();
+
+            var regionsByName = new Dictionary<string, Region>(StringComparer.OrdinalIgnoreCase);
+            var provincesByNameAndRegion = new Dictionary<string, Province>(StringComparer.OrdinalIgnoreCase);
 
             using (var covid19DbContext = new Covid19DbContext())
             {
                 foreach (var regionGrouping in regionGroupings)
                 {
-                    var regionEntity = covid19DbContext.Regions.FirstOrDefault(r => r.Name == regionGrouping.Key);
-                    if (regionEntity == null)
+                    var region = covid19DbContext.Regions.FirstOrDefault(r => r.Name == regionGrouping.Key);
+                    if (region == null)
                     {
-                        regionEntity = new Region { Name = regionGrouping.Key };
-                        covid19DbContext.Regions.Add(regionEntity);
+                        region = new Region { Name = regionGrouping.Key };
+                        covid19DbContext.Regions.Add(region);
                     }
+
+                    regionsByName.Add(regionGrouping.Key, region);
+                }
+
+                foreach (var provinceGrouping in provinceGroupings)
+                {
+                    var rawModel = provinceGrouping.First();
+
+                    var region = regionsByName[rawModel.Country_Region];
+
+                    var province = covid19DbContext.Provinces.FirstOrDefault(r =>
+                    r.Name == provinceGrouping.Key &&
+                    r.RegionId == region.Id
+                    );
+
+                    if (province == null)
+                    {
+                        province = new Province
+                        {
+                            Name = rawModel.Province_State,
+                            RegionId = region.Id
+                        };
+                        covid19DbContext.Provinces.Add(province);
+                    }
+
+                    provincesByNameAndRegion.Add($"{region.Name}.{province.Name}", province);
                 }
 
                 foreach (var key in modelsByDate.Keys.OrderBy(k => k))
