@@ -96,6 +96,23 @@ namespace Covid19DB
                     rowModels.Add(rawModel);
                 }
             }
+
+            var aggregatedData = modelsByDate.Values.Aggregate((a, b) =>
+            {
+                var aggregatedList = new List<RawModel>(a);
+                aggregatedList.AddRange(b);
+                return aggregatedList;
+            }).ToList();
+
+
+            foreach (var key in modelsByDate.Keys.OrderBy(k => k))
+            {
+                var rawModel = modelsByDate[key];
+
+
+
+            }
+
         }
     }
 }
