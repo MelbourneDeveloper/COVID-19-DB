@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Covid19DB.Model;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -64,18 +65,31 @@ namespace Covid19DB
                 return aggregatedList;
             }).ToList();
 
-            var countries = aggregatedData.Where(a => !string.IsNullOrEmpty(a.Country_Region)).GroupBy(a => a.Country_Region).ToList();
+            var regionGroupings = aggregatedData.Where(a => !string.IsNullOrEmpty(a.Country_Region)).GroupBy(a => a.Country_Region).ToList();
             var provinces = aggregatedData.Where(a => !string.IsNullOrEmpty(a.Province_State)).GroupBy(a => a.Province_State).ToList();
 
-
-
-            foreach (var key in modelsByDate.Keys.OrderBy(k => k))
+            using (var covid19DbContext = new Covid19DbContext())
             {
-                var rawModel = modelsByDate[key];
+                foreach (var regionGrouping in regionGroupings)
+                {
+                    var regionEntity = covid19DbContext.Regions.FirstOrDefault(r => r.Name == regionGrouping.Key);
+                    if (regionEntity == null)
+                    {
+                        regionEntity = new Region { Name = regionGrouping.Key };
+                        covid19DbContext.Regions.Add(regionEntity);
+                    }
+                }
+                covid19DbContext.SaveChanges();
+
+                foreach (var key in modelsByDate.Keys.OrderBy(k => k))
+                {
+                    var rawModel = modelsByDate[key];
 
 
 
+                }
             }
+
 
         }
 
