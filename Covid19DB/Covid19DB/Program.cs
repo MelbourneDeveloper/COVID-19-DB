@@ -36,29 +36,41 @@ namespace Covid19DB
 
             var regionGroupings = aggregatedData.Where(a => !string.IsNullOrEmpty(a.Country_Region)).GroupBy(a => a.Country_Region).ToList();
             var provinceGroupings = aggregatedData.Where(a => !string.IsNullOrEmpty(a.Province_State)).GroupBy(a => a.Province_State).ToList();
+            var locationGroupings = aggregatedData.Where(a => !string.IsNullOrEmpty(a.Admin2)).GroupBy(a => a.Admin2).ToList();
 
             var regionsByName = new Dictionary<string, Region>(StringComparer.OrdinalIgnoreCase);
-            var provincesByNameAndRegion = new Dictionary<string, Province>(StringComparer.OrdinalIgnoreCase);
+            var provincesByRegionName = new Dictionary<string, Province>(StringComparer.OrdinalIgnoreCase);
+            var locationsByRegionProvinceName = new Dictionary<string, Location>(StringComparer.OrdinalIgnoreCase);
 
             using (var covid19DbContext = new Covid19DbContext())
             {
+                //Add any missing regions
                 foreach (var regionGrouping in regionGroupings)
                 {
                     var regionName = regionGrouping.Key;
                     var region = GetRegion(covid19DbContext, regionName);
-
                     regionsByName.Add(regionGrouping.Key, region);
                 }
 
+                //Add any missing provinces
                 foreach (var provinceGrouping in provinceGroupings)
                 {
                     var rawModel = provinceGrouping.First();
-
                     var region = regionsByName[rawModel.Country_Region];
-
                     var province = GetProvince(covid19DbContext, provinceGrouping.Key, region);
+                    provincesByRegionName.Add($"{region.Name}.{province.Name}", province);
+                }
 
-                    provincesByNameAndRegion.Add($"{region.Name}.{province.Name}", province);
+                //Add any missing locations
+                foreach (var locationGrouping in locationGroupings)
+                {
+                    var rawModel = locationGrouping.First();
+                    var region = regionsByName[rawModel.Country_Region];
+                    var province = GetProvince(covid19DbContext, rawModel.Province_State, region);
+
+                    var location = GetLocation(covid19DbContext, rawModel, province);
+
+                    locationsByRegionProvinceName.Add($"{region.Name}.{province.Name}.{location.Name}", location);
                 }
 
                 foreach (var key in modelsByDate.Keys.OrderBy(k => k))
@@ -73,6 +85,28 @@ namespace Covid19DB
             }
 
 
+        }
+
+        private static Location GetLocation(Covid19DbContext covid19DbContext, RawModel rawModel, Province province)
+        {
+            var location = covid19DbContext.Locations.FirstOrDefault(l =>
+            l.Name == rawModel.Admin2 &&
+            l.ProvinceId == province.Id
+            );
+
+            if (location == null)
+            {
+                location = new Location
+                {
+                    Name = rawModel.Admin2,
+                    ProvinceId = province.Id,
+                    Latitude = rawModel.Lat,
+                    Longitude = rawModel.Long_
+                };
+                covid19DbContext.Provinces.Add(province);
+            }
+
+            return location;
         }
 
         private static Province GetProvince(Covid19DbContext covid19DbContext, string provinceName, Region region)
@@ -112,7 +146,7 @@ namespace Covid19DB
             //Read the text
             var text = File.ReadAllText(fileName);
 
-            var lines = text.Split("\r\n").ToList();
+            var lines = text.Split("\r\n", StringSplitOptions.RemoveEmptyEntries).ToList();
 
             //Get the indexes of the columns by header name
             var headerNames = lines[0].Split(',').ToList();
@@ -131,13 +165,18 @@ namespace Covid19DB
             var latitudeIndex = headerNames.IndexOf(nameof(RawModel.Lat));
             var longitudeIndex = headerNames.IndexOf(nameof(RawModel.Long_));
 
+            var admin2Index = headerNames.IndexOf(nameof(RawModel.Admin2));
+
             var rawModels = new List<RawModel>();
 
             //Iterate through the lines in the file
             for (var i = 1; i < lines.Count; i++)
             {
-                var tokens = lines[i].Split(',').ToList();
-                var rawModel = ProcessRow(date, confirmedIndex, deathsIndex, countryRegionIndex, provinceStateIndex, latitudeIndex, longitudeIndex, tokens, headerNames);
+                var tokens = lines[i].Split(',', StringSplitOptions.None).ToList();
+
+                if (tokens.Count != headerNames.Count) throw new Exception($"Filename: {fileName} Headers: {headerNames.Count} Tokens: {tokens.Count} Line: {i + 1}");
+
+                var rawModel = ProcessRow(date, confirmedIndex, deathsIndex, countryRegionIndex, provinceStateIndex, latitudeIndex, longitudeIndex, admin2Index, tokens, headerNames);
 
                 if (rawModel != null) rawModels.Add(rawModel);
             }
@@ -145,10 +184,8 @@ namespace Covid19DB
             return rawModels;
         }
 
-        private static RawModel ProcessRow(DateTimeOffset date, int confirmedIndex, int deathsIndex, int countryRegionIndex, int provinceStateIndex, int latitudeIndex, int longitudeIndex, List<string> tokens, List<string> headerNames)
+        private static RawModel ProcessRow(DateTimeOffset date, int confirmedIndex, int deathsIndex, int countryRegionIndex, int provinceStateIndex, int latitudeIndex, int longitudeIndex, int admin2Index, List<string> tokens, List<string> headerNames)
         {
-            if (tokens.Count != headerNames.Count) return null;
-
             var confirmedText = tokens[confirmedIndex];
             var deathsText = tokens[deathsIndex];
 
@@ -178,6 +215,12 @@ namespace Covid19DB
                 longitude = decimal.Parse(longitutdeText);
             }
 
+            string admin2Text = null;
+            if (admin2Index > -1)
+            {
+                admin2Text = tokens[admin2Index];
+            }
+
             return new RawModel
             {
                 Confirmed = !string.IsNullOrEmpty(confirmedText) ? int.Parse(confirmedText) : (int?)null,
@@ -186,7 +229,8 @@ namespace Covid19DB
                 Province_State = tokens[provinceStateIndex],
                 Lat = latitude,
                 Long_ = longitude,
-                Date = date
+                Date = date,
+                Admin2 = admin2Text
             };
         }
     }
