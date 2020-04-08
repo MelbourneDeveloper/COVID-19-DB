@@ -1,4 +1,6 @@
-﻿namespace Covid19DB
+﻿using System;
+
+namespace Covid19DB
 {
     public class RawModel
     {
@@ -8,5 +10,6 @@
         public decimal? Long_ { get; set; }
         public int? Confirmed { get; set; }
         public int? Deaths { get; set; }
+        public DateTimeOffset Date { get; set; }
     }
 }

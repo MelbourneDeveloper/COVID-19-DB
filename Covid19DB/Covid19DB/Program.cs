@@ -51,49 +51,9 @@ namespace Covid19DB
                 for (var i = 1; i < lines.Count; i++)
                 {
                     var tokens = lines[i].Split(',').ToList();
+                    var rawModel = ProcessRow(date, confirmedIndex, deathsIndex, countryRegionIndex, provinceStateIndex, latitudeIndex, longitudeIndex, tokens, headerNames);
 
-                    if (tokens.Count != headerNames.Count) continue;
-
-                    var confirmedText = tokens[confirmedIndex];
-                    var deathsText = tokens[deathsIndex];
-
-                    string latitudeText = null;
-                    if (latitudeIndex > -1)
-                    {
-                        latitudeText = tokens[latitudeIndex];
-                    }
-
-                    string longitutdeText = null;
-                    if (longitudeIndex > -1)
-                    {
-                        longitutdeText = tokens[longitudeIndex];
-                    }
-
-                    if (string.IsNullOrEmpty(confirmedText) && string.IsNullOrEmpty(deathsText)) continue;
-
-                    decimal? latitude = null;
-                    if (!string.IsNullOrEmpty(latitudeText))
-                    {
-                        latitude = decimal.Parse(latitudeText);
-                    }
-
-                    decimal? longitude = null;
-                    if (!string.IsNullOrEmpty(longitutdeText))
-                    {
-                        longitude = decimal.Parse(longitutdeText);
-                    }
-
-                    var rawModel = new RawModel
-                    {
-                        Confirmed = !string.IsNullOrEmpty(confirmedText) ? int.Parse(confirmedText) : (int?)null,
-                        Deaths = !string.IsNullOrEmpty(deathsText) ? int.Parse(deathsText) : (int?)null,
-                        Country_Region = tokens[countryRegionIndex],
-                        Province_State = tokens[provinceStateIndex],
-                        Lat = latitude,
-                        Long_ = longitude
-                    };
-
-                    rowModels.Add(rawModel);
+                    if (rawModel != null) rowModels.Add(rawModel);
                 }
             }
 
@@ -104,6 +64,10 @@ namespace Covid19DB
                 return aggregatedList;
             }).ToList();
 
+            var countries = aggregatedData.Where(a => !string.IsNullOrEmpty(a.Country_Region)).GroupBy(a => a.Country_Region).ToList();
+            var provinces = aggregatedData.Where(a => !string.IsNullOrEmpty(a.Province_State)).GroupBy(a => a.Province_State).ToList();
+
+
 
             foreach (var key in modelsByDate.Keys.OrderBy(k => k))
             {
@@ -113,6 +77,51 @@ namespace Covid19DB
 
             }
 
+        }
+
+        private static RawModel ProcessRow(DateTimeOffset date, int confirmedIndex, int deathsIndex, int countryRegionIndex, int provinceStateIndex, int latitudeIndex, int longitudeIndex, List<string> tokens, List<string> headerNames)
+        {
+            if (tokens.Count != headerNames.Count) return null;
+
+            var confirmedText = tokens[confirmedIndex];
+            var deathsText = tokens[deathsIndex];
+
+            string latitudeText = null;
+            if (latitudeIndex > -1)
+            {
+                latitudeText = tokens[latitudeIndex];
+            }
+
+            string longitutdeText = null;
+            if (longitudeIndex > -1)
+            {
+                longitutdeText = tokens[longitudeIndex];
+            }
+
+            if (string.IsNullOrEmpty(confirmedText) && string.IsNullOrEmpty(deathsText)) return null;
+
+            decimal? latitude = null;
+            if (!string.IsNullOrEmpty(latitudeText))
+            {
+                latitude = decimal.Parse(latitudeText);
+            }
+
+            decimal? longitude = null;
+            if (!string.IsNullOrEmpty(longitutdeText))
+            {
+                longitude = decimal.Parse(longitutdeText);
+            }
+
+            return new RawModel
+            {
+                Confirmed = !string.IsNullOrEmpty(confirmedText) ? int.Parse(confirmedText) : (int?)null,
+                Deaths = !string.IsNullOrEmpty(deathsText) ? int.Parse(deathsText) : (int?)null,
+                Country_Region = tokens[countryRegionIndex],
+                Province_State = tokens[provinceStateIndex],
+                Lat = latitude,
+                Long_ = longitude,
+                Date = date
+            };
         }
     }
 }
