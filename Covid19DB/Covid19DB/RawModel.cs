@@ -11,5 +11,6 @@ namespace Covid19DB
         public int? Confirmed { get; set; }
         public int? Deaths { get; set; }
         public DateTimeOffset Date { get; set; }
+        public string Admin2 { get; set; }
     }
 }

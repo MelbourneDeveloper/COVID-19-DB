@@ -44,12 +44,8 @@ namespace Covid19DB
             {
                 foreach (var regionGrouping in regionGroupings)
                 {
-                    var region = covid19DbContext.Regions.FirstOrDefault(r => r.Name == regionGrouping.Key);
-                    if (region == null)
-                    {
-                        region = new Region { Name = regionGrouping.Key };
-                        covid19DbContext.Regions.Add(region);
-                    }
+                    var regionName = regionGrouping.Key;
+                    var region = GetRegion(covid19DbContext, regionName);
 
                     regionsByName.Add(regionGrouping.Key, region);
                 }
@@ -60,20 +56,7 @@ namespace Covid19DB
 
                     var region = regionsByName[rawModel.Country_Region];
 
-                    var province = covid19DbContext.Provinces.FirstOrDefault(r =>
-                    r.Name == provinceGrouping.Key &&
-                    r.RegionId == region.Id
-                    );
-
-                    if (province == null)
-                    {
-                        province = new Province
-                        {
-                            Name = rawModel.Province_State,
-                            RegionId = region.Id
-                        };
-                        covid19DbContext.Provinces.Add(province);
-                    }
+                    var province = GetProvince(covid19DbContext, provinceGrouping.Key, region);
 
                     provincesByNameAndRegion.Add($"{region.Name}.{province.Name}", province);
                 }
@@ -90,6 +73,38 @@ namespace Covid19DB
             }
 
 
+        }
+
+        private static Province GetProvince(Covid19DbContext covid19DbContext, string provinceName, Region region)
+        {
+            var province = covid19DbContext.Provinces.FirstOrDefault(r =>
+            r.Name == provinceName &&
+            r.RegionId == region.Id
+            );
+
+            if (province == null)
+            {
+                province = new Province
+                {
+                    Name = provinceName,
+                    RegionId = region.Id
+                };
+                covid19DbContext.Provinces.Add(province);
+            }
+
+            return province;
+        }
+
+        private static Region GetRegion(Covid19DbContext covid19DbContext, string regionName)
+        {
+            var region = covid19DbContext.Regions.FirstOrDefault(r => r.Name == regionName);
+            if (region == null)
+            {
+                region = new Region { Name = regionName };
+                covid19DbContext.Regions.Add(region);
+            }
+
+            return region;
         }
 
         private static List<RawModel> ProcessFile(string fileName, DateTimeOffset date)
