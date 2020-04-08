@@ -22,40 +22,9 @@ namespace Covid19DB
                 var numbers = fileNameWithoutExtension.Split('-').Select(t => int.Parse(t)).ToList();
                 var date = new DateTimeOffset(numbers[2], numbers[0], numbers[1], 0, 0, 0, default);
 
-                //Read the text
-                var text = File.ReadAllText(fileName);
-
-                var lines = text.Split("\r\n").ToList();
-
-                //Get the indexes of the columns by header name
-                var headerNames = lines[0].Split(',').ToList();
-
-                var confirmedIndex = headerNames.IndexOf(nameof(RawModel.Confirmed));
-                var deathsIndex = headerNames.IndexOf(nameof(RawModel.Deaths));
-
-                var countryRegionIndex = headerNames.IndexOf(nameof(RawModel.Country_Region));
-                //ISSUE: Deal with inconsistent header names
-                if (countryRegionIndex == -1) countryRegionIndex = headerNames.IndexOf("Country/Region");
-
-                var provinceStateIndex = headerNames.IndexOf(nameof(RawModel.Province_State));
-                //ISSUE: Deal with inconsistent header names
-                if (provinceStateIndex == -1) provinceStateIndex = headerNames.IndexOf("Province/State");
-
-                var latitudeIndex = headerNames.IndexOf(nameof(RawModel.Lat));
-                var longitudeIndex = headerNames.IndexOf(nameof(RawModel.Long_));
-
-                var rowModels = new List<RawModel>();
+                var rowModels = ProcessFile(fileName, date);
 
                 modelsByDate.Add(date, rowModels);
-
-                //Iterate through the lines in the file
-                for (var i = 1; i < lines.Count; i++)
-                {
-                    var tokens = lines[i].Split(',').ToList();
-                    var rawModel = ProcessRow(date, confirmedIndex, deathsIndex, countryRegionIndex, provinceStateIndex, latitudeIndex, longitudeIndex, tokens, headerNames);
-
-                    if (rawModel != null) rowModels.Add(rawModel);
-                }
             }
 
             var aggregatedData = modelsByDate.Values.Aggregate((a, b) =>
@@ -79,7 +48,6 @@ namespace Covid19DB
                         covid19DbContext.Regions.Add(regionEntity);
                     }
                 }
-                covid19DbContext.SaveChanges();
 
                 foreach (var key in modelsByDate.Keys.OrderBy(k => k))
                 {
@@ -88,9 +56,49 @@ namespace Covid19DB
 
 
                 }
+
+                covid19DbContext.SaveChanges();
             }
 
 
+        }
+
+        private static List<RawModel> ProcessFile(string fileName, DateTimeOffset date)
+        {
+            //Read the text
+            var text = File.ReadAllText(fileName);
+
+            var lines = text.Split("\r\n").ToList();
+
+            //Get the indexes of the columns by header name
+            var headerNames = lines[0].Split(',').ToList();
+
+            var confirmedIndex = headerNames.IndexOf(nameof(RawModel.Confirmed));
+            var deathsIndex = headerNames.IndexOf(nameof(RawModel.Deaths));
+
+            var countryRegionIndex = headerNames.IndexOf(nameof(RawModel.Country_Region));
+            //ISSUE: Deal with inconsistent header names
+            if (countryRegionIndex == -1) countryRegionIndex = headerNames.IndexOf("Country/Region");
+
+            var provinceStateIndex = headerNames.IndexOf(nameof(RawModel.Province_State));
+            //ISSUE: Deal with inconsistent header names
+            if (provinceStateIndex == -1) provinceStateIndex = headerNames.IndexOf("Province/State");
+
+            var latitudeIndex = headerNames.IndexOf(nameof(RawModel.Lat));
+            var longitudeIndex = headerNames.IndexOf(nameof(RawModel.Long_));
+
+            var rawModels = new List<RawModel>();
+
+            //Iterate through the lines in the file
+            for (var i = 1; i < lines.Count; i++)
+            {
+                var tokens = lines[i].Split(',').ToList();
+                var rawModel = ProcessRow(date, confirmedIndex, deathsIndex, countryRegionIndex, provinceStateIndex, latitudeIndex, longitudeIndex, tokens, headerNames);
+
+                if (rawModel != null) rawModels.Add(rawModel);
+            }
+
+            return rawModels;
         }
 
         private static RawModel ProcessRow(DateTimeOffset date, int confirmedIndex, int deathsIndex, int countryRegionIndex, int provinceStateIndex, int latitudeIndex, int longitudeIndex, List<string> tokens, List<string> headerNames)
