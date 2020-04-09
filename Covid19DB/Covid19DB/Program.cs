@@ -10,6 +10,9 @@ namespace Covid19DB
 {
     class Program
     {
+        private const string EmptyValue = "N/A";
+        private const string None = "NONE";
+
         static void Main(string[] args)
         {
             var dailyReportsFolder = @"C:\Code\COVID-19\csse_covid_19_data\csse_covid_19_daily_reports";
@@ -41,7 +44,7 @@ namespace Covid19DB
             var locationGroupings = aggregatedData.Where(a => !string.IsNullOrEmpty(a.Admin2)).GroupBy(a => a.Admin2).ToList();
 
             var regionsByName = new Dictionary<string, Region>(StringComparer.OrdinalIgnoreCase);
-            var provincesByRegionName = new Dictionary<string, Province>(StringComparer.OrdinalIgnoreCase);
+            var provincesByRegionAndName = new Dictionary<string, Province>(StringComparer.OrdinalIgnoreCase);
             var locationsByRegionProvinceName = new Dictionary<string, Location>(StringComparer.OrdinalIgnoreCase);
 
             using (var covid19DbContext = new Covid19DbContext())
@@ -59,8 +62,15 @@ namespace Covid19DB
                 {
                     var rawModel = provinceGrouping.First();
                     var region = regionsByName[rawModel.Country_Region];
-                    var province = GetProvince(covid19DbContext, provinceGrouping.Key, region);
-                    provincesByRegionName.Add(GetProviceKey(region.Name, province.Name), province);
+
+                    var provinceName = provinceGrouping.Key;
+
+                    //ISSUE: None name
+                    if (string.Compare(provinceName, None, StringComparison.OrdinalIgnoreCase) == 0)
+                        provinceName = EmptyValue;
+
+                    var province = GetProvince(covid19DbContext, provinceName, region);
+                    provincesByRegionAndName.Add(GetProvinceKey(region.Name, provinceName), province);
                 }
 
                 //Add any missing locations
@@ -75,6 +85,8 @@ namespace Covid19DB
                     locationsByRegionProvinceName.Add(GetLocationKey(region.Name, province.Name, location.Name), location);
                 }
 
+                covid19DbContext.SaveChanges();
+
                 foreach (var key in modelsByDate.Keys.OrderBy(k => k))
                 {
                     var rawModels = modelsByDate[key];
@@ -87,7 +99,57 @@ namespace Covid19DB
 
                         if (location == null)
                         {
+                            //Location is empty
 
+                            location = new Location
+                            {
+                                Name = EmptyValue
+                            };
+
+                            Province province = null;
+
+                            if (!string.IsNullOrEmpty(rawModel.Province_State))
+                            {
+                                if (rawModel.Province_State == "From Diamond Princess")
+                                {
+                                    //ISSUE : Naming special case
+                                    //Deal with Diamond Princess in general
+
+                                    province = GetProvince(covid19DbContext, "From Diamond Princess", regionsByName[rawModel.Country_Region]);
+                                }
+                                else
+                                {
+                                    var provinceKey = GetProvinceKey(rawModel.Country_Region, rawModel.Province_State);
+
+                                    if (string.Compare(rawModel.Province_State, None, StringComparison.OrdinalIgnoreCase) == 0)
+                                    {
+                                        if (!provincesByRegionAndName.TryGetValue(GetProvinceKey(rawModel.Country_Region, EmptyValue), out province))
+                                            province = GetEmptyProvince(regionsByName, provincesByRegionAndName, covid19DbContext, rawModel.Country_Region);
+                                    }
+                                    else
+                                    {
+                                        if (!provincesByRegionAndName.TryGetValue(provinceKey, out province))
+                                        {
+                                            //ISSUE: Something weird here with Hong Kong SAR
+
+                                            //The province was not created so create it
+                                            var region = regionsByName[rawModel.Country_Region];
+                                            province = GetProvince(covid19DbContext, rawModel.Province_State, region);
+                                            provincesByRegionAndName.Add(GetProvinceKey(region.Name, rawModel.Province_State), province);
+                                        }
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                if (!provincesByRegionAndName.TryGetValue(GetProvinceKey(rawModel.Country_Region, EmptyValue), out province))
+                                    province = GetEmptyProvince(regionsByName, provincesByRegionAndName, covid19DbContext, rawModel.Country_Region);
+                            }
+
+                            location.ProvinceId = province.Id;
+
+                            //Craete a new location with N/A
+                            covid19DbContext.Locations.Add(location);
                         }
 
                         var day = covid19DbContext.Days.FirstOrDefault(d =>
@@ -114,18 +176,16 @@ namespace Covid19DB
 
                 covid19DbContext.SaveChanges();
             }
-
-
         }
 
-        private static string GetProviceKey(string regionName, string provinceName)
+        private static string GetProvinceKey(string regionName, string provinceName)
         {
-            return $"{regionName}.{provinceName}";
+            return $"{regionName}.{provinceName.Replace("NONE", EmptyValue, StringComparison.OrdinalIgnoreCase)}";
         }
 
         private static string GetLocationKey(string regionName, string provinceName, string locationName)
         {
-            return $"{regionName}.{provinceName}.{locationName}";
+            return $"{GetProvinceKey(regionName, provinceName)}.{locationName}";
         }
 
         private static Location GetLocation(Covid19DbContext covid19DbContext, RawModel rawModel, Province province)
@@ -148,6 +208,15 @@ namespace Covid19DB
             }
 
             return location;
+        }
+
+        private static Province GetEmptyProvince(Dictionary<string, Region> regionsByName, Dictionary<string, Province> provinces, Covid19DbContext covid19DbContext, string regionName)
+        {
+            var region = regionsByName[regionName];
+            var province = GetProvince(covid19DbContext, EmptyValue, region);
+            var provinceKey = GetProvinceKey(regionName, EmptyValue);
+            provinces.Add(provinceKey, province);
+            return province;
         }
 
         private static Province GetProvince(Covid19DbContext covid19DbContext, string provinceName, Region region)

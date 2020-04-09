@@ -12,6 +12,7 @@ namespace Covid19DB.Model
         public string Name { get; set; }
         public int Fips { get; set; }
         public Guid ProvinceId { get; set; }
+        //public Province Province { get;set;}
         public decimal? Latitude { get; set; }
         public decimal? Longitude { get; set; }
     }
