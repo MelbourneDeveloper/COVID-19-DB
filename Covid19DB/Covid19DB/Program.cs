@@ -67,11 +67,7 @@ namespace Covid19DB
 
                     var provinceName = provinceGrouping.Key;
 
-                    //ISSUE: None name
-                    if (string.Compare(provinceName, None, StringComparison.OrdinalIgnoreCase) == 0)
-                        provinceName = EmptyValue;
-
-                    var province = GetProvince(covid19DbContext, provinceName, region);
+                    var province = GetProvince(covid19DbContext, provinceName, region.Id);
                     provincesByRegionAndName.Add(GetProvinceKey(region.Name, provinceName), province);
                 }
 
@@ -80,7 +76,7 @@ namespace Covid19DB
                 {
                     var rawModel = locationGrouping.First();
                     var region = regionsByName[rawModel.Country_Region];
-                    var province = GetProvince(covid19DbContext, rawModel.Province_State, region);
+                    var province = GetProvince(covid19DbContext, rawModel.Province_State, region.Id);
 
                     var location = GetLocation(covid19DbContext, rawModel.Admin2, rawModel.Lat, rawModel.Long_, province);
 
@@ -115,7 +111,7 @@ namespace Covid19DB
                                     //ISSUE : Naming special case
                                     //Deal with Diamond Princess in general
 
-                                    province = GetProvince(covid19DbContext, "From Diamond Princess", regionsByName[rawModel.Country_Region]);
+                                    province = GetProvince(covid19DbContext, "From Diamond Princess", regionsByName[rawModel.Country_Region].Id);
                                 }
                                 else
                                 {
@@ -134,7 +130,7 @@ namespace Covid19DB
 
                                             //The province was not created so create it
                                             var region = regionsByName[rawModel.Country_Region];
-                                            province = GetProvince(covid19DbContext, rawModel.Province_State, region);
+                                            province = GetProvince(covid19DbContext, rawModel.Province_State, region.Id);
                                             provincesByRegionAndName.Add(GetProvinceKey(region.Name, rawModel.Province_State), province);
                                         }
                                     }
@@ -233,20 +229,27 @@ namespace Covid19DB
             return location;
         }
 
-        private static Province GetEmptyProvince(Dictionary<string, Region> regionsByName, Dictionary<string, Province> provinces, Covid19DbContext covid19DbContext, string regionName)
-        {
-            var region = regionsByName[regionName];
-            var province = GetProvince(covid19DbContext, EmptyValue, region);
-            var provinceKey = GetProvinceKey(regionName, EmptyValue);
-            provinces.Add(provinceKey, province);
-            return province;
-        }
+        //private static Province GetEmptyProvince(Dictionary<string, Region> regionsByName, Dictionary<string, Province> provinces, Covid19DbContext covid19DbContext, string regionName)
+        //{
+        //    var region = regionsByName[regionName];
+        //    var province = GetProvince(covid19DbContext, EmptyValue, region.Id);
+        //    var provinceKey = GetProvinceKey(regionName, EmptyValue);
+        //    provinces.Add(provinceKey, province);
+        //    return province;
+        //}
 
-        private static Province GetProvince(Covid19DbContext covid19DbContext, string provinceName, Region region)
+        private static Province GetProvince(Covid19DbContext covid19DbContext, string provinceName, Guid regionId)
         {
+            //ISSUE: None name
+            if (string.Compare(provinceName, None, StringComparison.OrdinalIgnoreCase) == 0)
+                provinceName = EmptyValue;
+
+            if (string.Compare(provinceName, string.Empty, StringComparison.OrdinalIgnoreCase) == 0)
+                provinceName = EmptyValue;
+
             var province = covid19DbContext.Provinces.FirstOrDefault(r =>
             r.Name == provinceName &&
-            r.RegionId == region.Id
+            r.RegionId == regionId
             );
 
             if (province == null)
@@ -254,7 +257,7 @@ namespace Covid19DB
                 province = new Province
                 {
                     Name = provinceName,
-                    RegionId = region.Id
+                    RegionId = regionId
                 };
                 covid19DbContext.Provinces.Add(province);
             }
