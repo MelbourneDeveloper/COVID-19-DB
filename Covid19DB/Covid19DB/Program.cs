@@ -1,5 +1,6 @@
 ﻿using Covid19DB.Model;
 using Microsoft.VisualBasic.FileIO;
+using SQLitePCL;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -59,7 +60,7 @@ namespace Covid19DB
                     var rawModel = provinceGrouping.First();
                     var region = regionsByName[rawModel.Country_Region];
                     var province = GetProvince(covid19DbContext, provinceGrouping.Key, region);
-                    provincesByRegionName.Add($"{region.Name}.{province.Name}", province);
+                    provincesByRegionName.Add(GetProviceKey(region.Name, province.Name), province);
                 }
 
                 //Add any missing locations
@@ -71,13 +72,42 @@ namespace Covid19DB
 
                     var location = GetLocation(covid19DbContext, rawModel, province);
 
-                    locationsByRegionProvinceName.Add($"{region.Name}.{province.Name}.{location.Name}", location);
+                    locationsByRegionProvinceName.Add(GetLocationKey(region.Name, province.Name, location.Name), location);
                 }
 
                 foreach (var key in modelsByDate.Keys.OrderBy(k => k))
                 {
-                    var rawModel = modelsByDate[key];
+                    var rawModels = modelsByDate[key];
 
+                    foreach (var rawModel in rawModels)
+                    {
+                        var locationKey = GetLocationKey(rawModel.Country_Region, rawModel.Province_State, rawModel.Admin2);
+
+                        locationsByRegionProvinceName.TryGetValue(locationKey, out var location);
+
+                        if (location == null)
+                        {
+
+                        }
+
+                        var day = covid19DbContext.Days.FirstOrDefault(d =>
+                        d.Date == rawModel.Date &&
+                        d.LocationId == location.Id
+                        );
+
+                        if (day == null)
+                        {
+                            day = new Day
+                            {
+                                Date = rawModel.Date,
+                                Cases = rawModel.Confirmed,
+                                Deaths = rawModel.Deaths,
+                                LocationId = location.Id
+                            };
+
+                            covid19DbContext.Days.Add(day);
+                        }
+                    }
 
 
                 }
@@ -86,6 +116,16 @@ namespace Covid19DB
             }
 
 
+        }
+
+        private static string GetProviceKey(string regionName, string provinceName)
+        {
+            return $"{regionName}.{provinceName}";
+        }
+
+        private static string GetLocationKey(string regionName, string provinceName, string locationName)
+        {
+            return $"{regionName}.{provinceName}.{locationName}";
         }
 
         private static Location GetLocation(Covid19DbContext covid19DbContext, RawModel rawModel, Province province)
