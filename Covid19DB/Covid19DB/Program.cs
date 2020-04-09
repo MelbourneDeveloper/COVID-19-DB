@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.Serialization;
 
 namespace Covid19DB
 {
@@ -206,8 +207,14 @@ namespace Covid19DB
 
         private static Location GetLocation(Covid19DbContext covid19DbContext, RawModel rawModel, Province province)
         {
+            var locationName = rawModel.Admin2;
+            if(string.IsNullOrEmpty(locationName))
+            {
+                locationName = EmptyValue;
+            }
+
             var location = covid19DbContext.Locations.FirstOrDefault(l =>
-            l.Name == rawModel.Admin2 &&
+            l.Name == locationName &&
             l.ProvinceId == province.Id
             );
 
@@ -215,7 +222,7 @@ namespace Covid19DB
             {
                 location = new Location
                 {
-                    Name = rawModel.Admin2,
+                    Name = locationName,
                     ProvinceId = province.Id,
                     Latitude = rawModel.Lat,
                     Longitude = rawModel.Long_
