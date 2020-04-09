@@ -12,6 +12,7 @@ namespace Covid19DB
     {
         private const string EmptyValue = "N/A";
         private const string None = "NONE";
+        private static Dictionary<Guid, int?> ConfirmedCasesByLocation = new Dictionary<Guid, int?>();
 
         static void Main(string[] args)
         {
@@ -85,8 +86,6 @@ namespace Covid19DB
                     locationsByRegionProvinceName.Add(GetLocationKey(region.Name, province.Name, location.Name), location);
                 }
 
-                covid19DbContext.SaveChanges();
-
                 foreach (var key in modelsByDate.Keys.OrderBy(k => k))
                 {
                     var rawModels = modelsByDate[key];
@@ -152,6 +151,21 @@ namespace Covid19DB
                             covid19DbContext.Locations.Add(location);
                         }
 
+                        ConfirmedCasesByLocation.TryGetValue(location.Id, out var totalConfirmed);
+
+                        int? currentConfirmed = null;
+                        if (totalConfirmed.HasValue)
+                        {
+                            if (rawModel.Confirmed.HasValue)
+                            {
+                                currentConfirmed = rawModel.Confirmed - totalConfirmed;
+                            }
+                            else
+                            {
+                                //do nothing
+                            }
+                        }
+                  
                         var day = covid19DbContext.Days.FirstOrDefault(d =>
                         d.Date == rawModel.Date &&
                         d.LocationId == location.Id
@@ -162,13 +176,15 @@ namespace Covid19DB
                             day = new Day
                             {
                                 Date = rawModel.Date,
-                                Cases = rawModel.Confirmed,
+                                Cases = currentConfirmed,
                                 Deaths = rawModel.Deaths,
                                 LocationId = location.Id
                             };
 
                             covid19DbContext.Days.Add(day);
                         }
+
+                        if (!ConfirmedCasesByLocation.ContainsKey(location.Id)) ConfirmedCasesByLocation.Add(location.Id, rawModel.Confirmed);
                     }
 
 
@@ -276,6 +292,9 @@ namespace Covid19DB
 
                 var admin2Index = headerNames.IndexOf(nameof(RawModel.Admin2));
 
+                var recoveredIndex = headerNames.IndexOf(nameof(RawModel.Recovered));
+
+
                 var rawModels = new List<RawModel>();
 
                 //Number is 1 based and matches tyhe Github line
@@ -291,7 +310,7 @@ namespace Covid19DB
                         throw new Exception($"Filename: {fileName} Headers: {headerNames.Count} Tokens: {tokens.Count} Line: {i + 1}");
                     }
 
-                    var rawModel = ProcessRow(date, confirmedIndex, deathsIndex, countryRegionIndex, provinceStateIndex, latitudeIndex, longitudeIndex, admin2Index, tokens, headerNames);
+                    var rawModel = ProcessRow(date, confirmedIndex, deathsIndex, countryRegionIndex, provinceStateIndex, latitudeIndex, longitudeIndex, admin2Index, recoveredIndex, tokens, headerNames);
 
                     if (rawModel != null) rawModels.Add(rawModel);
 
@@ -302,10 +321,11 @@ namespace Covid19DB
             }
         }
 
-        private static RawModel ProcessRow(DateTimeOffset date, int confirmedIndex, int deathsIndex, int countryRegionIndex, int provinceStateIndex, int latitudeIndex, int longitudeIndex, int admin2Index, List<string> tokens, List<string> headerNames)
+        private static RawModel ProcessRow(DateTimeOffset date, int confirmedIndex, int deathsIndex, int countryRegionIndex, int provinceStateIndex, int latitudeIndex, int longitudeIndex, int admin2Index, int recoveredIndex, List<string> tokens, List<string> headerNames)
         {
             var confirmedText = tokens[confirmedIndex];
             var deathsText = tokens[deathsIndex];
+            var recoveredText = tokens[recoveredIndex];
 
             string latitudeText = null;
             if (latitudeIndex > -1)
@@ -319,7 +339,7 @@ namespace Covid19DB
                 longitutdeText = tokens[longitudeIndex];
             }
 
-            if (string.IsNullOrEmpty(confirmedText) && string.IsNullOrEmpty(deathsText)) return null;
+            if (string.IsNullOrEmpty(confirmedText) && string.IsNullOrEmpty(deathsText) && string.IsNullOrEmpty(recoveredText)) return null;
 
             decimal? latitude = null;
             if (!string.IsNullOrEmpty(latitudeText))
@@ -343,6 +363,7 @@ namespace Covid19DB
             {
                 Confirmed = !string.IsNullOrEmpty(confirmedText) ? int.Parse(confirmedText) : (int?)null,
                 Deaths = !string.IsNullOrEmpty(deathsText) ? int.Parse(deathsText) : (int?)null,
+                Recovered = !string.IsNullOrEmpty(recoveredText) ? int.Parse(recoveredText) : (int?)null,
                 Country_Region = tokens[countryRegionIndex],
                 Province_State = tokens[provinceStateIndex],
                 Lat = latitude,

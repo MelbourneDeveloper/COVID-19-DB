@@ -10,6 +10,7 @@ namespace Covid19DB
         public decimal? Long_ { get; set; }
         public int? Confirmed { get; set; }
         public int? Deaths { get; set; }
+        public int? Recovered { get; set; }
         public DateTimeOffset Date { get; set; }
         public string Admin2 { get; set; }
     }
