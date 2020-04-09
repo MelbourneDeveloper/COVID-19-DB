@@ -82,7 +82,7 @@ namespace Covid19DB
                     var region = regionsByName[rawModel.Country_Region];
                     var province = GetProvince(covid19DbContext, rawModel.Province_State, region);
 
-                    var location = GetLocation(covid19DbContext, rawModel, province);
+                    var location = GetLocation(covid19DbContext, rawModel.Admin2, rawModel.Lat, rawModel.Long_, province);
 
                     locationsByRegionProvinceName.Add(GetLocationKey(region.Name, province.Name, location.Name), location);
                 }
@@ -166,7 +166,7 @@ namespace Covid19DB
                                 //do nothing
                             }
                         }
-                  
+
                         var day = covid19DbContext.Days.FirstOrDefault(d =>
                         d.Date == rawModel.Date &&
                         d.LocationId == location.Id
@@ -205,10 +205,10 @@ namespace Covid19DB
             return $"{GetProvinceKey(regionName, provinceName)}.{locationName}";
         }
 
-        private static Location GetLocation(Covid19DbContext covid19DbContext, RawModel rawModel, Province province)
+        private static Location GetLocation(Covid19DbContext covid19DbContext, string name, decimal? latitude, decimal? longitude, Province province)
         {
-            var locationName = rawModel.Admin2;
-            if(string.IsNullOrEmpty(locationName))
+            var locationName = name;
+            if (string.IsNullOrEmpty(locationName))
             {
                 locationName = EmptyValue;
             }
@@ -224,8 +224,8 @@ namespace Covid19DB
                 {
                     Name = locationName,
                     ProvinceId = province.Id,
-                    Latitude = rawModel.Lat,
-                    Longitude = rawModel.Long_
+                    Latitude = latitude,
+                    Longitude = longitude
                 };
                 covid19DbContext.Locations.Add(location);
             }
