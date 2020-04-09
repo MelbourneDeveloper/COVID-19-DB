@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
-namespace Covid19DB.Model
+namespace Covid19DB.Entities
 {
     public class Day
     {

@@ -1,7 +1,7 @@
 ﻿using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 
-namespace Covid19DB.Model
+namespace Covid19DB.Entities
 {
     public class Covid19DbContext : DbContext
     {
