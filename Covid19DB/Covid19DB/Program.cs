@@ -1,4 +1,5 @@
 ﻿using Covid19DB.Model;
+using Microsoft.VisualBasic.FileIO;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -22,9 +23,9 @@ namespace Covid19DB
                 var numbers = fileNameWithoutExtension.Split('-').Select(t => int.Parse(t)).ToList();
                 var date = new DateTimeOffset(numbers[2], numbers[0], numbers[1], 0, 0, 0, default);
 
-                var rowModels = ProcessFile(fileName, date);
+                var rawModels = ProcessFile(fileName, date);
 
-                modelsByDate.Add(date, rowModels);
+                modelsByDate.Add(date, rawModels);
             }
 
             var aggregatedData = modelsByDate.Values.Aggregate((a, b) =>
@@ -103,7 +104,7 @@ namespace Covid19DB
                     Latitude = rawModel.Lat,
                     Longitude = rawModel.Long_
                 };
-                covid19DbContext.Provinces.Add(province);
+                covid19DbContext.Locations.Add(location);
             }
 
             return location;
@@ -143,49 +144,53 @@ namespace Covid19DB
 
         private static List<RawModel> ProcessFile(string fileName, DateTimeOffset date)
         {
-            //Read the text
-            var text = File.ReadAllText(fileName);
-
-            var lines = text.Split("\r\n", StringSplitOptions.RemoveEmptyEntries).ToList();
-
-            //Get the indexes of the columns by header name
-            var headerNames = lines[0].Split(',').ToList();
-
-            var confirmedIndex = headerNames.IndexOf(nameof(RawModel.Confirmed));
-            var deathsIndex = headerNames.IndexOf(nameof(RawModel.Deaths));
-
-            var countryRegionIndex = headerNames.IndexOf(nameof(RawModel.Country_Region));
-            //ISSUE: Deal with inconsistent header names
-            if (countryRegionIndex == -1) countryRegionIndex = headerNames.IndexOf("Country/Region");
-
-            var provinceStateIndex = headerNames.IndexOf(nameof(RawModel.Province_State));
-            //ISSUE: Deal with inconsistent header names
-            if (provinceStateIndex == -1) provinceStateIndex = headerNames.IndexOf("Province/State");
-
-            var latitudeIndex = headerNames.IndexOf(nameof(RawModel.Lat));
-            var longitudeIndex = headerNames.IndexOf(nameof(RawModel.Long_));
-
-            var admin2Index = headerNames.IndexOf(nameof(RawModel.Admin2));
-
-            var rawModels = new List<RawModel>();
-
-            //Iterate through the lines in the file
-            for (var i = 1; i < lines.Count; i++)
+            using (var parser = new TextFieldParser(fileName))
             {
-                var lineText = lines[i];
-                var tokens = lineText.Split(',', StringSplitOptions.None).ToList();
+                parser.TextFieldType = FieldType.Delimited;
+                parser.SetDelimiters(",");
 
-                if (tokens.Count != headerNames.Count)
+                var headerNames = parser.ReadFields().ToList();
+
+                var confirmedIndex = headerNames.IndexOf(nameof(RawModel.Confirmed));
+                var deathsIndex = headerNames.IndexOf(nameof(RawModel.Deaths));
+
+                var countryRegionIndex = headerNames.IndexOf(nameof(RawModel.Country_Region));
+                //ISSUE: Deal with inconsistent header names
+                if (countryRegionIndex == -1) countryRegionIndex = headerNames.IndexOf("Country/Region");
+
+                var provinceStateIndex = headerNames.IndexOf(nameof(RawModel.Province_State));
+                //ISSUE: Deal with inconsistent header names
+                if (provinceStateIndex == -1) provinceStateIndex = headerNames.IndexOf("Province/State");
+
+                var latitudeIndex = headerNames.IndexOf(nameof(RawModel.Lat));
+                var longitudeIndex = headerNames.IndexOf(nameof(RawModel.Long_));
+
+                var admin2Index = headerNames.IndexOf(nameof(RawModel.Admin2));
+
+                var rawModels = new List<RawModel>();
+
+                //Number is 1 based and matches tyhe Github line
+                var i = 2;
+
+                //Iterate through the lines in the file
+                while (!parser.EndOfData)
                 {
-                    throw new Exception($"Filename: {fileName} Headers: {headerNames.Count} Tokens: {tokens.Count} Line: {i + 1}");
+                    var tokens = parser.ReadFields().ToList();
+
+                    if (tokens.Count != headerNames.Count)
+                    {
+                        throw new Exception($"Filename: {fileName} Headers: {headerNames.Count} Tokens: {tokens.Count} Line: {i + 1}");
+                    }
+
+                    var rawModel = ProcessRow(date, confirmedIndex, deathsIndex, countryRegionIndex, provinceStateIndex, latitudeIndex, longitudeIndex, admin2Index, tokens, headerNames);
+
+                    if (rawModel != null) rawModels.Add(rawModel);
+
+                    i++;
                 }
 
-                var rawModel = ProcessRow(date, confirmedIndex, deathsIndex, countryRegionIndex, provinceStateIndex, latitudeIndex, longitudeIndex, admin2Index, tokens, headerNames);
-
-                if (rawModel != null) rawModels.Add(rawModel);
+                return rawModels;
             }
-
-            return rawModels;
         }
 
         private static RawModel ProcessRow(DateTimeOffset date, int confirmedIndex, int deathsIndex, int countryRegionIndex, int provinceStateIndex, int latitudeIndex, int longitudeIndex, int admin2Index, List<string> tokens, List<string> headerNames)
