@@ -172,9 +172,13 @@ namespace Covid19DB
             //Iterate through the lines in the file
             for (var i = 1; i < lines.Count; i++)
             {
-                var tokens = lines[i].Split(',', StringSplitOptions.None).ToList();
+                var lineText = lines[i];
+                var tokens = lineText.Split(',', StringSplitOptions.None).ToList();
 
-                if (tokens.Count != headerNames.Count) throw new Exception($"Filename: {fileName} Headers: {headerNames.Count} Tokens: {tokens.Count} Line: {i + 1}");
+                if (tokens.Count != headerNames.Count)
+                {
+                    throw new Exception($"Filename: {fileName} Headers: {headerNames.Count} Tokens: {tokens.Count} Line: {i + 1}");
+                }
 
                 var rawModel = ProcessRow(date, confirmedIndex, deathsIndex, countryRegionIndex, provinceStateIndex, latitudeIndex, longitudeIndex, admin2Index, tokens, headerNames);
 
