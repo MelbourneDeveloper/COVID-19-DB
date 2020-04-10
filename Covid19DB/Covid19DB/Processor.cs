@@ -3,7 +3,6 @@ using Covid19DB.Repositories;
 using Covid19DB.Services;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Covid19DB
 {
@@ -40,13 +39,15 @@ namespace Covid19DB
         #region Public Methods
         public void Process(IEnumerable<RowModel> rows)
         {
+            if (rows == null) throw new ArgumentNullException(nameof(rows));
+
             foreach (var rawModel in rows)
             {
                 var region = GetRegion(rawModel.Country_Region);
                 var province = GetProvince(rawModel.Province_State, region);
                 var location = GetLocation(rawModel.Admin2, rawModel.Lat, rawModel.Long_, province);
 
-                _confirmedCasesByLocation.TryGetValue(location.Id, out var totalConfirmed);
+                _ = _confirmedCasesByLocation.TryGetValue(location.Id, out var totalConfirmed);
 
                 int? currentConfirmed = null;
                 if (totalConfirmed.HasValue)
@@ -71,13 +72,11 @@ namespace Covid19DB
         #region Private Methods
         private static string ReplaceEmpty(string name)
         {
-            if (
-                name == null ||
+            return name == null ||
                 string.Compare(name, None, StringComparison.OrdinalIgnoreCase) == 0 ||
                 string.Compare(name, string.Empty, StringComparison.OrdinalIgnoreCase) == 0
-                ) return EmptyValue;
-
-            return name;
+                ? EmptyValue
+                : name;
         }
 
         private static string GetProvinceKey(string regionName, string provinceName)

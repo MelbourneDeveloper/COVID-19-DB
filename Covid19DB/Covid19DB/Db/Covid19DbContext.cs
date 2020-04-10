@@ -17,7 +17,7 @@ namespace Covid19DB.Db
         #region Constructor
         public Covid19DbContext()
         {
-            Database.EnsureCreated();
+            _ = Database.EnsureCreated();
         }
         #endregion
 
@@ -31,9 +31,8 @@ namespace Covid19DB.Db
 
             //Create the database if it doesn't already exist
             command.CommandText = "PRAGMA foreign_keys = ON;";
-            command.ExecuteNonQuery();
-
-            optionsBuilder.UseSqlite(connection);
+            _ = command.ExecuteNonQuery();
+            _ = optionsBuilder.UseSqlite(connection);
 
             base.OnConfiguring(optionsBuilder);
         }

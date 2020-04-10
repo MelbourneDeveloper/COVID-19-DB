@@ -26,6 +26,8 @@ namespace Covid19DB.Repositories
 
         public LocationDay GetOrInsert(DateTimeOffset date, Location location, int? cases, int? deaths, int? recoveries)
         {
+            if (location == null) throw new ArgumentNullException(nameof(location));
+
             var day = Get(date, location.Id);
 
             if (day != null) return day;

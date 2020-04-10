@@ -9,7 +9,7 @@ namespace Covid19DB.Services
 
         public T Get(string key)
         {
-            _dictionary.TryGetValue(key, out T item);
+            _dictionary.TryGetValue(key, out var item);
             return item;
         }
 

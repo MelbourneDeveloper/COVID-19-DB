@@ -1,5 +1,7 @@
 ﻿using Covid19DB.Db;
 using Covid19DB.Repositories;
+using System;
+using System.Linq;
 
 namespace Covid19DB
 {
@@ -7,9 +9,11 @@ namespace Covid19DB
     {
         private static void Main(string[] args)
         {
-            var csvReader = new CsvReader();
+            var directoryPath = args.FirstOrDefault();
 
-            var rows = csvReader.ReadCsvFiles(@"C:\Code\COVID-19\csse_covid_19_data\csse_covid_19_daily_reports");
+            if (string.IsNullOrEmpty(directoryPath)) throw new ArgumentException("Daily Reports Directory not specified");
+
+            var rows = CsvReader.ReadCsvFiles(directoryPath);
 
             using var covid19DbContext = new Covid19DbContext();
 

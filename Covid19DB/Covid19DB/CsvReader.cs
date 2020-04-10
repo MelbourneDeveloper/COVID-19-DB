@@ -6,14 +6,14 @@ using System.Linq;
 
 namespace Covid19DB
 {
-    public class CsvReader
+    public static class CsvReader
     {
-        public IEnumerable<RowModel> ReadCsvFiles(string dailyReportsFolder)
+        public static IEnumerable<RowModel> ReadCsvFiles(string dailyReportsDirectoryPath)
         {
             var modelsByDate = new Dictionary<DateTimeOffset, List<RowModel>>();
 
             //Iterate through the files
-            foreach (var fileName in Directory.GetFiles(dailyReportsFolder, "*.csv"))
+            foreach (var fileName in Directory.GetFiles(dailyReportsDirectoryPath, "*.csv"))
             {
                 //Get the date
                 var fileNameWithoutExtension = Path.GetFileNameWithoutExtension(fileName);
@@ -39,9 +39,9 @@ namespace Covid19DB
             return rows;
         }
 
-        private List<RowModel> ProcessFile(string fileName, DateTimeOffset date)
+        private static List<RowModel> ProcessFile(string fileName, DateTimeOffset date)
         {
-            using var parser = new TextFieldParser(fileName) {TextFieldType = FieldType.Delimited};
+            using var parser = new TextFieldParser(fileName) { TextFieldType = FieldType.Delimited };
 
             parser.SetDelimiters(",");
 
@@ -65,7 +65,6 @@ namespace Covid19DB
 
             var recoveredIndex = headerNames.IndexOf(nameof(RowModel.Recovered));
 
-
             var rawModels = new List<RowModel>();
 
             //Number is 1 based and matches tyhe Github line
@@ -74,14 +73,14 @@ namespace Covid19DB
             //Iterate through the lines in the file
             while (!parser.EndOfData)
             {
-                var tokens = parser.ReadFields().ToList();
+                var columnValues = parser.ReadFields().ToList();
 
-                if (tokens.Count != headerNames.Count)
+                if (columnValues.Count != headerNames.Count)
                 {
-                    throw new Exception($"Filename: {fileName} Headers: {headerNames.Count} Tokens: {tokens.Count} Line: {i + 1}");
+                    throw new RowValidationException($"Filename: {fileName} Headers: {headerNames.Count} Tokens: {columnValues.Count} Line: {i + 1}");
                 }
 
-                var rawModel = ProcessRow(date, confirmedIndex, deathsIndex, countryRegionIndex, provinceStateIndex, latitudeIndex, longitudeIndex, admin2Index, recoveredIndex, tokens, headerNames);
+                var rawModel = ProcessRow(date, confirmedIndex, deathsIndex, countryRegionIndex, provinceStateIndex, latitudeIndex, longitudeIndex, admin2Index, recoveredIndex, columnValues);
 
                 if (rawModel != null) rawModels.Add(rawModel);
 
@@ -91,22 +90,22 @@ namespace Covid19DB
             return rawModels;
         }
 
-        private static RowModel ProcessRow(DateTimeOffset date, int confirmedIndex, int deathsIndex, int countryRegionIndex, int provinceStateIndex, int latitudeIndex, int longitudeIndex, int admin2Index, int recoveredIndex, IReadOnlyList<string> tokens, List<string> headerNames)
+        private static RowModel ProcessRow(DateTimeOffset date, int confirmedIndex, int deathsIndex, int countryRegionIndex, int provinceStateIndex, int latitudeIndex, int longitudeIndex, int admin2Index, int recoveredIndex, IReadOnlyList<string> columnValues)
         {
-            var confirmedText = tokens[confirmedIndex];
-            var deathsText = tokens[deathsIndex];
-            var recoveredText = tokens[recoveredIndex];
+            var confirmedText = columnValues[confirmedIndex];
+            var deathsText = columnValues[deathsIndex];
+            var recoveredText = columnValues[recoveredIndex];
 
             string latitudeText = null;
             if (latitudeIndex > -1)
             {
-                latitudeText = tokens[latitudeIndex];
+                latitudeText = columnValues[latitudeIndex];
             }
 
             string longitudeText = null;
             if (longitudeIndex > -1)
             {
-                longitudeText = tokens[longitudeIndex];
+                longitudeText = columnValues[longitudeIndex];
             }
 
             if (string.IsNullOrEmpty(confirmedText) && string.IsNullOrEmpty(deathsText) && string.IsNullOrEmpty(recoveredText)) return null;
@@ -126,7 +125,7 @@ namespace Covid19DB
             string admin2Text = null;
             if (admin2Index > -1)
             {
-                admin2Text = tokens[admin2Index];
+                admin2Text = columnValues[admin2Index];
             }
 
             return new RowModel
@@ -134,8 +133,8 @@ namespace Covid19DB
                 Confirmed = !string.IsNullOrEmpty(confirmedText) ? int.Parse(confirmedText) : (int?)null,
                 Deaths = !string.IsNullOrEmpty(deathsText) ? int.Parse(deathsText) : (int?)null,
                 Recovered = !string.IsNullOrEmpty(recoveredText) ? int.Parse(recoveredText) : (int?)null,
-                Country_Region = tokens[countryRegionIndex],
-                Province_State = tokens[provinceStateIndex],
+                Country_Region = columnValues[countryRegionIndex],
+                Province_State = columnValues[provinceStateIndex],
                 Lat = latitude,
                 Long_ = longitude,
                 Date = date,
