@@ -67,7 +67,7 @@ namespace Covid19DB
 
             var recoveredIndex = headerNames.IndexOf(nameof(RowModel.Recovered));
 
-            var rawModels = new List<RowModel>();
+            var rowModels = new List<RowModel>();
 
             //Number is 1 based and matches tyhe Github line
             var i = 2;
@@ -82,14 +82,14 @@ namespace Covid19DB
                     throw new RowValidationException($"Filename: {fileName} Headers: {headerNames.Count} Tokens: {columnValues.Count} Line: {i + 1}");
                 }
 
-                var rawModel = ProcessRow(date, confirmedIndex, deathsIndex, countryRegionIndex, provinceStateIndex, latitudeIndex, longitudeIndex, admin2Index, recoveredIndex, columnValues);
+                var rowModel = ProcessRow(date, confirmedIndex, deathsIndex, countryRegionIndex, provinceStateIndex, latitudeIndex, longitudeIndex, admin2Index, recoveredIndex, columnValues);
 
-                if (rawModel != null) rawModels.Add(rawModel);
+                if (rowModel != null) rowModels.Add(rowModel);
 
                 i++;
             }
 
-            return rawModels;
+            return rowModels;
         }
 
         private static RowModel ProcessRow(DateTimeOffset date, int confirmedIndex, int deathsIndex, int countryRegionIndex, int provinceStateIndex, int latitudeIndex, int longitudeIndex, int admin2Index, int recoveredIndex, IReadOnlyList<string> columnValues)

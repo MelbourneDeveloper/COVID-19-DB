@@ -35,7 +35,7 @@ namespace Covid19DB.Repositories
             day = new LocationDay
             {
                 Date = date,
-                Cases = cases,
+                NewCases = cases,
                 Deaths = deaths,
                 Location = location,
                 Recoveries = recoveries

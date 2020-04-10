@@ -54,6 +54,7 @@ namespace Covid19DB
                 var currentDeaths = GetDailyValue(_deathsByLocation, location.Id, rawModel.Deaths);
                 var currentRecoveries = GetDailyValue(_recoveriesByLocation, location.Id, rawModel.Recovered);
 
+
                 _ = _locationDayRepository.GetOrInsert(rawModel.Date, location, currentConfirmed, currentDeaths, currentRecoveries);
 
                 if (!_confirmedCasesByLocation.ContainsKey(location.Id)) _confirmedCasesByLocation.Add(location.Id, rawModel.Confirmed);
@@ -64,12 +65,18 @@ namespace Covid19DB
         {
             _ = calculatedValuesByLocationId.TryGetValue(locationId, out var total);
             int? returnValue = null;
-            if (total.HasValue)
+
+            if (rowValue.HasValue)
             {
-                if (rowValue.HasValue)
+                if (total.HasValue)
                 {
                     returnValue = rowValue - total;
                     calculatedValuesByLocationId[locationId] = total + returnValue;
+                }
+                else
+                {
+                    returnValue = rowValue;
+                    calculatedValuesByLocationId.Add(locationId, rowValue);
                 }
             }
 
