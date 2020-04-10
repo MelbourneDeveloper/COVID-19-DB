@@ -34,7 +34,7 @@ namespace Covid19DB.Repositories
 
             day = new LocationDay
             {
-                Date = date,
+                DateOfCount = date,
                 NewCases = cases,
                 Deaths = deaths,
                 Location = location,
@@ -49,7 +49,7 @@ namespace Covid19DB.Repositories
         public LocationDay Get(DateTimeOffset date, Guid locationId)
         {
             return _covid19DbContext.LocationDays.FirstOrDefault(d =>
-            d.Date == date &&
+            d.DateOfCount == date &&
             d.Location.Id == locationId
             );
         }

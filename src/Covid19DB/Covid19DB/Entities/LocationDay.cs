@@ -8,7 +8,7 @@ namespace Covid19DB.Entities
     {
         [Key]
         public Guid Id { get; set; }
-        public DateTimeOffset Date { get; set; }
+        public DateTimeOffset DateOfCount { get; set; }
         public int? NewCases { get; set; }
         public int? Deaths { get; set; }
         public int? Recoveries { get; set; }

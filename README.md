@@ -17,7 +17,7 @@ Use the [DB Browser For SQLite](https://sqlitebrowser.org/) to open the database
 
 ![Database Structure](Images/DBStructure.png)
 
-The `LocationDays` table contains `LocationId`, `Date`, `Deaths`, `Recoveries`, and `NewCases`. The location "EEC1C1C5-179A-4050-BFA6-54F26206E7D3" represents anywhere in Victoria, Australia. To summarise all recoveries, run this query:
+The `LocationDays` table contains `LocationId`, `DateOfCount`, `Deaths`, `Recoveries`, and `NewCases`. The location "EEC1C1C5-179A-4050-BFA6-54F26206E7D3" represents anywhere in Victoria, Australia. To summarise all recoveries, run this query:
 
 ```sql
 select sum(recoveries) from locationdays 
@@ -26,6 +26,6 @@ where locationid = 'EEC1C1C5-179A-4050-BFA6-54F26206E7D3'
 
 ![Summary Query](Images/SummaryQuery.png)
 
-## How  Can I help?
+## How  Can I Help?
 
 The hope is that this database can be thoroughly tested and validated. The hope is that this database will help create more accurate reporting data and allow people to more readily report on the figures. The database is not ready for this. It needs rigorous validation. Please comment on the database structure and code to help make this database ready for reporting.
