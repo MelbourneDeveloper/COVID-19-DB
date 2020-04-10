@@ -14,7 +14,7 @@ namespace Covid19DB.Repositories
             _covid19DbContext = covid19DbContext;
         }
 
-        public Location Get(Guid Id)
+        public Location Get(Guid id)
         {
             throw new NotImplementedException();
         }
@@ -31,17 +31,16 @@ namespace Covid19DB.Repositories
             l.Province.Id == province.Id
             );
 
-            if (location == null)
+            if (location != null) return location;
+
+            location = new Location
             {
-                location = new Location
-                {
-                    Name = locationName,
-                    Province = province,
-                    Latitude = latitude,
-                    Longitude = longitude
-                };
-                _covid19DbContext.Locations.Add(location);
-            }
+                Name = locationName,
+                Province = province,
+                Latitude = latitude,
+                Longitude = longitude
+            };
+            _covid19DbContext.Locations.Add(location);
 
             return location;
         }

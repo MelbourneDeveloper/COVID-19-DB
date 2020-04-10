@@ -40,10 +40,6 @@ namespace Covid19DB
         #region Public Methods
         public void Process(IEnumerable<RowModel> rows)
         {
-            var regionGroupings = rows.Where(a => !string.IsNullOrEmpty(a.Country_Region)).GroupBy(a => a.Country_Region).ToList();
-            var provinceGroupings = rows.Where(a => !string.IsNullOrEmpty(a.Province_State)).GroupBy(a => a.Province_State).ToList();
-            var locationGroupings = rows.Where(a => !string.IsNullOrEmpty(a.Admin2)).GroupBy(a => a.Admin2).ToList();
-
             foreach (var rawModel in rows)
             {
                 var region = GetRegion(rawModel.Country_Region);
@@ -73,7 +69,7 @@ namespace Covid19DB
         #endregion
 
         #region Private Methods
-        private string ReplaceEmpty(string name)
+        private static string ReplaceEmpty(string name)
         {
             if (
                 name == null ||
@@ -84,12 +80,12 @@ namespace Covid19DB
             return name;
         }
 
-        private string GetProvinceKey(string regionName, string provinceName)
+        private static string GetProvinceKey(string regionName, string provinceName)
         {
             return $"{ReplaceEmpty(regionName)}.{ReplaceEmpty(provinceName)}";
         }
 
-        private string GetLocationKey(string regionName, string provinceName, string locationName)
+        private static string GetLocationKey(string regionName, string provinceName, string locationName)
         {
             return $"{GetProvinceKey(regionName, provinceName)}.{ReplaceEmpty(locationName)}";
         }
@@ -128,11 +124,11 @@ namespace Covid19DB
         {
             var region = _regionsByName.Get(regionName);
 
-            if (region == null)
-            {
-                region = _regionRepository.GetOrInsert(regionName);
-                _regionsByName.Add(regionName, region);
-            }
+            if (region != null) return region;
+
+            region = _regionRepository.GetOrInsert(regionName);
+
+            _regionsByName.Add(regionName, region);
 
             return region;
         }

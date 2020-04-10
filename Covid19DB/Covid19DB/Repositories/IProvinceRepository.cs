@@ -1,5 +1,4 @@
 ﻿using Covid19DB.Entities;
-using System;
 
 namespace Covid19DB.Repositories
 {

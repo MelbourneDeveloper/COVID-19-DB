@@ -14,7 +14,7 @@ namespace Covid19DB.Repositories
             _covid19DbContext = covid19DbContext;
         }
 
-        public LocationDay Get(Guid Id)
+        public LocationDay Get(Guid id)
         {
             throw new NotImplementedException();
         }
@@ -28,19 +28,18 @@ namespace Covid19DB.Repositories
         {
             var day = Get(date, location.Id);
 
-            if (day == null)
-            {
-                day = new LocationDay
-                {
-                    Date = date,
-                    Cases = cases,
-                    Deaths = deaths,
-                    Location = location,
-                    Recoveries = recoveries
-                };
+            if (day != null) return day;
 
-                _covid19DbContext.LocationDays.Add(day);
-            }
+            day = new LocationDay
+            {
+                Date = date,
+                Cases = cases,
+                Deaths = deaths,
+                Location = location,
+                Recoveries = recoveries
+            };
+
+            _covid19DbContext.LocationDays.Add(day);
 
             return day;
         }

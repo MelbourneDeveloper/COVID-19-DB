@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+// ReSharper disable UnusedAutoPropertyAccessor.Global
 
 namespace Covid19DB.Entities
 {

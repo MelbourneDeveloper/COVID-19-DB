@@ -14,7 +14,7 @@ namespace Covid19DB.Repositories
             _covid19DbContext = covid19DbContext;
         }
 
-        public Region Get(Guid Id)
+        public Region Get(Guid id)
         {
             throw new NotImplementedException();
         }
@@ -27,11 +27,12 @@ namespace Covid19DB.Repositories
         public Region GetOrInsert(string regionName)
         {
             var region = Get(regionName);
-            if (region == null)
-            {
-                region = new Region { Name = regionName };
-                Insert(region);
-            }
+
+            if (region != null) return region;
+
+            region = new Region { Name = regionName };
+
+            Insert(region);
 
             return region;
         }
