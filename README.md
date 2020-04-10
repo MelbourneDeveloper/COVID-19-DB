@@ -32,7 +32,7 @@ More examples will be added here.
 
 ## Run the Code (Generate the Database)
 
-- Clone the [Johns Hopkis repo](https://github.com/CSSEGISandData/COVID-19).
+- Clone the [Johns Hopkins repo](https://github.com/CSSEGISandData/COVID-19).
 - Modify the [launch settings](https://github.com/MelbourneDeveloper/COVID-19-DB/blob/4f27a3fa49e11a780fda1d5dbad2b616cd7d3cd6/src/Covid19DB/Covid19DB/Properties/launchSettings.json#L5) to point to the `csse_covid_19_data/csse_covid_19_daily_reports` folder of the repo
 - Run the app
 
