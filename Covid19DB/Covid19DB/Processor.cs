@@ -50,9 +50,9 @@ namespace Covid19DB
                 var province = GetProvince(rawModel.Province_State, region);
                 var location = GetLocation(rawModel.Admin2, rawModel.Lat, rawModel.Long_, province);
 
-                var currentConfirmed = GetDailyValue(_confirmedCasesByLocation, location, rawModel.Confirmed);
-                var currentDeaths = GetDailyValue(_deathsByLocation, location, rawModel.Deaths);
-                var currentRecoveries = GetDailyValue(_recoveriesByLocation, location, rawModel.Recovered);
+                var currentConfirmed = GetDailyValue(_confirmedCasesByLocation, location.Id, rawModel.Confirmed);
+                var currentDeaths = GetDailyValue(_deathsByLocation, location.Id, rawModel.Deaths);
+                var currentRecoveries = GetDailyValue(_recoveriesByLocation, location.Id, rawModel.Recovered);
 
                 _ = _locationDayRepository.GetOrInsert(rawModel.Date, location, currentConfirmed, currentDeaths, currentRecoveries);
 
@@ -60,19 +60,16 @@ namespace Covid19DB
             }
         }
 
-        private static int? GetDailyValue(Dictionary<Guid, int?> calculatedValues, Location location, int? rowValue)
+        private static int? GetDailyValue(Dictionary<Guid, int?> calculatedValuesByLocationId, Guid locationId, int? rowValue)
         {
-            _ = calculatedValues.TryGetValue(location.Id, out var total);
+            _ = calculatedValuesByLocationId.TryGetValue(locationId, out var total);
             int? returnValue = null;
             if (total.HasValue)
             {
                 if (rowValue.HasValue)
                 {
                     returnValue = rowValue - total;
-                }
-                else
-                {
-                    //do nothing
+                    calculatedValuesByLocationId[locationId] = total + returnValue;
                 }
             }
 
