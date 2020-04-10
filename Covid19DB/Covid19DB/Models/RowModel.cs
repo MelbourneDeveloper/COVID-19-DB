@@ -1,7 +1,7 @@
 ﻿using System;
 // ReSharper disable InconsistentNaming
 
-namespace Covid19DB
+namespace Covid19DB.Models
 {
     public class RowModel
     {

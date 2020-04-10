@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.Serialization;
 
-namespace Covid19DB
+namespace Covid19DB.Exceptions
 {
     [Serializable]
     public class RowValidationException : Exception

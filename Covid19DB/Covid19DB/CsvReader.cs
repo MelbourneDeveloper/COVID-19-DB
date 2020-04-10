@@ -1,4 +1,6 @@
-﻿using Microsoft.VisualBasic.FileIO;
+﻿using Covid19DB.Exceptions;
+using Covid19DB.Models;
+using Microsoft.VisualBasic.FileIO;
 using System;
 using System.Collections.Generic;
 using System.IO;
