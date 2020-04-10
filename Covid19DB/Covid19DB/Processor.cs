@@ -37,68 +37,40 @@ namespace Covid19DB
         #endregion
 
         #region Public Methods
-        public void Process(IEnumerable<RawModel> _rows)
+        public void Process(IEnumerable<RawModel> rows)
         {
-            var regionGroupings = _rows.Where(a => !string.IsNullOrEmpty(a.Country_Region)).GroupBy(a => a.Country_Region).ToList();
-            var provinceGroupings = _rows.Where(a => !string.IsNullOrEmpty(a.Province_State)).GroupBy(a => a.Province_State).ToList();
-            var locationGroupings = _rows.Where(a => !string.IsNullOrEmpty(a.Admin2)).GroupBy(a => a.Admin2).ToList();
+            var regionGroupings = rows.Where(a => !string.IsNullOrEmpty(a.Country_Region)).GroupBy(a => a.Country_Region).ToList();
+            var provinceGroupings = rows.Where(a => !string.IsNullOrEmpty(a.Province_State)).GroupBy(a => a.Province_State).ToList();
+            var locationGroupings = rows.Where(a => !string.IsNullOrEmpty(a.Admin2)).GroupBy(a => a.Admin2).ToList();
 
             //Add any missing regions
             foreach (var regionGrouping in regionGroupings)
             {
-                var regionName = regionGrouping.Key;
-                var region = GetRegion(_regionRepository, regionName);
-                _regionsByName.Add(regionGrouping.Key, region);
+                _ = GetRegion(regionGrouping.Key);
             }
 
             //Add any missing provinces
             foreach (var provinceGrouping in provinceGroupings)
             {
                 var rawModel = provinceGrouping.First();
-                var region = _regionsByName.Get(rawModel.Country_Region);
-
-                var provinceName = provinceGrouping.Key;
-
-                var province = GetProvince(_provinceRepository, provinceName, region);
-                _provincesByRegionAndName.Add(GetProvinceKey(region.Name, provinceName), province);
+                var region = GetRegion(rawModel.Country_Region);
+                _ = GetProvince(provinceGrouping.Key, region);
             }
 
             //Add any missing locations
             foreach (var locationGrouping in locationGroupings)
             {
                 var rawModel = locationGrouping.First();
-                var region = _regionsByName.Get(rawModel.Country_Region);
-                var province = GetProvince(_provinceRepository, rawModel.Province_State, region);
-
-                var location = GetLocation(_locationRepository, rawModel.Admin2, rawModel.Lat, rawModel.Long_, province);
-
-                _locationsByRegionProvinceName.Add(GetLocationKey(region.Name, province.Name, location.Name), location);
+                var region = GetRegion(rawModel.Country_Region);
+                var province = GetProvince(rawModel.Province_State, region);
+                _ = GetLocation(rawModel.Admin2, rawModel.Lat, rawModel.Long_, province);
             }
 
-            foreach (var rawModel in _rows)
+            foreach (var rawModel in rows)
             {
-
-                var locationKey = GetLocationKey(rawModel.Country_Region, rawModel.Province_State, rawModel.Admin2);
-
-                var location = _locationsByRegionProvinceName.Get(locationKey);
-
-                if (location == null)
-                {
-                    //Location is empty
-
-                    var region = GetRegion(_regionRepository, rawModel.Country_Region);
-
-                    var province = GetProvince(_provinceRepository, rawModel.Province_State, region);
-
-                    location = new Location
-                    {
-                        Name = EmptyValue,
-                        ProvinceId = province.Id,
-                    };
-
-                    //Craete a new location with N/A
-                    _locationRepository.Insert(location);
-                }
+                var region = GetRegion(rawModel.Country_Region);
+                var province = GetProvince(rawModel.Province_State, region);
+                var location = GetLocation(rawModel.Admin2, rawModel.Lat, rawModel.Long_, province);
 
                 _confirmedCasesByLocation.TryGetValue(location.Id, out var totalConfirmed);
 
@@ -123,38 +95,6 @@ namespace Covid19DB
         #endregion
 
         #region Private Methods
-        private string GetProvinceKey(string regionName, string provinceName)
-        {
-            return $"{ReplaceEmpty(regionName)}.{ReplaceEmpty(provinceName)}";
-        }
-
-        private string GetLocationKey(string regionName, string provinceName, string locationName)
-        {
-            return $"{GetProvinceKey(regionName, provinceName)}.{ReplaceEmpty(locationName)}";
-        }
-
-        private Location GetLocation(ILocationRepository locationRepository, string name, decimal? latitude, decimal? longitude, Province province)
-        {
-            var locationKey = GetLocationKey(province.Region.Name, province.Name, name);
-
-            var location = _locationsByRegionProvinceName.Get(locationKey);
-
-            if (location != null) return location;
-
-            return locationRepository.GetOrInsert(ReplaceEmpty(name), province.Id, latitude, longitude);
-        }
-
-        private Province GetProvince(IProvinceRepository provinceRepository, string provinceName, Region region)
-        {
-            var provinceKey = GetProvinceKey(region.Name, provinceName);
-
-            var province = _provincesByRegionAndName.Get(provinceKey);
-
-            if (province != null) return province;
-
-            return provinceRepository.GetOrInsert(ReplaceEmpty(provinceName), region.Id);
-        }
-
         private string ReplaceEmpty(string name)
         {
             if (
@@ -166,9 +106,57 @@ namespace Covid19DB
             return name;
         }
 
-        private Region GetRegion(IRegionRepository regionRepository, string regionName)
+        private string GetProvinceKey(string regionName, string provinceName)
         {
-            return regionRepository.GetOrInsert(regionName);
+            return $"{ReplaceEmpty(regionName)}.{ReplaceEmpty(provinceName)}";
+        }
+
+        private string GetLocationKey(string regionName, string provinceName, string locationName)
+        {
+            return $"{GetProvinceKey(regionName, provinceName)}.{ReplaceEmpty(locationName)}";
+        }
+
+        private Location GetLocation(string name, decimal? latitude, decimal? longitude, Province province)
+        {
+            var locationKey = GetLocationKey(province.Region.Name, province.Name, name);
+
+            var location = _locationsByRegionProvinceName.Get(locationKey);
+
+            if (location != null) return location;
+
+            location = _locationRepository.GetOrInsert(ReplaceEmpty(name), province.Id, latitude, longitude);
+
+            _locationsByRegionProvinceName.Add(locationKey, location);
+
+            return location;
+        }
+
+        private Province GetProvince(string provinceName, Region region)
+        {
+            var provinceKey = GetProvinceKey(region.Name, provinceName);
+
+            var province = _provincesByRegionAndName.Get(provinceKey);
+
+            if (province != null) return province;
+
+            province = _provinceRepository.GetOrInsert(ReplaceEmpty(provinceName), region.Id);
+
+            _provincesByRegionAndName.Add(provinceKey, province);
+
+            return province;
+        }
+
+        private Region GetRegion(string regionName)
+        {
+            var region = _regionsByName.Get(regionName);
+
+            if (region == null)
+            {
+                region = _regionRepository.GetOrInsert(regionName);
+                _regionsByName.Add(regionName, region);
+            }
+
+            return region;
         }
         #endregion
     }
