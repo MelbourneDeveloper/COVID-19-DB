@@ -30,6 +30,19 @@ More examples will be added here.
 
 ![Summary Query](Images/SummaryQuery.png)
 
+## Run the Code (Generate the Database)
+
+- Clone the [Johns Hopkis repo](https://github.com/CSSEGISandData/COVID-19).
+- Modify the [launch settings](https://github.com/MelbourneDeveloper/COVID-19-DB/blob/4f27a3fa49e11a780fda1d5dbad2b616cd7d3cd6/src/Covid19DB/Covid19DB/Properties/launchSettings.json#L5) to point to the `csse_covid_19_data/csse_covid_19_daily_reports` folder of the repo
+- Run the app
+
+Alternatively, you can run the tool at the command prompt on Windows, OSX, or Linux.
+
+-Go to the folder `src\Covid19DB\Covid19DB` (or `src/Covid19DB/Covid19DB`)
+-Run `dotnet run C:\Code\COVID-19\csse_covid_19_data\csse_covid_19_daily_reports`
+
+*Note: replace the folder path with your folder path
+
 ## How  Can I Help?
 
 The hope is that this database can be thoroughly tested and validated. The hope is that this database will help create more accurate reporting data and allow people to more readily report on the figures. The database is not ready for this. It needs rigorous validation. Please comment on the database structure and code to help make this database ready for reporting.
