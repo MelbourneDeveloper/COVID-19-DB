@@ -1,10 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Covid19DB
 {
     public class Cache<T> : ICache<T>
     {
-        private Dictionary<string, T> _dictionary = new Dictionary<string, T>();
+        private Dictionary<string, T> _dictionary = new Dictionary<string, T>(StringComparer.OrdinalIgnoreCase);
 
         public T Get(string key)
         {
