@@ -40,7 +40,7 @@ namespace Covid19DB
         #endregion
 
         #region Public Methods
-        public void Process(Dictionary<DateTimeOffset, List<RawModel>> modelsByDate)
+        public void Process()
         {
             var regionGroupings = _rows.Where(a => !string.IsNullOrEmpty(a.Country_Region)).GroupBy(a => a.Country_Region).ToList();
             var provinceGroupings = _rows.Where(a => !string.IsNullOrEmpty(a.Province_State)).GroupBy(a => a.Province_State).ToList();
@@ -78,53 +78,49 @@ namespace Covid19DB
                 _locationsByRegionProvinceName.Add(GetLocationKey(region.Name, province.Name, location.Name), location);
             }
 
-            foreach (var key in modelsByDate.Keys.OrderBy(k => k))
+            foreach (var rawModel in _rows.OrderBy(r => r.Date))
             {
-                var rawModels = modelsByDate[key];
 
-                foreach (var rawModel in rawModels)
+                var locationKey = GetLocationKey(rawModel.Country_Region, rawModel.Province_State, rawModel.Admin2);
+
+                var location = _locationsByRegionProvinceName.Get(locationKey);
+
+                if (location == null)
                 {
-                    var locationKey = GetLocationKey(rawModel.Country_Region, rawModel.Province_State, rawModel.Admin2);
+                    //Location is empty
 
-                    var location = _locationsByRegionProvinceName.Get(locationKey);
+                    var region = GetRegion(_regionRepository, rawModel.Country_Region);
 
-                    if (location == null)
+                    var province = GetProvince(_provinceRepository, rawModel.Province_State, region);
+
+                    location = new Location
                     {
-                        //Location is empty
+                        Name = EmptyValue,
+                        ProvinceId = province.Id,
+                    };
 
-                        var region = GetRegion(_regionRepository, rawModel.Country_Region);
-
-                        var province = GetProvince(_provinceRepository, rawModel.Province_State, region);
-
-                        location = new Location
-                        {
-                            Name = EmptyValue,
-                            ProvinceId = province.Id,
-                        };
-
-                        //Craete a new location with N/A
-                        _locationRepository.Insert(location);
-                    }
-
-                    _confirmedCasesByLocation.TryGetValue(location.Id, out var totalConfirmed);
-
-                    int? currentConfirmed = null;
-                    if (totalConfirmed.HasValue)
-                    {
-                        if (rawModel.Confirmed.HasValue)
-                        {
-                            currentConfirmed = rawModel.Confirmed - totalConfirmed;
-                        }
-                        else
-                        {
-                            //do nothing
-                        }
-                    }
-
-                    _ = _locationDayRepository.GetOrInsertLocationDay(rawModel.Date, location.Id, currentConfirmed, rawModel.Deaths, rawModel.Recovered);
-
-                    if (!_confirmedCasesByLocation.ContainsKey(location.Id)) _confirmedCasesByLocation.Add(location.Id, rawModel.Confirmed);
+                    //Craete a new location with N/A
+                    _locationRepository.Insert(location);
                 }
+
+                _confirmedCasesByLocation.TryGetValue(location.Id, out var totalConfirmed);
+
+                int? currentConfirmed = null;
+                if (totalConfirmed.HasValue)
+                {
+                    if (rawModel.Confirmed.HasValue)
+                    {
+                        currentConfirmed = rawModel.Confirmed - totalConfirmed;
+                    }
+                    else
+                    {
+                        //do nothing
+                    }
+                }
+
+                _ = _locationDayRepository.GetOrInsertLocationDay(rawModel.Date, location.Id, currentConfirmed, rawModel.Deaths, rawModel.Recovered);
+
+                if (!_confirmedCasesByLocation.ContainsKey(location.Id)) _confirmedCasesByLocation.Add(location.Id, rawModel.Confirmed);
             }
         }
         #endregion

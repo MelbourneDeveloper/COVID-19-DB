@@ -15,7 +15,7 @@ namespace Covid19DB
         {
             var dailyReportsFolder = @"C:\Code\COVID-19\csse_covid_19_data\csse_covid_19_daily_reports";
 
-            var modelsByDate = new Dictionary<DateTimeOffset, List<RawModel>>();
+            var modelsByDate = new List<List<RawModel>>();
 
             //Iterate through the files
             foreach (var fileName in Directory.GetFiles(dailyReportsFolder, "*.csv"))
@@ -27,7 +27,7 @@ namespace Covid19DB
 
                 var rawModels = ProcessFile(fileName, date);
 
-                modelsByDate.Add(date, rawModels);
+                modelsByDate.Add(rawModels);
             }
 
             using (var covid19DbContext = new Covid19DbContext())
@@ -37,14 +37,14 @@ namespace Covid19DB
                 var locationRepository = new LocationRepository(covid19DbContext);
                 var locationDayRepository = new LocationDayRepository(covid19DbContext);
 
-                var processor = new Processor(provinceRepository, regionRepository, locationRepository, locationDayRepository, modelsByDate.Values.Aggregate((a, b) =>
+                var processor = new Processor(provinceRepository, regionRepository, locationRepository, locationDayRepository, modelsByDate.Aggregate((a, b) =>
                 {
                     var aggregatedList = new List<RawModel>(a);
                     aggregatedList.AddRange(b);
                     return aggregatedList;
                 }));
 
-                processor.Process(modelsByDate);
+                processor.Process();
 
                 covid19DbContext.SaveChanges();
             }
