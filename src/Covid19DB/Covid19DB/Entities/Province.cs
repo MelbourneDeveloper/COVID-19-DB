@@ -1,9 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Text;
+// ReSharper disable UnusedAutoPropertyAccessor.Global
 
-namespace Covid19DB.Model
+namespace Covid19DB.Entities
 {
     public class Province
     {
@@ -11,7 +10,6 @@ namespace Covid19DB.Model
         public Guid Id { get; set; }
         public string Name { get; set; }
         public int Fips { get; set; }
-        public Guid RegionId { get; set; }
         public Region Region { get; set; }
     }
 }
