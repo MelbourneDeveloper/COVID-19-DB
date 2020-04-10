@@ -40,9 +40,9 @@ Alternatively, you can run the tool at the command prompt on Windows, OSX, or Li
 
 - Go to the folder `src\Covid19DB\Covid19DB` (or `src/Covid19DB/Covid19DB`)
 - Run 
-> dotnet run C:\Code\COVID-19\csse_covid_19_data\csse_covid_19_daily_reports
+`dotnet run C:\Code\COVID-19\csse_covid_19_data\csse_covid_19_daily_reports`
 
-*Note: replace the folder path with your folder path
+*Note: replace the folder path with your folder path*
 
 ## How  Can I Help?
 
