@@ -155,7 +155,7 @@ namespace Covid19DB
                         else
                         {
                             province = provincesByRegionAndName.Get(provinceKey);
-                            if (province ==null)
+                            if (province == null)
                                 province = GetEmptyProvince(regionsByName, provincesByRegionAndName, covid19DbContext, rawModel.Country_Region);
                         }
 
@@ -209,35 +209,33 @@ namespace Covid19DB
 
         private static string GetProvinceKey(string regionName, string provinceName)
         {
-            return $"{regionName}.{provinceName.Replace("NONE", EmptyValue, StringComparison.OrdinalIgnoreCase)}";
+            return $"{ReplaceEmpty(regionName)}.{ReplaceEmpty(provinceName)}";
         }
 
         private static string GetLocationKey(string regionName, string provinceName, string locationName)
         {
-            return $"{GetProvinceKey(regionName, provinceName)}.{locationName}";
+            return $"{GetProvinceKey(regionName, provinceName)}.{ReplaceEmpty(locationName)}";
         }
 
         private static Location GetLocation(ILocationRepository locationRepository, string name, decimal? latitude, decimal? longitude, Province province)
         {
-            var locationName = name;
-            if (string.IsNullOrEmpty(locationName))
-            {
-                locationName = EmptyValue;
-            }
-
-            return locationRepository.GetOrInsert(locationName, province.Id, latitude, longitude);
+            return locationRepository.GetOrInsert(ReplaceEmpty(name), province.Id, latitude, longitude);
         }
 
         private static Province GetProvince(IProvinceRepository provinceRepository, string provinceName, Guid regionId)
         {
-            //ISSUE: None name
-            if (string.Compare(provinceName, None, StringComparison.OrdinalIgnoreCase) == 0)
-                provinceName = EmptyValue;
+            return provinceRepository.GetOrInsert(ReplaceEmpty(provinceName), regionId);
+        }
 
-            if (string.Compare(provinceName, string.Empty, StringComparison.OrdinalIgnoreCase) == 0)
-                provinceName = EmptyValue;
+        private static string ReplaceEmpty(string name)
+        {
+            if (
+                name == null ||
+                string.Compare(name, None, StringComparison.OrdinalIgnoreCase) == 0 ||
+                string.Compare(name, string.Empty, StringComparison.OrdinalIgnoreCase) == 0
+                ) return EmptyValue;
 
-            return provinceRepository.GetOrInsert(provinceName, regionId);
+            return name;
         }
 
         private static Region GetRegion(IRegionRepository regionRepository, string regionName)
