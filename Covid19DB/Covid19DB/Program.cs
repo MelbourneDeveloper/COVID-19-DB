@@ -79,7 +79,7 @@ namespace Covid19DB
 
                 var provinceName = provinceGrouping.Key;
 
-                var province = GetProvince(provinceRepository, provinceName, region.Id);
+                var province = GetProvince(provinceRepository, provinceName, region);
                 provincesByRegionAndName.Add(GetProvinceKey(region.Name, provinceName), province);
             }
 
@@ -88,7 +88,7 @@ namespace Covid19DB
             {
                 var rawModel = locationGrouping.First();
                 var region = regionsByName.Get(rawModel.Country_Region);
-                var province = GetProvince(provinceRepository, rawModel.Province_State, region.Id);
+                var province = GetProvince(provinceRepository, rawModel.Province_State, region);
 
                 var location = GetLocation(locationRepository, rawModel.Admin2, rawModel.Lat, rawModel.Long_, province);
 
@@ -109,57 +109,15 @@ namespace Covid19DB
                     {
                         //Location is empty
 
+                        var region = GetRegion(regionRepository, rawModel.Country_Region);
+
+                        var province = GetProvince(provinceRepository, rawModel.Province_State, region);
+
                         location = new Location
                         {
-                            Name = EmptyValue
+                            Name = EmptyValue,
+                            ProvinceId = province.Id,                             
                         };
-
-                        Province province = null;
-
-                        var provinceKey = GetProvinceKey(rawModel.Country_Region, rawModel.Province_State);
-
-                        if (!string.IsNullOrEmpty(rawModel.Province_State))
-                        {
-                            if (rawModel.Province_State == "From Diamond Princess")
-                            {
-                                //ISSUE : Naming special case
-                                //Deal with Diamond Princess in general
-
-                                province = GetProvince(provinceRepository, "From Diamond Princess", regionsByName.Get(rawModel.Country_Region).Id);
-                            }
-                            else
-                            {
-                                if (string.Compare(rawModel.Province_State, None, StringComparison.OrdinalIgnoreCase) == 0)
-                                {
-                                    province = provincesByRegionAndName.Get(provinceKey);
-                                    if (province == null)
-                                    {
-                                        province = GetProvince(regionsByName, provincesByRegionAndName, covid19DbContext, rawModel.Country_Region);
-                                    }
-                                }
-                                else
-                                {
-                                    province = provincesByRegionAndName.Get(provinceKey);
-                                    if (province == null)
-                                    {
-                                        //ISSUE: Something weird here with Hong Kong SAR
-
-                                        //The province was not created so create it
-                                        var region = regionsByName.Get(rawModel.Country_Region);
-                                        province = GetProvince(provinceRepository, rawModel.Province_State, region.Id);
-                                        provincesByRegionAndName.Add(GetProvinceKey(region.Name, rawModel.Province_State), province);
-                                    }
-                                }
-                            }
-                        }
-                        else
-                        {
-                            province = provincesByRegionAndName.Get(provinceKey);
-                            if (province == null)
-                                province = GetEmptyProvince(regionsByName, provincesByRegionAndName, covid19DbContext, rawModel.Country_Region);
-                        }
-
-                        location.ProvinceId = province.Id;
 
                         //Craete a new location with N/A
                         covid19DbContext.Locations.Add(location);
@@ -219,12 +177,24 @@ namespace Covid19DB
 
         private static Location GetLocation(ILocationRepository locationRepository, string name, decimal? latitude, decimal? longitude, Province province)
         {
+            var locationKey = GetLocationKey(province.Region.Name, province.Name, name);
+
+            var location = locationsByRegionProvinceName.Get(locationKey);
+
+            if (location != null) return location;
+
             return locationRepository.GetOrInsert(ReplaceEmpty(name), province.Id, latitude, longitude);
         }
 
-        private static Province GetProvince(IProvinceRepository provinceRepository, string provinceName, Guid regionId)
+        private static Province GetProvince(IProvinceRepository provinceRepository, string provinceName, Region region)
         {
-            return provinceRepository.GetOrInsert(ReplaceEmpty(provinceName), regionId);
+            var provinceKey = GetProvinceKey(region.Name, provinceName);
+
+            var province = provincesByRegionAndName.Get(provinceKey);
+
+            if (province != null) return province;
+
+            return provinceRepository.GetOrInsert(ReplaceEmpty(provinceName), region.Id);
         }
 
         private static string ReplaceEmpty(string name)
