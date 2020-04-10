@@ -60,7 +60,9 @@ namespace Covid19DB
                 if (!_confirmedCasesByLocation.ContainsKey(location.Id)) _confirmedCasesByLocation.Add(location.Id, rawModel.Confirmed);
             }
         }
+        #endregion
 
+        #region Private Methods
         private static int? GetDailyValue(Dictionary<Guid, int?> calculatedValuesByLocationId, Guid locationId, int? rowValue)
         {
             _ = calculatedValuesByLocationId.TryGetValue(locationId, out var total);
@@ -82,9 +84,7 @@ namespace Covid19DB
 
             return returnValue;
         }
-        #endregion
 
-        #region Private Methods
         private static string ReplaceEmpty(string name)
         {
             return name == null ||
