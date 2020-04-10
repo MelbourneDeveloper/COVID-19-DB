@@ -1,4 +1,5 @@
-﻿using Covid19DB.Entities;
+﻿using Covid19DB.Db;
+using Covid19DB.Entities;
 using Covid19DB.Repositories;
 
 namespace Covid19DB
