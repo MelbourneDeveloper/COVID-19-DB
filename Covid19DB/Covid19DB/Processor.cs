@@ -13,6 +13,8 @@ namespace Covid19DB
         private const string EmptyValue = "N/A";
         private const string None = "NONE";
         private readonly Dictionary<Guid, int?> _confirmedCasesByLocation = new Dictionary<Guid, int?>();
+        private readonly Dictionary<Guid, int?> _recoveriesByLocation = new Dictionary<Guid, int?>();
+        private readonly Dictionary<Guid, int?> _deathsByLocation = new Dictionary<Guid, int?>();
         private readonly ICache<Region> _regionsByName = new Cache<Region>();
         private readonly ICache<Province> _provincesByRegionAndName = new Cache<Province>();
         private readonly ICache<Location> _locationsByRegionProvinceName = new Cache<Location>();
@@ -48,25 +50,33 @@ namespace Covid19DB
                 var province = GetProvince(rawModel.Province_State, region);
                 var location = GetLocation(rawModel.Admin2, rawModel.Lat, rawModel.Long_, province);
 
-                _ = _confirmedCasesByLocation.TryGetValue(location.Id, out var totalConfirmed);
+                var currentConfirmed = GetDailyValue(_confirmedCasesByLocation, location, rawModel.Confirmed);
+                var currentDeaths = GetDailyValue(_deathsByLocation, location, rawModel.Deaths);
+                var currentRecoveries = GetDailyValue(_recoveriesByLocation, location, rawModel.Recovered);
 
-                int? currentConfirmed = null;
-                if (totalConfirmed.HasValue)
-                {
-                    if (rawModel.Confirmed.HasValue)
-                    {
-                        currentConfirmed = rawModel.Confirmed - totalConfirmed;
-                    }
-                    else
-                    {
-                        //do nothing
-                    }
-                }
-
-                _ = _locationDayRepository.GetOrInsert(rawModel.Date, location, currentConfirmed, rawModel.Deaths, rawModel.Recovered);
+                _ = _locationDayRepository.GetOrInsert(rawModel.Date, location, currentConfirmed, currentDeaths, currentRecoveries);
 
                 if (!_confirmedCasesByLocation.ContainsKey(location.Id)) _confirmedCasesByLocation.Add(location.Id, rawModel.Confirmed);
             }
+        }
+
+        private static int? GetDailyValue(Dictionary<Guid, int?> calculatedValues, Location location, int? rowValue)
+        {
+            _ = calculatedValues.TryGetValue(location.Id, out var total);
+            int? returnValue = null;
+            if (total.HasValue)
+            {
+                if (rowValue.HasValue)
+                {
+                    returnValue = rowValue - total;
+                }
+                else
+                {
+                    //do nothing
+                }
+            }
+
+            return returnValue;
         }
         #endregion
 
