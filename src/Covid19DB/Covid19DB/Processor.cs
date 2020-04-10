@@ -2,6 +2,7 @@
 using Covid19DB.Models;
 using Covid19DB.Repositories;
 using Covid19DB.Services;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 
@@ -22,6 +23,7 @@ namespace Covid19DB
         private readonly IRegionRepository _regionRepository;
         private readonly ILocationRepository _locationRepository;
         private readonly ILocationDayRepository _locationDayRepository;
+        private readonly ILogger<Processor> _logger;
         #endregion
 
         #region Constructor
@@ -29,13 +31,15 @@ namespace Covid19DB
         IProvinceRepository provinceRepository,
         IRegionRepository regionRepository,
         ILocationRepository locationRepository,
-        ILocationDayRepository locationDayRepository
+        ILocationDayRepository locationDayRepository,
+        ILogger<Processor> logger
             )
         {
             _provinceRepository = provinceRepository;
             _regionRepository = regionRepository;
             _locationRepository = locationRepository;
             _locationDayRepository = locationDayRepository;
+            _logger = logger;
         }
         #endregion
 
@@ -50,12 +54,12 @@ namespace Covid19DB
                 var province = GetProvince(rawModel.Province_State, region);
                 var location = GetLocation(rawModel.Admin2, rawModel.Lat, rawModel.Long_, province);
 
-                var currentConfirmed = GetDailyValue(_confirmedCasesByLocation, location.Id, rawModel.Confirmed);
-                var currentDeaths = GetDailyValue(_deathsByLocation, location.Id, rawModel.Deaths);
-                var currentRecoveries = GetDailyValue(_recoveriesByLocation, location.Id, rawModel.Recovered);
+                var currentNewCases = GetDailyValue(_confirmedCasesByLocation, location.Id, rawModel.Confirmed, "New Cases", rawModel.Date);
+                var currentDeaths = GetDailyValue(_deathsByLocation, location.Id, rawModel.Deaths, "Deaths", rawModel.Date);
+                var currentRecoveries = GetDailyValue(_recoveriesByLocation, location.Id, rawModel.Recovered, "Recoveries", rawModel.Date);
 
 
-                _ = _locationDayRepository.GetOrInsert(rawModel.Date, location, currentConfirmed, currentDeaths, currentRecoveries);
+                _ = _locationDayRepository.GetOrInsert(rawModel.Date, location, currentNewCases, currentDeaths, currentRecoveries);
 
                 if (!_confirmedCasesByLocation.ContainsKey(location.Id)) _confirmedCasesByLocation.Add(location.Id, rawModel.Confirmed);
             }
@@ -63,7 +67,7 @@ namespace Covid19DB
         #endregion
 
         #region Private Methods
-        private static int? GetDailyValue(Dictionary<Guid, int?> calculatedValuesByLocationId, Guid locationId, int? rowValue)
+        private int? GetDailyValue(Dictionary<Guid, int?> calculatedValuesByLocationId, Guid locationId, int? rowValue, string columnName, DateTimeOffset date)
         {
             _ = calculatedValuesByLocationId.TryGetValue(locationId, out var total);
             int? returnValue = null;
@@ -80,6 +84,11 @@ namespace Covid19DB
                     returnValue = rowValue;
                     calculatedValuesByLocationId.Add(locationId, rowValue);
                 }
+            }
+
+            if (returnValue.HasValue && returnValue < 0)
+            {
+                _logger.Log(LogLevel.Warning, default, new CountAnomaly { ColumnName = columnName, Date = date, LocationId = locationId }, null, null);
             }
 
             return returnValue;
