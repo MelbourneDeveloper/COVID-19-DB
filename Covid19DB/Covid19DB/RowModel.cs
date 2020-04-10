@@ -2,7 +2,7 @@
 
 namespace Covid19DB
 {
-    public class RawModel
+    public class RowModel
     {
         public string Country_Region { get; set; }
         public string Province_State { get; set; }

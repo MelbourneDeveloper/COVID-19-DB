@@ -1,5 +1,6 @@
 ﻿using Covid19DB.Entities;
 using Covid19DB.Repositories;
+using Covid19DB.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -37,7 +38,7 @@ namespace Covid19DB
         #endregion
 
         #region Public Methods
-        public void Process(IEnumerable<RawModel> rows)
+        public void Process(IEnumerable<RowModel> rows)
         {
             var regionGroupings = rows.Where(a => !string.IsNullOrEmpty(a.Country_Region)).GroupBy(a => a.Country_Region).ToList();
             var provinceGroupings = rows.Where(a => !string.IsNullOrEmpty(a.Province_State)).GroupBy(a => a.Province_State).ToList();

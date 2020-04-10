@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Covid19DB
+namespace Covid19DB.Services
 {
     public class Cache<T> : ICache<T>
     {

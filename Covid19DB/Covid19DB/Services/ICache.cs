@@ -1,4 +1,4 @@
-﻿namespace Covid19DB
+﻿namespace Covid19DB.Services
 {
     public interface ICache<T>
     {

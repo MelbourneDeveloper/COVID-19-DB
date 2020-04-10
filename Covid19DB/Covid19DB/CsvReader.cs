@@ -10,9 +10,9 @@ namespace Covid19DB
     {
         public class CsvReader
         {
-            public List<RawModel> ReadCsvFiles(string dailyReportsFolder)
+            public List<RowModel> ReadCsvFiles(string dailyReportsFolder)
             {
-                var modelsByDate = new Dictionary<DateTimeOffset, List<RawModel>>();
+                var modelsByDate = new Dictionary<DateTimeOffset, List<RowModel>>();
 
                 //Iterate through the files
                 foreach (var fileName in Directory.GetFiles(dailyReportsFolder, "*.csv"))
@@ -28,7 +28,7 @@ namespace Covid19DB
                 }
 
                 //Sort lists by date
-                var modelsLists = new List<List<RawModel>>();
+                var modelsLists = new List<List<RowModel>>();
                 foreach (var key in modelsByDate.Keys)
                 {
                     modelsLists.Add(modelsByDate[key]);
@@ -37,7 +37,7 @@ namespace Covid19DB
                 //Aggregate all data
                 var rows = modelsLists.Aggregate((a, b) =>
                 {
-                    var aggregatedList = new List<RawModel>(a);
+                    var aggregatedList = new List<RowModel>(a);
                     aggregatedList.AddRange(b);
                     return aggregatedList;
                 });
@@ -45,7 +45,7 @@ namespace Covid19DB
                 return rows;
             }
 
-            private List<RawModel> ProcessFile(string fileName, DateTimeOffset date)
+            private List<RowModel> ProcessFile(string fileName, DateTimeOffset date)
             {
                 using (var parser = new TextFieldParser(fileName))
                 {
@@ -54,26 +54,26 @@ namespace Covid19DB
 
                     var headerNames = parser.ReadFields().ToList();
 
-                    var confirmedIndex = headerNames.IndexOf(nameof(RawModel.Confirmed));
-                    var deathsIndex = headerNames.IndexOf(nameof(RawModel.Deaths));
+                    var confirmedIndex = headerNames.IndexOf(nameof(RowModel.Confirmed));
+                    var deathsIndex = headerNames.IndexOf(nameof(RowModel.Deaths));
 
-                    var countryRegionIndex = headerNames.IndexOf(nameof(RawModel.Country_Region));
+                    var countryRegionIndex = headerNames.IndexOf(nameof(RowModel.Country_Region));
                     //ISSUE: Deal with inconsistent header names
                     if (countryRegionIndex == -1) countryRegionIndex = headerNames.IndexOf("Country/Region");
 
-                    var provinceStateIndex = headerNames.IndexOf(nameof(RawModel.Province_State));
+                    var provinceStateIndex = headerNames.IndexOf(nameof(RowModel.Province_State));
                     //ISSUE: Deal with inconsistent header names
                     if (provinceStateIndex == -1) provinceStateIndex = headerNames.IndexOf("Province/State");
 
-                    var latitudeIndex = headerNames.IndexOf(nameof(RawModel.Lat));
-                    var longitudeIndex = headerNames.IndexOf(nameof(RawModel.Long_));
+                    var latitudeIndex = headerNames.IndexOf(nameof(RowModel.Lat));
+                    var longitudeIndex = headerNames.IndexOf(nameof(RowModel.Long_));
 
-                    var admin2Index = headerNames.IndexOf(nameof(RawModel.Admin2));
+                    var admin2Index = headerNames.IndexOf(nameof(RowModel.Admin2));
 
-                    var recoveredIndex = headerNames.IndexOf(nameof(RawModel.Recovered));
+                    var recoveredIndex = headerNames.IndexOf(nameof(RowModel.Recovered));
 
 
-                    var rawModels = new List<RawModel>();
+                    var rawModels = new List<RowModel>();
 
                     //Number is 1 based and matches tyhe Github line
                     var i = 2;
@@ -99,7 +99,7 @@ namespace Covid19DB
                 }
             }
 
-            private RawModel ProcessRow(DateTimeOffset date, int confirmedIndex, int deathsIndex, int countryRegionIndex, int provinceStateIndex, int latitudeIndex, int longitudeIndex, int admin2Index, int recoveredIndex, List<string> tokens, List<string> headerNames)
+            private RowModel ProcessRow(DateTimeOffset date, int confirmedIndex, int deathsIndex, int countryRegionIndex, int provinceStateIndex, int latitudeIndex, int longitudeIndex, int admin2Index, int recoveredIndex, List<string> tokens, List<string> headerNames)
             {
                 var confirmedText = tokens[confirmedIndex];
                 var deathsText = tokens[deathsIndex];
@@ -137,7 +137,7 @@ namespace Covid19DB
                     admin2Text = tokens[admin2Index];
                 }
 
-                return new RawModel
+                return new RowModel
                 {
                     Confirmed = !string.IsNullOrEmpty(confirmedText) ? int.Parse(confirmedText) : (int?)null,
                     Deaths = !string.IsNullOrEmpty(deathsText) ? int.Parse(deathsText) : (int?)null,
