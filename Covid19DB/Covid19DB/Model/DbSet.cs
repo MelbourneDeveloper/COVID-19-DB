@@ -5,7 +5,7 @@ namespace Covid19DB.Entities
 {
     public class Covid19DbContext : DbContext
     {
-        public DbSet<Day> Days { get; set; }
+        public DbSet<LocationDay> LocationDays { get; set; }
         public DbSet<Location> Locations { get; set; }
         public DbSet<Province> Provinces { get; set; }
         public DbSet<Region> Regions { get; set; }

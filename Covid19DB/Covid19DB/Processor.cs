@@ -19,16 +19,19 @@ namespace Covid19DB
         IProvinceRepository _provinceRepository;
         IRegionRepository _regionRepository;
         ILocationRepository _locationRepository;
+        ILocationDayRepository _locationDayRepository;
 
         public Processor(
         IProvinceRepository provinceRepository,
         IRegionRepository regionRepository,
-        ILocationRepository locationRepository
+        ILocationRepository locationRepository,
+        ILocationDayRepository locationDayRepository
             )
         {
             _provinceRepository = provinceRepository;
             _regionRepository = regionRepository;
             _locationRepository = locationRepository;
+            _locationDayRepository = locationDayRepository;
         }
 
         public void ProcessAll(Dictionary<DateTimeOffset, List<RawModel>> modelsByDate, List<IGrouping<string, RawModel>> regionGroupings, List<IGrouping<string, RawModel>> provinceGroupings, List<IGrouping<string, RawModel>> locationGroupings)
@@ -109,23 +112,7 @@ namespace Covid19DB
                         }
                     }
 
-                    var day = covid19DbContext.Days.FirstOrDefault(d =>
-                    d.Date == rawModel.Date &&
-                    d.LocationId == location.Id
-                    );
-
-                    if (day == null)
-                    {
-                        day = new Day
-                        {
-                            Date = rawModel.Date,
-                            Cases = currentConfirmed,
-                            Deaths = rawModel.Deaths,
-                            LocationId = location.Id
-                        };
-
-                        covid19DbContext.Days.Add(day);
-                    }
+                    _ = _locationDayRepository.GetOrInsertLocationDay(rawModel.Date, location.Id, currentConfirmed, rawModel.Deaths, rawModel.Recovered);
 
                     if (!ConfirmedCasesByLocation.ContainsKey(location.Id)) ConfirmedCasesByLocation.Add(location.Id, rawModel.Confirmed);
                 }

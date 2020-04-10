@@ -47,8 +47,9 @@ namespace Covid19DB
                 var provinceRepository = new ProvinceRepository(covid19DbContext);
                 var regionRepository = new RegionRepository(covid19DbContext);
                 var locationRepository = new LocationRepository(covid19DbContext);
+                var locationDayRepository = new LocationDayRepository(covid19DbContext);
 
-                var processor = new Processor(provinceRepository, regionRepository, locationRepository);
+                var processor = new Processor(provinceRepository, regionRepository, locationRepository, locationDayRepository);
 
                 processor.ProcessAll(modelsByDate, regionGroupings, provinceGroupings, locationGroupings);
 
