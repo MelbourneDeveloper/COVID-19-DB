@@ -6,15 +6,18 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 
 namespace Covid19DB
 {
+
     class Program
-    {
+    {        
         private const string EmptyValue = "N/A";
         private const string None = "NONE";
         private static Dictionary<Guid, int?> ConfirmedCasesByLocation = new Dictionary<Guid, int?>();
         private static IServiceCollection ServiceCollection = new ServiceCollection();
+        private static ICache<Region> regionsByName = new Cache<Region>();
 
         static void Main(string[] args)
         {
@@ -46,7 +49,6 @@ namespace Covid19DB
             var provinceGroupings = aggregatedData.Where(a => !string.IsNullOrEmpty(a.Province_State)).GroupBy(a => a.Province_State).ToList();
             var locationGroupings = aggregatedData.Where(a => !string.IsNullOrEmpty(a.Admin2)).GroupBy(a => a.Admin2).ToList();
 
-            var regionsByName = new Dictionary<string, Region>(StringComparer.OrdinalIgnoreCase);
             var provincesByRegionAndName = new Dictionary<string, Province>(StringComparer.OrdinalIgnoreCase);
             var locationsByRegionProvinceName = new Dictionary<string, Location>(StringComparer.OrdinalIgnoreCase);
 
@@ -56,7 +58,7 @@ namespace Covid19DB
             }
         }
 
-        private static void ProcessAll(Dictionary<DateTimeOffset, List<RawModel>> modelsByDate, List<IGrouping<string, RawModel>> regionGroupings, List<IGrouping<string, RawModel>> provinceGroupings, List<IGrouping<string, RawModel>> locationGroupings, Dictionary<string, Region> regionsByName, Dictionary<string, Province> provincesByRegionAndName, Dictionary<string, Location> locationsByRegionProvinceName, Covid19DbContext covid19DbContext)
+        private static void ProcessAll(Dictionary<DateTimeOffset, List<RawModel>> modelsByDate, List<IGrouping<string, RawModel>> regionGroupings, List<IGrouping<string, RawModel>> provinceGroupings, List<IGrouping<string, RawModel>> locationGroupings, ICache<Region> regionsByName, Dictionary<string, Province> provincesByRegionAndName, Dictionary<string, Location> locationsByRegionProvinceName, Covid19DbContext covid19DbContext)
         {
             IProvinceRepository provinceRepository = new ProvinceRepository(covid19DbContext);
             IRegionRepository regionRepository = new RegionRepository(covid19DbContext);
@@ -74,7 +76,7 @@ namespace Covid19DB
             foreach (var provinceGrouping in provinceGroupings)
             {
                 var rawModel = provinceGrouping.First();
-                var region = regionsByName[rawModel.Country_Region];
+                var region = regionsByName.Get(rawModel.Country_Region);
 
                 var provinceName = provinceGrouping.Key;
 
@@ -86,7 +88,7 @@ namespace Covid19DB
             foreach (var locationGrouping in locationGroupings)
             {
                 var rawModel = locationGrouping.First();
-                var region = regionsByName[rawModel.Country_Region];
+                var region = regionsByName.Get(rawModel.Country_Region);
                 var province = GetProvince(provinceRepository, rawModel.Province_State, region.Id);
 
                 var location = GetLocation(locationRepository, rawModel.Admin2, rawModel.Lat, rawModel.Long_, province);
@@ -122,7 +124,7 @@ namespace Covid19DB
                                 //ISSUE : Naming special case
                                 //Deal with Diamond Princess in general
 
-                                province = GetProvince(provinceRepository, "From Diamond Princess", regionsByName[rawModel.Country_Region].Id);
+                                province = GetProvince(provinceRepository, "From Diamond Princess", regionsByName.Get(rawModel.Country_Region).Id);
                             }
                             else
                             {
@@ -131,7 +133,7 @@ namespace Covid19DB
                                 if (string.Compare(rawModel.Province_State, None, StringComparison.OrdinalIgnoreCase) == 0)
                                 {
                                     if (!provincesByRegionAndName.TryGetValue(GetProvinceKey(rawModel.Country_Region, EmptyValue), out province))
-                                        province = GetEmptyProvince(regionsByName, provincesByRegionAndName, covid19DbContext, rawModel.Country_Region);
+                                        province = GetProvince(regionsByName, provincesByRegionAndName, covid19DbContext, rawModel.Country_Region);
                                 }
                                 else
                                 {
@@ -140,7 +142,7 @@ namespace Covid19DB
                                         //ISSUE: Something weird here with Hong Kong SAR
 
                                         //The province was not created so create it
-                                        var region = regionsByName[rawModel.Country_Region];
+                                        var region = regionsByName.Get(rawModel.Country_Region);
                                         province = GetProvince(provinceRepository, rawModel.Province_State, region.Id);
                                         provincesByRegionAndName.Add(GetProvinceKey(region.Name, rawModel.Province_State), province);
                                     }
@@ -219,7 +221,7 @@ namespace Covid19DB
                 locationName = EmptyValue;
             }
 
-            return locationRepository.GetOrInsert(name, province.Id, latitude, longitude);
+            return locationRepository.GetOrInsert(locationName, province.Id, latitude, longitude);
         }
 
         private static Province GetProvince(IProvinceRepository provinceRepository, string provinceName, Guid regionId)
