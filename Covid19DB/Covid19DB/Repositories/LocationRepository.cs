@@ -24,11 +24,11 @@ namespace Covid19DB.Repositories
             _covid19DbContext.Locations.Add(item);
         }
 
-        public Location GetOrInsert(string locationName, Guid provinceId, decimal? latitude, decimal? longitude)
+        public Location GetOrInsert(string locationName, Province province, decimal? latitude, decimal? longitude)
         {
             var location = _covid19DbContext.Locations.FirstOrDefault(l =>
             l.Name == locationName &&
-            l.ProvinceId == provinceId
+            l.Province.Id == province.Id
             );
 
             if (location == null)
@@ -36,7 +36,7 @@ namespace Covid19DB.Repositories
                 location = new Location
                 {
                     Name = locationName,
-                    ProvinceId = provinceId,
+                    Province = province,
                     Latitude = latitude,
                     Longitude = longitude
                 };

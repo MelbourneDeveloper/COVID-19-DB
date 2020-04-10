@@ -11,7 +11,6 @@ namespace Covid19DB.Entities
         public int? Cases { get; set; }
         public int? Deaths { get; set; }
         public int? Recoveries { get; set; }
-        public Guid LocationId { get; set; }
         public Location Location { get; set; }
     }
 }

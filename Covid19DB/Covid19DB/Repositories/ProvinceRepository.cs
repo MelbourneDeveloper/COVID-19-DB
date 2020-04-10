@@ -29,11 +29,11 @@ namespace Covid19DB.Repositories
             _Covid19DbContext.Provinces.Add(item);
         }
 
-        public Province GetOrInsert(string name, Guid regionId)
+        public Province GetOrInsert(string name, Region region)
         {
             var province = _Covid19DbContext.Provinces.FirstOrDefault(r =>
             r.Name == name &&
-            r.RegionId == regionId
+            r.Region.Id == region.Id
             );
 
             if (province == null)
@@ -41,7 +41,7 @@ namespace Covid19DB.Repositories
                 province = new Province
                 {
                     Name = name,
-                    RegionId = regionId
+                    Region = region
                 };
                 Insert(province);
             }

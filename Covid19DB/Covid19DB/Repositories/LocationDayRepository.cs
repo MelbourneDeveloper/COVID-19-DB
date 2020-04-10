@@ -24,9 +24,9 @@ namespace Covid19DB.Repositories
             throw new NotImplementedException();
         }
 
-        public LocationDay GetOrInsertLocationDay(DateTimeOffset date, Guid locationId, int? cases, int? deaths, int? recoveries)
+        public LocationDay GetOrInsert(DateTimeOffset date, Location location, int? cases, int? deaths, int? recoveries)
         {
-            var day = Get(date, locationId);
+            var day = Get(date, location.Id);
 
             if (day == null)
             {
@@ -35,7 +35,7 @@ namespace Covid19DB.Repositories
                     Date = date,
                     Cases = cases,
                     Deaths = deaths,
-                    LocationId = locationId,
+                    Location = location,
                     Recoveries = recoveries
                 };
 
@@ -49,7 +49,7 @@ namespace Covid19DB.Repositories
         {
             return _covid19DbContext.LocationDays.FirstOrDefault(d =>
             d.Date == date &&
-            d.LocationId == locationId
+            d.Location.Id == locationId
             );
         }
     }

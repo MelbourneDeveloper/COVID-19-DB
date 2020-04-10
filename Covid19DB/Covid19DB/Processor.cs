@@ -43,29 +43,6 @@ namespace Covid19DB
             var provinceGroupings = rows.Where(a => !string.IsNullOrEmpty(a.Province_State)).GroupBy(a => a.Province_State).ToList();
             var locationGroupings = rows.Where(a => !string.IsNullOrEmpty(a.Admin2)).GroupBy(a => a.Admin2).ToList();
 
-            //Add any missing regions
-            foreach (var regionGrouping in regionGroupings)
-            {
-                _ = GetRegion(regionGrouping.Key);
-            }
-
-            //Add any missing provinces
-            foreach (var provinceGrouping in provinceGroupings)
-            {
-                var rawModel = provinceGrouping.First();
-                var region = GetRegion(rawModel.Country_Region);
-                _ = GetProvince(provinceGrouping.Key, region);
-            }
-
-            //Add any missing locations
-            foreach (var locationGrouping in locationGroupings)
-            {
-                var rawModel = locationGrouping.First();
-                var region = GetRegion(rawModel.Country_Region);
-                var province = GetProvince(rawModel.Province_State, region);
-                _ = GetLocation(rawModel.Admin2, rawModel.Lat, rawModel.Long_, province);
-            }
-
             foreach (var rawModel in rows)
             {
                 var region = GetRegion(rawModel.Country_Region);
@@ -87,7 +64,7 @@ namespace Covid19DB
                     }
                 }
 
-                _ = _locationDayRepository.GetOrInsertLocationDay(rawModel.Date, location.Id, currentConfirmed, rawModel.Deaths, rawModel.Recovered);
+                _ = _locationDayRepository.GetOrInsert(rawModel.Date, location, currentConfirmed, rawModel.Deaths, rawModel.Recovered);
 
                 if (!_confirmedCasesByLocation.ContainsKey(location.Id)) _confirmedCasesByLocation.Add(location.Id, rawModel.Confirmed);
             }
@@ -124,7 +101,7 @@ namespace Covid19DB
 
             if (location != null) return location;
 
-            location = _locationRepository.GetOrInsert(ReplaceEmpty(name), province.Id, latitude, longitude);
+            location = _locationRepository.GetOrInsert(ReplaceEmpty(name), province, latitude, longitude);
 
             _locationsByRegionProvinceName.Add(locationKey, location);
 
@@ -139,7 +116,7 @@ namespace Covid19DB
 
             if (province != null) return province;
 
-            province = _provinceRepository.GetOrInsert(ReplaceEmpty(provinceName), region.Id);
+            province = _provinceRepository.GetOrInsert(ReplaceEmpty(provinceName), region);
 
             _provincesByRegionAndName.Add(provinceKey, province);
 

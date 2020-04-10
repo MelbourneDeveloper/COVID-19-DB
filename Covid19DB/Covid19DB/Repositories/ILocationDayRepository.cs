@@ -6,6 +6,6 @@ namespace Covid19DB.Repositories
     public interface ILocationDayRepository : IRepository<LocationDay>
     {
         LocationDay Get(DateTimeOffset date, Guid locationId);
-        LocationDay GetOrInsertLocationDay(DateTimeOffset date, Guid locationId, int? cases, int? deaths, int? recoveries);
+        LocationDay GetOrInsert(DateTimeOffset date, Location location, int? cases, int? deaths, int? recoveries);
     }
 }
