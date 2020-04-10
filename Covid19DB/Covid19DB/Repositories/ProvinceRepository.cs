@@ -7,7 +7,7 @@ namespace Covid19DB.Repositories
     public class ProvinceRepository : IRepository<Province>, IProvinceRepository
     {
         #region Fields
-        private Covid19DbContext _Covid19DbContext;
+        private readonly Covid19DbContext _Covid19DbContext;
         #endregion
 
         #region Constructor

@@ -11,15 +11,14 @@ namespace Covid19DB
         #region Fields
         private const string EmptyValue = "N/A";
         private const string None = "NONE";
-        private Dictionary<Guid, int?> _confirmedCasesByLocation = new Dictionary<Guid, int?>();
-        private ICache<Region> _regionsByName = new Cache<Region>();
-        private ICache<Province> _provincesByRegionAndName = new Cache<Province>();
-        private ICache<Location> _locationsByRegionProvinceName = new Cache<Location>();
-        IProvinceRepository _provinceRepository;
-        IRegionRepository _regionRepository;
-        ILocationRepository _locationRepository;
-        ILocationDayRepository _locationDayRepository;
-        IEnumerable<RawModel> _rows;
+        private readonly Dictionary<Guid, int?> _confirmedCasesByLocation = new Dictionary<Guid, int?>();
+        private readonly ICache<Region> _regionsByName = new Cache<Region>();
+        private readonly ICache<Province> _provincesByRegionAndName = new Cache<Province>();
+        private readonly ICache<Location> _locationsByRegionProvinceName = new Cache<Location>();
+        private readonly IProvinceRepository _provinceRepository;
+        private readonly IRegionRepository _regionRepository;
+        private readonly ILocationRepository _locationRepository;
+        private readonly ILocationDayRepository _locationDayRepository;
         #endregion
 
         #region Constructor
@@ -27,20 +26,18 @@ namespace Covid19DB
         IProvinceRepository provinceRepository,
         IRegionRepository regionRepository,
         ILocationRepository locationRepository,
-        ILocationDayRepository locationDayRepository,
-        IEnumerable<RawModel> rows
+        ILocationDayRepository locationDayRepository
             )
         {
             _provinceRepository = provinceRepository;
             _regionRepository = regionRepository;
             _locationRepository = locationRepository;
             _locationDayRepository = locationDayRepository;
-            _rows = rows;
         }
         #endregion
 
         #region Public Methods
-        public void Process()
+        public void Process(IEnumerable<RawModel> _rows)
         {
             var regionGroupings = _rows.Where(a => !string.IsNullOrEmpty(a.Country_Region)).GroupBy(a => a.Country_Region).ToList();
             var provinceGroupings = _rows.Where(a => !string.IsNullOrEmpty(a.Province_State)).GroupBy(a => a.Province_State).ToList();
@@ -78,7 +75,7 @@ namespace Covid19DB
                 _locationsByRegionProvinceName.Add(GetLocationKey(region.Name, province.Name, location.Name), location);
             }
 
-            foreach (var rawModel in _rows.OrderBy(r => r.Date))
+            foreach (var rawModel in _rows)
             {
 
                 var locationKey = GetLocationKey(rawModel.Country_Region, rawModel.Province_State, rawModel.Admin2);

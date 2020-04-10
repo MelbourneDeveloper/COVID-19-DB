@@ -5,7 +5,7 @@ namespace Covid19DB
 {
     public class Cache<T> : ICache<T>
     {
-        private Dictionary<string, T> _dictionary = new Dictionary<string, T>(StringComparer.OrdinalIgnoreCase);
+        private readonly Dictionary<string, T> _dictionary = new Dictionary<string, T>(StringComparer.OrdinalIgnoreCase);
 
         public T Get(string key)
         {

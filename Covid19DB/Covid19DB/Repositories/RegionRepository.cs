@@ -6,7 +6,7 @@ namespace Covid19DB.Repositories
 {
     public class RegionRepository : IRepository<Region>, IRegionRepository
     {
-        private Covid19DbContext _covid19DbContext;
+        private readonly Covid19DbContext _covid19DbContext;
 
         public RegionRepository(Covid19DbContext covid19DbContext)
         {
