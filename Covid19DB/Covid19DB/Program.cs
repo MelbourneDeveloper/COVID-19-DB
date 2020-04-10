@@ -30,18 +30,6 @@ namespace Covid19DB
                 modelsByDate.Add(date, rawModels);
             }
 
-            var aggregatedData = modelsByDate.Values.Aggregate((a, b) =>
-            {
-                var aggregatedList = new List<RawModel>(a);
-                aggregatedList.AddRange(b);
-                return aggregatedList;
-            }).ToList();
-
-            var regionGroupings = aggregatedData.Where(a => !string.IsNullOrEmpty(a.Country_Region)).GroupBy(a => a.Country_Region).ToList();
-            var provinceGroupings = aggregatedData.Where(a => !string.IsNullOrEmpty(a.Province_State)).GroupBy(a => a.Province_State).ToList();
-            var locationGroupings = aggregatedData.Where(a => !string.IsNullOrEmpty(a.Admin2)).GroupBy(a => a.Admin2).ToList();
-
-
             using (var covid19DbContext = new Covid19DbContext())
             {
                 var provinceRepository = new ProvinceRepository(covid19DbContext);
@@ -49,9 +37,14 @@ namespace Covid19DB
                 var locationRepository = new LocationRepository(covid19DbContext);
                 var locationDayRepository = new LocationDayRepository(covid19DbContext);
 
-                var processor = new Processor(provinceRepository, regionRepository, locationRepository, locationDayRepository);
+                var processor = new Processor(provinceRepository, regionRepository, locationRepository, locationDayRepository, modelsByDate.Values.Aggregate((a, b) =>
+                {
+                    var aggregatedList = new List<RawModel>(a);
+                    aggregatedList.AddRange(b);
+                    return aggregatedList;
+                }));
 
-                processor.ProcessAll(modelsByDate, regionGroupings, provinceGroupings, locationGroupings);
+                processor.Process(modelsByDate);
 
                 covid19DbContext.SaveChanges();
             }
