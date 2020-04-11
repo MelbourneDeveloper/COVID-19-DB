@@ -14,7 +14,7 @@ namespace Covid19DB
         #region Fields
         private const string EmptyValue = "N/A";
         private const string None = "NONE";
-        private const string Unassigned = "Unassigned";
+        //private const string Unassigned = "Unassigned";
         private readonly Dictionary<Guid, int?> _confirmedCasesByLocation = new Dictionary<Guid, int?>();
         private readonly Dictionary<Guid, int?> _recoveriesByLocation = new Dictionary<Guid, int?>();
         private readonly Dictionary<Guid, int?> _deathsByLocation = new Dictionary<Guid, int?>();
@@ -128,8 +128,8 @@ namespace Covid19DB
         {
             return name == null ||
                 string.Compare(name, None, StringComparison.OrdinalIgnoreCase) == 0 ||
-                string.Compare(name, string.Empty, StringComparison.OrdinalIgnoreCase) == 0 ||
-                string.Compare(name, Unassigned, StringComparison.OrdinalIgnoreCase) == 0
+                string.Compare(name, string.Empty, StringComparison.OrdinalIgnoreCase) == 0
+                //string.Compare(name, Unassigned, StringComparison.OrdinalIgnoreCase) == 0
                 ? EmptyValue
                 : name;
         }
