@@ -24,7 +24,12 @@ namespace Covid19DB
             var locationRepository = new LocationRepository(covid19DbContext);
             var locationDayRepository = new LocationDayRepository(covid19DbContext);
 
-            var processor = new Processor(provinceRepository, regionRepository, locationRepository, locationDayRepository, logger);
+            var processor = new Processor(
+                provinceRepository,
+                regionRepository,
+                locationRepository,
+                locationDayRepository,
+                logger);
 
             processor.Process(rows);
 

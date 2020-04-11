@@ -25,6 +25,7 @@ namespace Covid19DB
         private readonly ILocationRepository _locationRepository;
         private readonly ILocationDayRepository _locationDayRepository;
         private readonly ILogger<Processor> _logger;
+        private readonly IProvinceLookupService _provinceLookupService;
         #endregion
 
         #region Constructor
@@ -33,7 +34,8 @@ namespace Covid19DB
         IRegionRepository regionRepository,
         ILocationRepository locationRepository,
         ILocationDayRepository locationDayRepository,
-        ILogger<Processor> logger
+        ILogger<Processor> logger,
+        IProvinceLookupService provinceLookupService
             )
         {
             _provinceRepository = provinceRepository;
@@ -41,6 +43,7 @@ namespace Covid19DB
             _locationRepository = locationRepository;
             _locationDayRepository = locationDayRepository;
             _logger = logger;
+            _provinceLookupService = provinceLookupService;
         }
         #endregion
 
