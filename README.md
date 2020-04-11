@@ -46,6 +46,38 @@ Alternatively, you can run the tool at the command prompt on Windows, OSX, or Li
 
 *Note: replace the folder path with your folder path*
 
+## CSV Reader
+
+The code is useful for anyone who wants to read the Johns Hopkins CSV files. It's easy aggregate all the files in to memory. This code loads data from the entire dataset in to memory and then filters it down to the state of Victoria, Australia and order the data by date. It then dumps the data back out to a CSV file.
+
+```cs
+using Covid19DB.Utilities;
+using System;
+using System.Linq;
+
+namespace Covid19DB
+{
+    internal class Program
+    {
+        private static void Main(string[] args)
+        {
+            var logger = new Logger<Processor>();
+
+            var directoryPath = args.FirstOrDefault();
+
+            if (string.IsNullOrEmpty(directoryPath)) throw new ArgumentException("Daily Reports Directory not specified");
+            
+            if (!Directory.Exists(directoryPath)) throw new ArgumentException($"The directory {directoryPath} does not exist. Please check the path");
+
+            var rows = CsvReader.ReadCsvFiles(directoryPath);
+
+            var victoriaRows = rows.Where(r => r.Province_State == "Victoria").OrderBy(r => r.Date).ToList();
+            victoriaRows.ToCsv("Victoria.csv");
+        }
+    }
+}
+```
+
 ## How  Can I Help?
 
 The hope is that this database can be thoroughly tested and validated. The hope is that this database will help create more accurate reporting data and allow people to more readily report on the figures. The database is not ready for this. It needs rigorous validation. Please comment on the database structure and code to help make this database ready for reporting.
