@@ -60,13 +60,22 @@ namespace Covid19DB
                 var provinceName = rawModel.Province_State;
                 var locationName = rawModel.Admin2;
 
-                if (provinceName != null && provinceName.Contains(',', StringComparison.OrdinalIgnoreCase))
+                if (region.Name == "Netherlands")
+                {
+                    //There is a comma in some of the Netherlands' provinces
+                }
+                else if (provinceName == "Virgin Islands, U.S.")
+                {
+                    provinceName = "Virgin Islands";
+                }
+                else if (provinceName != null && provinceName.Contains(',', StringComparison.OrdinalIgnoreCase))
                 {
                     //Deal with cases where there is a comma in the Province field. This means that we're dealing with a US county/state
 
                     var tokens = provinceName.Split(",").ToList();
                     locationName = tokens[0].Trim();
-                    provinceName = _provinceLookupService.GetProvinceName(region.Name, tokens[1].Trim());
+                    var provinceToken = tokens[1].Replace("(From Diamond Princess)", string.Empty, StringComparison.OrdinalIgnoreCase);
+                    provinceName = _provinceLookupService.GetProvinceName(region.Name, provinceToken.Trim());
                 }
 
                 var province = GetProvince(provinceName, region);

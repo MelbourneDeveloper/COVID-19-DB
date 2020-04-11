@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Covid19DB.Services
 {
@@ -61,6 +62,7 @@ namespace Covid19DB.Services
             {"WI", "Wisconsin" },
             {"WY", "Wyoming" },
             {"DC", "District of Columbia" },
+            {"D.C.", "District of Columbia" },
             {"MH", "Marshall Islands" },
             {"AA", "Armed Forces Americas" },
             //TODO: Is this correct?
@@ -68,11 +70,46 @@ namespace Covid19DB.Services
             {"AP", "Armed Forces Pacific" }
         };
 
+        private readonly Dictionary<string, string> CanadianStates = new Dictionary<string, string>
+        {
+            {"AB", "Alberta" },
+            {"BC", "British Columbia" },
+            {"MB", "Manitoba" },
+            {"NB", "New Brunswick"},
+            {"NL", "Newfoundland and Labrador" },
+            {"NT", "Northwest Territories" },
+            {"NS", "Nova Scotia" },
+            {"NU", "Nunavut" },
+            {"ON", "Ontario"},
+            {"PE", "Prince Edward Island" },
+            {"QC", "Quebec" },
+            {"SK", "Saskatchewan" },
+            {"YT", "Yukon" }
+        };
+
+
         public string GetProvinceName(string country, string provinceCode)
         {
-            if (country != "US") throw new NotImplementedException();
+            if (country == "US")
+                return USStates[provinceCode];
 
-            return USStates[provinceCode];
+            if (country == "Canada")
+            {
+                if (CanadianStates.ContainsKey(provinceCode))
+                {
+                    return CanadianStates[provinceCode];
+                }
+                else
+                {
+                    //Some canadian data uses the full state name
+                    if (CanadianStates.Values.Contains(provinceCode))
+                    {
+                        return provinceCode;
+                    }
+                }
+            }
+
+            throw new NotImplementedException();
         }
     }
 }
