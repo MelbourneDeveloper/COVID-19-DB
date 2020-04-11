@@ -1,5 +1,7 @@
 # COVID-19-DB - NOT FOR REPORTING PURPOSES
 
+[Follow Me](https://twitter.com/CFDevelop) on Twitter for updates to this database and code.
+
 This database is in alpha. It contains errors. It should not be used for reporting. Do not publish data from this database.
 
 **The database structure and code will change. Please do not rely on anything remaining the same**
