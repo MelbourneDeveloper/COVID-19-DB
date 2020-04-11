@@ -56,8 +56,21 @@ namespace Covid19DB
             foreach (var rawModel in rows)
             {
                 var region = GetRegion(rawModel.Country_Region);
-                var province = GetProvince(rawModel.Province_State, region);
-                var location = GetLocation(rawModel.Admin2, rawModel.Lat, rawModel.Long_, province);
+
+                var provinceName = rawModel.Province_State;
+                var locationName = rawModel.Admin2;
+
+                if (provinceName != null && provinceName.Contains(',', StringComparison.OrdinalIgnoreCase))
+                {
+                    //Deal with cases where there is a comma in the Province field. This means that we're dealing with a US county/state
+
+                    var tokens = provinceName.Split(",").ToList();
+                    locationName = tokens[0].Trim();
+                    provinceName = _provinceLookupService.GetProvinceName(region.Name, tokens[1].Trim());
+                }
+
+                var province = GetProvince(provinceName, region);
+                var location = GetLocation(locationName, rawModel.Lat, rawModel.Long_, province);
 
                 var currentNewCases = GetDailyValue(_confirmedCasesByLocation, location.Id, rawModel.Confirmed, "New Cases", rawModel.Date);
                 var currentDeaths = GetDailyValue(_deathsByLocation, location.Id, rawModel.Deaths, "Deaths", rawModel.Date);
@@ -136,14 +149,6 @@ namespace Covid19DB
 
         private Province GetProvince(string provinceName, Region region)
         {
-            if (provinceName != null && provinceName.Contains(',', StringComparison.OrdinalIgnoreCase))
-            {
-                //Deal with cases where there is a comma in the Province field. This means that we're dealing with a US county/state
-
-                var tokens = provinceName.Split(",").ToList();
-                provinceName = _provinceLookupService.GetProvinceName(region.Name, tokens[1].Trim());
-            }
-
             var provinceKey = GetProvinceKey(region.Name, provinceName);
 
             var province = _provincesByRegionAndName.Get(provinceKey);
