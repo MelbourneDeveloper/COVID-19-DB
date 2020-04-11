@@ -2,6 +2,7 @@
 using Covid19DB.Repositories;
 using Covid19DB.Services;
 using System;
+using System.IO;
 using System.Linq;
 
 namespace Covid19DB
@@ -15,6 +16,8 @@ namespace Covid19DB
             var directoryPath = args.FirstOrDefault();
 
             if (string.IsNullOrEmpty(directoryPath)) throw new ArgumentException("Daily Reports Directory not specified");
+
+            if (!Directory.Exists(directoryPath)) throw new ArgumentException($"The directory {directoryPath} does not exist. Please check the path");
 
             var rows = CsvReader.ReadCsvFiles(directoryPath);
 
