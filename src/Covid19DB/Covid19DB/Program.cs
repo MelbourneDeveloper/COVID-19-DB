@@ -1,5 +1,6 @@
 ﻿using Covid19DB.Db;
 using Covid19DB.Repositories;
+using Covid19DB.Services;
 using System;
 using System.Linq;
 
@@ -29,7 +30,8 @@ namespace Covid19DB
                 regionRepository,
                 locationRepository,
                 locationDayRepository,
-                logger);
+                logger,
+                new ProvinceLookupService());
 
             processor.Process(rows);
 

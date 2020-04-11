@@ -62,11 +62,9 @@ namespace Covid19DB.Services
             {"WY", "Wyoming" },
             {"DC", "District of Columbia" },
             {"MH", "Marshall Islands" },
-            {"AE", "Armed Forces Africa" },
             {"AA", "Armed Forces Americas" },
-            {"AE", "Armed Forces Canada" },
-            {"AE", "Armed Forces Europe" },
-            {"AE", "Armed Forces Middle East" },
+            //TODO: Is this correct?
+            {"AE", "Armed Forces Africa / Canada / Europe / Middle East" },
             {"AP", "Armed Forces Pacific" }
         };
 

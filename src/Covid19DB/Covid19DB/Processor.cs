@@ -5,6 +5,7 @@ using Covid19DB.Services;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Covid19DB
 {
@@ -135,6 +136,14 @@ namespace Covid19DB
 
         private Province GetProvince(string provinceName, Region region)
         {
+            if (provinceName != null && provinceName.Contains(',', StringComparison.OrdinalIgnoreCase))
+            {
+                //Deal with cases where there is a comma in the Province field. This means that we're dealing with a US county/state
+
+                var tokens = provinceName.Split(",").ToList();
+                provinceName = _provinceLookupService.GetProvinceName(region.Name, tokens[1].Trim());
+            }
+
             var provinceKey = GetProvinceKey(region.Name, provinceName);
 
             var province = _provincesByRegionAndName.Get(provinceKey);
