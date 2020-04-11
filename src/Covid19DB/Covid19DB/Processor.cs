@@ -62,10 +62,13 @@ namespace Covid19DB
 
                 if (region.Name == "Netherlands")
                 {
+                    //ISSUE
+
                     //There is a comma in some of the Netherlands' provinces
                 }
                 else if (provinceName == "Virgin Islands, U.S.")
                 {
+                    //ISSUE: https://github.com/CSSEGISandData/COVID-19/issues/2119
                     provinceName = "Virgin Islands";
                 }
                 else if (provinceName != null && provinceName.Contains(',', StringComparison.OrdinalIgnoreCase))
