@@ -45,6 +45,25 @@ More examples will be added here.
 
 ![Summary Query](Images/SummaryQuery.png)
 
+**Get Totals for Australian States Filtered For April**
+
+```cs
+select	Provinces.Name,
+		sum(newcases) as TotalCases,
+		sum(deaths) as TotalDeaths,
+		sum(Recoveries) as TotalRecoveries	
+from locationdays 
+inner join locations
+on locations.id = locationdays.locationid
+inner join Provinces
+on Provinces.id = locations.ProvinceId
+inner join Regions
+on Regions.id = Provinces.RegionId
+where Regions.Name='Australia' AND
+date(DateOfCount) between date('2020-04-01 00:00:00+00:00') and date('2020-04-31 23:59:00+00:00')
+group by Provinces.Name
+```
+
 ## Run the Code (Generate the Database)
 
 - Clone the [Johns Hopkins repo](https://github.com/CSSEGISandData/COVID-19).
