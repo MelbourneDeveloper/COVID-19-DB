@@ -53,6 +53,7 @@ The code is useful for anyone who wants to read the Johns Hopkins CSV files. It'
 ```cs
 using Covid19DB.Utilities;
 using System;
+using System.IO;
 using System.Linq;
 
 namespace Covid19DB
