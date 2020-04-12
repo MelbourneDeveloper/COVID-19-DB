@@ -46,7 +46,7 @@ order by NewCasesInLastTwOWeeks desc
 limit 20	
 ```
 
-*These figures have NOT been validated. This an example only
+*These figures have NOT been validated. This an example only*
 
 |Region|New Cases In Last Two Weeks|
 |----------------|--------|
