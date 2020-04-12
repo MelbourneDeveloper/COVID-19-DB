@@ -77,7 +77,7 @@ namespace Covid19DB
             //Iterate through the lines in the file
             while (!parser.EndOfData)
             {
-                var rowNumber = i + 1;
+                var rowNumber = i;
 
                 var columnValues = parser.ReadFields().ToList();
 
@@ -88,9 +88,11 @@ namespace Covid19DB
 
                 var rowModel = ProcessRow(date, confirmedIndex, deathsIndex, countryRegionIndex, provinceStateIndex, latitudeIndex, longitudeIndex, admin2Index, recoveredIndex, activeIndex, columnValues);
 
-                rowModel.CsvRowNumber = rowNumber;
-
-                if (rowModel != null) rowModels.Add(rowModel);
+                if (rowModel != null)
+                {
+                    rowModels.Add(rowModel);
+                    rowModel.CsvRowNumber = rowNumber;
+                }
 
                 i++;
             }

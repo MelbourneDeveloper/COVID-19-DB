@@ -60,7 +60,19 @@ namespace Covid19DB
                 {
                     if ((rowModel.Active + rowModel.Deaths + rowModel.Recovered) != rowModel.Confirmed)
                     {
-                        throw new ArgumentException("Ouch");
+                        _logger.Log(
+                            LogLevel.Warning,
+                            default,
+                            new IncorrectCountValue
+                            {
+                                Date = rowModel.Date,
+                                CsvRowNumber = rowModel.CsvRowNumber,
+                                Confirmed = rowModel.Confirmed,
+                                Recoveries = rowModel.Recovered,
+                                Deaths = rowModel.Deaths
+                            },
+                            null,
+                            null);
                     }
                 }
 
@@ -96,9 +108,9 @@ namespace Covid19DB
                 var province = GetProvince(provinceName, region);
                 var location = GetLocation(locationName, rowModel.Lat, rowModel.Long_, province);
 
-                var currentNewCases = GetDailyValue(_confirmedCasesByLocation, location.Id, rowModel.Confirmed, "New Cases", rowModel.Date);
-                var currentDeaths = GetDailyValue(_deathsByLocation, location.Id, rowModel.Deaths, "Deaths", rowModel.Date);
-                var currentRecoveries = GetDailyValue(_recoveriesByLocation, location.Id, rowModel.Recovered, "Recoveries", rowModel.Date);
+                var currentNewCases = GetDailyValue(_confirmedCasesByLocation, location.Id, rowModel.Confirmed, "New Cases", rowModel.CsvRowNumber, rowModel.Date);
+                var currentDeaths = GetDailyValue(_deathsByLocation, location.Id, rowModel.Deaths, "Deaths", rowModel.CsvRowNumber, rowModel.Date);
+                var currentRecoveries = GetDailyValue(_recoveriesByLocation, location.Id, rowModel.Recovered, "Recoveries", rowModel.CsvRowNumber, rowModel.Date);
 
 
                 _ = _locationDayRepository.GetOrInsert(rowModel.Date, location, currentNewCases, currentDeaths, currentRecoveries);
@@ -109,7 +121,7 @@ namespace Covid19DB
         #endregion
 
         #region Private Methods
-        private int? GetDailyValue(Dictionary<Guid, int?> lastValuesByLocationId, Guid locationId, int? rowValue, string columnName, DateTimeOffset date)
+        private int? GetDailyValue(Dictionary<Guid, int?> lastValuesByLocationId, Guid locationId, int? rowValue, string columnName, int csvRowNumber, DateTimeOffset date)
         {
             _ = lastValuesByLocationId.TryGetValue(locationId, out var lastValue);
             int? returnValue = null;
@@ -130,7 +142,17 @@ namespace Covid19DB
 
             if (returnValue.HasValue && returnValue < 0)
             {
-                _logger.Log(LogLevel.Warning, default, new CountAnomaly { ColumnName = columnName, Date = date, LocationId = locationId }, null, null);
+                _logger.Log(LogLevel.Warning,
+                    default,
+                    new CountAnomaly
+                    {
+                        CsvRowNumber = csvRowNumber,
+                        ColumnName = columnName,
+                        Date = date,
+                        LocationId = locationId
+                    },
+                    null,
+                    null);
             }
 
             return returnValue;

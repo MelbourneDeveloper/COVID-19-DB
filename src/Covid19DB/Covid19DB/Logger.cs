@@ -22,9 +22,23 @@ namespace Covid19DB
         {
             Count++;
             var stateObject = (object)state;
+
             if (stateObject is CountAnomaly countAnomaly)
             {
-                Console.WriteLine($"LocationId: {countAnomaly.LocationId} Date: {countAnomaly.Date} Type: {countAnomaly.ColumnName} Count: {Count}");
+                Console.Write($"Count Anomaly LocationId: {countAnomaly.LocationId} Date: {countAnomaly.Date} Type: {countAnomaly.ColumnName} Count: {Count} ");
+            }
+
+            if (stateObject is IncorrectCountValue incorrectCount)
+            {
+                Console.Write($"Count Anomaly Date: {incorrectCount.Date} Confirmed: {Count} ");
+            }
+
+            if (stateObject is ValidationWarningBase validationWarning)
+            {
+                var month = validationWarning.Date.Month.ToString().PadLeft(2, '0');
+                var day = validationWarning.Date.Day.ToString().PadLeft(2, '0');
+                var url = $"https://github.com/CSSEGISandData/COVID-19/blob/master/csse_covid_19_data/csse_covid_19_daily_reports/{month}-{day}-2020.csv#L{validationWarning.CsvRowNumber}";
+                Console.Write($"{url}\r\n");
             }
         }
     }
