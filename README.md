@@ -23,9 +23,22 @@ Use the [DB Browser For SQLite](https://sqlitebrowser.org/) to open the database
 
 The `LocationDays` table contains `LocationId`, `DateOfCount`, `Deaths`, `Recoveries`, and `NewCases`. The location "50FBF714-6F45-4A73-8374-74CE4DACBEB3" represents anywhere in Victoria, Australia. To summarise all recoveries, run this query:
 
+**Get Totals for Australian States**
+
 ```sql
-select sum(recoveries) from locationdays 
-where locationid = '50FBF714-6F45-4A73-8374-74CE4DACBEB3' 
+select	Provinces.Name,
+		sum(newcases) as TotalCases,
+		sum(deaths) as TotalDeaths,
+		sum(Recoveries) as TotalRecoveries	
+from locationdays 
+inner join locations
+on locations.id = locationdays.locationid
+inner join Provinces
+on Provinces.id = locations.ProvinceId
+inner join Regions
+on Regions.id = Provinces.RegionId
+where Regions.Name='Australia'
+group by Provinces.Name
 ```
 
 More examples will be added here.
