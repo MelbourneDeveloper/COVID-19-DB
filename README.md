@@ -23,7 +23,7 @@ Use the [DB Browser For SQLite](https://sqlitebrowser.org/) to open the database
 
 The `LocationDays` table contains `LocationId`, `DateOfCount`, `Deaths`, `Recoveries`, and `NewCases`. These values can be summarized as below.
 
-### List Top 15 Regions With Most New Cases For Last Two Weeks
+### List Top 20 Regions With Most New Cases For Last Two Weeks
 
 ```sql
 select	
