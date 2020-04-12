@@ -45,7 +45,7 @@ group by Provinces.Name
 
 **Get Totals for Australian States Filtered For April**
 
-```cs
+```sql
 select	Provinces.Name,
 		sum(newcases) as TotalCases,
 		sum(deaths) as TotalDeaths,
