@@ -58,25 +58,16 @@ namespace Covid19DB
             {
                 if (rowModel.Confirmed.HasValue)
                 {
+                    if ((rowModel.Deaths + rowModel.Recovered) > rowModel.Confirmed)
+                    {
+                        LogRowInbalance(rowModel, "Deaths and Recovered are higher than Confirmed");
+                    }
+
                     if (rowModel.Active.HasValue && rowModel.Active > 0)
                     {
                         if ((rowModel.Active + rowModel.Deaths + rowModel.Recovered) != rowModel.Confirmed)
                         {
-                            _logger.Log(
-                                LogLevel.Warning,
-                                default,
-                                new CasesRowInbalance
-                                {
-                                    Date = rowModel.Date,
-                                    CsvRowNumber = rowModel.CsvRowNumber,
-                                    Confirmed = rowModel.Confirmed,
-                                    Recoveries = rowModel.Recovered,
-                                    Deaths = rowModel.Deaths,
-                                    Active = rowModel.Active,
-                                    Url = GetRowUrl(rowModel.Date, rowModel.CsvRowNumber)
-                                },
-                                null,
-                                null);
+                            LogRowInbalance(rowModel, "Deaths and Recovered and Active don't equal Confirmed");
                         }
                     }
                 }
@@ -122,6 +113,26 @@ namespace Covid19DB
 
                 if (!_confirmedCasesByLocation.ContainsKey(location.Id)) _confirmedCasesByLocation.Add(location.Id, rowModel.Confirmed);
             }
+        }
+
+        private void LogRowInbalance(RowModel rowModel, string message)
+        {
+            _logger.Log(
+                LogLevel.Warning,
+                default,
+                new CasesRowInbalance
+                {
+                    Date = rowModel.Date,
+                    CsvRowNumber = rowModel.CsvRowNumber,
+                    Confirmed = rowModel.Confirmed,
+                    Recoveries = rowModel.Recovered,
+                    Deaths = rowModel.Deaths,
+                    Active = rowModel.Active,
+                    Url = GetRowUrl(rowModel.Date, rowModel.CsvRowNumber),
+                    Message = message
+                },
+                null,
+                null);
         }
         #endregion
 

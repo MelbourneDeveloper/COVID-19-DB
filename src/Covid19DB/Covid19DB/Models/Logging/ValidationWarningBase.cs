@@ -11,5 +11,6 @@ namespace Covid19DB.Models.Logging
         public int? Recoveries { get; set; }
         public int? Active { get; set; }
         public string Url { get; set; }
+        public string Message { get; set; }
     }
 }
