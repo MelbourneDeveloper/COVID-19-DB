@@ -48,7 +48,7 @@ Alternatively, you can run the tool at the command prompt on Windows, OSX, or Li
 
 ## CSV Reader
 
-The code is useful for anyone who wants to read the Johns Hopkins CSV files. It's easy aggregate all the files in to memory. This code loads data from the entire dataset in to memory and then filters it down to the state of Victoria, Australia and order the data by date. It then dumps the data back out to a CSV file.
+The code is useful for anyone who wants to read the Johns Hopkins CSV files. It's easy aggregate all the files in to memory. This code loads data from the entire dataset in to memory and then filters it down to the state of Victoria, Australia and orders the data by date. It then dumps the data back out to a CSV file.
 
 ```cs
 using Covid19DB.Utilities;
@@ -78,6 +78,10 @@ namespace Covid19DB
     }
 }
 ```
+
+Output:
+
+![Summary Query](Images/VictoriaExcel.png)
 
 ## How  Can I Help?
 
