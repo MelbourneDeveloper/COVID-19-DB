@@ -1,5 +1,6 @@
 ﻿using Covid19DB.Entities;
 using Covid19DB.Models;
+using Covid19DB.Models.Logging;
 using Covid19DB.Repositories;
 using Covid19DB.Services;
 using Microsoft.Extensions.Logging;
@@ -53,12 +54,37 @@ namespace Covid19DB
         {
             if (rows == null) throw new ArgumentNullException(nameof(rows));
 
-            foreach (var rawModel in rows)
+            foreach (var rowModel in rows)
             {
-                var region = GetRegion(rawModel.Country_Region);
+                if (rowModel.Confirmed.HasValue)
+                {
+                    if (rowModel.Active.HasValue && rowModel.Active > 0)
+                    {
+                        if ((rowModel.Active + rowModel.Deaths + rowModel.Recovered) != rowModel.Confirmed)
+                        {
+                            _logger.Log(
+                                LogLevel.Warning,
+                                default,
+                                new CasesRowInbalance
+                                {
+                                    Date = rowModel.Date,
+                                    CsvRowNumber = rowModel.CsvRowNumber,
+                                    Confirmed = rowModel.Confirmed,
+                                    Recoveries = rowModel.Recovered,
+                                    Deaths = rowModel.Deaths,
+                                    Active = rowModel.Active,
+                                    Url = GetRowUrl(rowModel.Date, rowModel.CsvRowNumber)
+                                },
+                                null,
+                                null);
+                        }
+                    }
+                }
 
-                var provinceName = rawModel.Province_State;
-                var locationName = rawModel.Admin2;
+                var region = GetRegion(rowModel.Country_Region);
+
+                var provinceName = rowModel.Province_State;
+                var locationName = rowModel.Admin2;
 
                 if (region.Name == "Netherlands")
                 {
@@ -85,22 +111,22 @@ namespace Covid19DB
                 }
 
                 var province = GetProvince(provinceName, region);
-                var location = GetLocation(locationName, rawModel.Lat, rawModel.Long_, province);
+                var location = GetLocation(locationName, rowModel.Lat, rowModel.Long_, province);
 
-                var currentNewCases = GetDailyValue(_confirmedCasesByLocation, location.Id, rawModel.Confirmed, "New Cases", rawModel.Date);
-                var currentDeaths = GetDailyValue(_deathsByLocation, location.Id, rawModel.Deaths, "Deaths", rawModel.Date);
-                var currentRecoveries = GetDailyValue(_recoveriesByLocation, location.Id, rawModel.Recovered, "Recoveries", rawModel.Date);
+                var currentNewCases = GetDailyValue(_confirmedCasesByLocation, location.Id, rowModel.Confirmed, "New Cases", rowModel.CsvRowNumber, rowModel.Date);
+                var currentDeaths = GetDailyValue(_deathsByLocation, location.Id, rowModel.Deaths, "Deaths", rowModel.CsvRowNumber, rowModel.Date);
+                var currentRecoveries = GetDailyValue(_recoveriesByLocation, location.Id, rowModel.Recovered, "Recoveries", rowModel.CsvRowNumber, rowModel.Date);
 
 
-                _ = _locationDayRepository.GetOrInsert(rawModel.Date, location, currentNewCases, currentDeaths, currentRecoveries);
+                _ = _locationDayRepository.GetOrInsert(rowModel.Date, location, currentNewCases, currentDeaths, currentRecoveries);
 
-                if (!_confirmedCasesByLocation.ContainsKey(location.Id)) _confirmedCasesByLocation.Add(location.Id, rawModel.Confirmed);
+                if (!_confirmedCasesByLocation.ContainsKey(location.Id)) _confirmedCasesByLocation.Add(location.Id, rowModel.Confirmed);
             }
         }
         #endregion
 
         #region Private Methods
-        private int? GetDailyValue(Dictionary<Guid, int?> lastValuesByLocationId, Guid locationId, int? rowValue, string columnName, DateTimeOffset date)
+        private int? GetDailyValue(Dictionary<Guid, int?> lastValuesByLocationId, Guid locationId, int? rowValue, string columnName, int csvRowNumber, DateTimeOffset date)
         {
             _ = lastValuesByLocationId.TryGetValue(locationId, out var lastValue);
             int? returnValue = null;
@@ -121,7 +147,18 @@ namespace Covid19DB
 
             if (returnValue.HasValue && returnValue < 0)
             {
-                _logger.Log(LogLevel.Warning, default, new CountAnomaly { ColumnName = columnName, Date = date, LocationId = locationId }, null, null);
+                _logger.Log(LogLevel.Warning,
+                    default,
+                    new CaseRowAdjustment
+                    {
+                        CsvRowNumber = csvRowNumber,
+                        ColumnName = columnName,
+                        Date = date,
+                        LocationId = locationId,
+                        Url = GetRowUrl(date, csvRowNumber)
+                    },
+                    null,
+                    null);
             }
 
             return returnValue;
@@ -188,6 +225,13 @@ namespace Covid19DB
             _regionsByName.Add(regionName, region);
 
             return region;
+        }
+
+        private static string GetRowUrl(DateTimeOffset date, int csvRowNumber)
+        {
+            var month = date.Month.ToString().PadLeft(2, '0');
+            var day = date.Day.ToString().PadLeft(2, '0');
+            return $"https://github.com/CSSEGISandData/COVID-19/blob/master/csse_covid_19_data/csse_covid_19_daily_reports/{month}-{day}-2020.csv#L{csvRowNumber}";
         }
         #endregion
     }

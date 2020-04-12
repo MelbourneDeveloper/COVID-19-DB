@@ -39,6 +39,10 @@ namespace Covid19DB
             processor.Process(rows);
 
             covid19DbContext.SaveChanges();
+
+            logger.ToCsv();
+
+            Console.WriteLine("Done");
         }
     }
 }

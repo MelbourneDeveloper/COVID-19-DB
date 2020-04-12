@@ -1,10 +1,16 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Covid19DB.Models.Logging;
+using Covid19DB.Utilities;
+using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Generic;
 
 namespace Covid19DB
 {
     public class Logger<T> : ILogger<T>
     {
+        private readonly List<CasesRowInbalance> _casesRowInbalances = new List<CasesRowInbalance>();
+        private readonly List<CaseRowAdjustment> _casesRowAdjustments = new List<CaseRowAdjustment>();
+
         public IDisposable BeginScope<TState>(TState state)
         {
             throw new NotImplementedException();
@@ -15,14 +21,25 @@ namespace Covid19DB
             throw new NotImplementedException();
         }
 
-        private int Count = 0;
-
         public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
         {
-            Count++;
             var stateObject = (object)state;
-            var countAnomaly = (CountAnomaly)stateObject;
-            Console.WriteLine($"LocationId: {countAnomaly.LocationId} Date: {countAnomaly.Date} Type: {countAnomaly.ColumnName} Count: {Count}");
+
+            if (stateObject is CaseRowAdjustment countAnomaly)
+            {
+                _casesRowAdjustments.Add(countAnomaly);
+            }
+
+            if (stateObject is CasesRowInbalance incorrectCount)
+            {
+                _casesRowInbalances.Add(incorrectCount);
+            }
+        }
+
+        public void ToCsv()
+        {
+            _casesRowInbalances.ToCsv("CasesRowInbalances.csv");
+            _casesRowAdjustments.ToCsv("CasesRowAdjustments.csv");
         }
     }
 

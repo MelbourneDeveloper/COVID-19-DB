@@ -67,6 +67,8 @@ namespace Covid19DB
 
             var recoveredIndex = headerNames.IndexOf(nameof(RowModel.Recovered));
 
+            var activeIndex = headerNames.IndexOf(nameof(RowModel.Active));
+
             var rowModels = new List<RowModel>();
 
             //Number is 1 based and matches tyhe Github line
@@ -75,16 +77,22 @@ namespace Covid19DB
             //Iterate through the lines in the file
             while (!parser.EndOfData)
             {
+                var rowNumber = i;
+
                 var columnValues = parser.ReadFields().ToList();
 
                 if (columnValues.Count != headerNames.Count)
                 {
-                    throw new RowValidationException($"Filename: {fileName} Headers: {headerNames.Count} Tokens: {columnValues.Count} Line: {i + 1}");
+                    throw new RowValidationException($"Filename: {fileName} Headers: {headerNames.Count} Tokens: {columnValues.Count} Line: {rowNumber}");
                 }
 
-                var rowModel = ProcessRow(date, confirmedIndex, deathsIndex, countryRegionIndex, provinceStateIndex, latitudeIndex, longitudeIndex, admin2Index, recoveredIndex, columnValues);
+                var rowModel = ProcessRow(date, confirmedIndex, deathsIndex, countryRegionIndex, provinceStateIndex, latitudeIndex, longitudeIndex, admin2Index, recoveredIndex, activeIndex, columnValues);
 
-                if (rowModel != null) rowModels.Add(rowModel);
+                if (rowModel != null)
+                {
+                    rowModels.Add(rowModel);
+                    rowModel.CsvRowNumber = rowNumber;
+                }
 
                 i++;
             }
@@ -92,11 +100,17 @@ namespace Covid19DB
             return rowModels;
         }
 
-        private static RowModel ProcessRow(DateTimeOffset date, int confirmedIndex, int deathsIndex, int countryRegionIndex, int provinceStateIndex, int latitudeIndex, int longitudeIndex, int admin2Index, int recoveredIndex, IReadOnlyList<string> columnValues)
+        private static RowModel ProcessRow(DateTimeOffset date, int confirmedIndex, int deathsIndex, int countryRegionIndex, int provinceStateIndex, int latitudeIndex, int longitudeIndex, int admin2Index, int recoveredIndex, int activeIndex, IReadOnlyList<string> columnValues)
         {
             var confirmedText = columnValues[confirmedIndex];
             var deathsText = columnValues[deathsIndex];
             var recoveredText = columnValues[recoveredIndex];
+            string activeText = null;
+
+            if (activeIndex > 0)
+            {
+                activeText = columnValues[activeIndex];
+            }
 
             string latitudeText = null;
             if (latitudeIndex > -1)
@@ -135,6 +149,7 @@ namespace Covid19DB
                 Confirmed = !string.IsNullOrEmpty(confirmedText) ? int.Parse(confirmedText) : (int?)null,
                 Deaths = !string.IsNullOrEmpty(deathsText) ? int.Parse(deathsText) : (int?)null,
                 Recovered = !string.IsNullOrEmpty(recoveredText) ? int.Parse(recoveredText) : (int?)null,
+                Active = !string.IsNullOrEmpty(activeText) ? int.Parse(activeText) : (int?)null,
                 Country_Region = columnValues[countryRegionIndex],
                 Province_State = columnValues[provinceStateIndex],
                 Lat = latitude,
