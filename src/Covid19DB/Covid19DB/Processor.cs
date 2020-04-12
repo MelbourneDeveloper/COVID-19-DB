@@ -97,22 +97,22 @@ namespace Covid19DB
         #endregion
 
         #region Private Methods
-        private int? GetDailyValue(Dictionary<Guid, int?> calculatedValuesByLocationId, Guid locationId, int? rowValue, string columnName, DateTimeOffset date)
+        private int? GetDailyValue(Dictionary<Guid, int?> lastValuesByLocationId, Guid locationId, int? rowValue, string columnName, DateTimeOffset date)
         {
-            _ = calculatedValuesByLocationId.TryGetValue(locationId, out var total);
+            _ = lastValuesByLocationId.TryGetValue(locationId, out var lastValue);
             int? returnValue = null;
 
             if (rowValue.HasValue)
             {
-                if (total.HasValue)
+                if (lastValue.HasValue)
                 {
-                    returnValue = rowValue - total;
-                    calculatedValuesByLocationId[locationId] = total + returnValue;
+                    returnValue = rowValue - lastValue;
+                    lastValuesByLocationId[locationId] = rowValue;
                 }
                 else
                 {
                     returnValue = rowValue;
-                    calculatedValuesByLocationId.Add(locationId, rowValue);
+                    lastValuesByLocationId.Add(locationId, rowValue);
                 }
             }
 
