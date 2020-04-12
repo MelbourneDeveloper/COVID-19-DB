@@ -242,7 +242,7 @@ namespace Covid19DB
         {
             var month = date.Month.ToString().PadLeft(2, '0');
             var day = date.Day.ToString().PadLeft(2, '0');
-            return $"https://github.com/CSSEGISandData/COVID-19/blob/master/csse_covid_19_data/csse_covid_19_daily_reports/{month}-{day}-2020.csv#L{csvRowNumber}";
+            return $"[Row {csvRowNumber}](https://github.com/CSSEGISandData/COVID-19/blob/master/csse_covid_19_data/csse_covid_19_daily_reports/{month}-{day}-2020.csv#L{csvRowNumber})";
         }
         #endregion
     }

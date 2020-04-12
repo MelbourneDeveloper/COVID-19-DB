@@ -3,6 +3,7 @@ using Covid19DB.Utilities;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Covid19DB
 {
@@ -36,10 +37,10 @@ namespace Covid19DB
             }
         }
 
-        public void ToCsv()
+        public void ToMarkdownTable()
         {
-            _casesRowInbalances.ToCsv("CasesRowInbalances.csv");
-            _casesRowAdjustments.ToCsv("CasesRowAdjustments.csv");
+            _casesRowInbalances.OrderBy(r => r.Date).ThenBy(r => r.CsvRowNumber).ToMarkdownTable("CasesRowInbalances.md");
+            _casesRowAdjustments.OrderBy(r => r.Date).ThenBy(r => r.CsvRowNumber).ToMarkdownTable("CasesRowAdjustments.md");
         }
     }
 

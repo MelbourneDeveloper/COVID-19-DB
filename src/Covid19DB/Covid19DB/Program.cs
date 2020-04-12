@@ -40,7 +40,7 @@ namespace Covid19DB
 
             covid19DbContext.SaveChanges();
 
-            logger.ToCsv();
+            logger.ToMarkdownTable();
 
             Console.WriteLine("Done");
         }
