@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Covid19DB.Models.Logging;
+using Microsoft.Extensions.Logging;
 using System;
 
 namespace Covid19DB
@@ -21,8 +22,10 @@ namespace Covid19DB
         {
             Count++;
             var stateObject = (object)state;
-            var countAnomaly = (CountAnomaly)stateObject;
-            Console.WriteLine($"LocationId: {countAnomaly.LocationId} Date: {countAnomaly.Date} Type: {countAnomaly.ColumnName} Count: {Count}");
+            if (stateObject is CountAnomaly countAnomaly)
+            {
+                Console.WriteLine($"LocationId: {countAnomaly.LocationId} Date: {countAnomaly.Date} Type: {countAnomaly.ColumnName} Count: {Count}");
+            }
         }
     }
 

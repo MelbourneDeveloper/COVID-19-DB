@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Covid19DB
+namespace Covid19DB.Models.Logging
 {
     public class CountAnomaly
     {
