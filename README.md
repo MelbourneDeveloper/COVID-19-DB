@@ -41,8 +41,6 @@ where Regions.Name='Australia'
 group by Provinces.Name
 ```
 
-More examples will be added here.
-
 ![Summary Query](Images/SummaryQuery.png)
 
 **Get Totals for Australian States Filtered For April**
@@ -63,6 +61,10 @@ where Regions.Name='Australia' AND
 date(DateOfCount) between date('2020-04-01 00:00:00+00:00') and date('2020-04-31 23:59:00+00:00')
 group by Provinces.Name
 ```
+
+![Summary Query](Images/SummaryQuery2.png)
+
+*More examples will be added here*
 
 ## Run the Code (Generate the Database)
 
