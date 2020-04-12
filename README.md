@@ -49,26 +49,27 @@ limit 15
 *These figures have NOT been validated. This an example only
 
 |Region|New Cases In Last Two Weeks|
-|US|394190|
-|Spain|92554|
-|France|92529|
-|Germany|71300|
-|Italy|61079|
-|United Kingdom|59862|
-|Turkey|41331|
-|Iran|35860|
-|Belgium|19383|
-|Canada|17377|
-|Brazil|16221|
-|Netherlands|14602|
-|Switzerland|11623|
-|Portugal|11204|
-|Russia|10881|
-|Israel|7373|
-|India|6711|
-|Sweden|6616|
-|Ireland|5968|
-|Austria|5898|
+|----------------|--------|
+| US             | 394190 |
+| Spain          | 92554  |
+| France         | 92529  |
+| Germany        | 71300  |
+| Italy          | 61079  |
+| United Kingdom | 59862  |
+| Turkey         | 41331  |
+| Iran           | 35860  |
+| Belgium        | 19383  |
+| Canada         | 17377  |
+| Brazil         | 16221  |
+| Netherlands    | 14602  |
+| Switzerland    | 11623  |
+| Portugal       | 11204  |
+| Russia         | 10881  |
+| Israel         | 7373   |
+| India          | 6711   |
+| Sweden         | 6616   |
+| Ireland        | 5968   |
+| Austria        | 5898   |
 
 **Get Totals for Australian States**
 
