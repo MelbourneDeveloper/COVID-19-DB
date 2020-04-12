@@ -16,7 +16,7 @@ The generated database is stored on dropbox and can be downloaded [here](https:/
 ## Why a database?
 The current Johns Hopkins data is stored in CSV files and is split into daily sets. This makes it difficult to query the data. Databases provide a useful way to query the data with SQL. The code in this repo provides a replicable way to generate and update a database from the CSV files that John Hopkins provides daily. The database is currently an SQLite database, but the code allows for any database platform to generate the data. It is possible to generate the database as an SQL Server database, Oracle database, MySQL, or other database types. The code uses Entity Framework to create the database. Please change the connection string to use a different database.
 
-## Basic Queries
+## Querying the Data
 Use the [DB Browser For SQLite](https://sqlitebrowser.org/) to open the database on any platform. The database structure looks like this:
 
 ![Database Structure](Images/DBStructure.png)
