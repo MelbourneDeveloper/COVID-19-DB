@@ -23,7 +23,7 @@ Use the [DB Browser For SQLite](https://sqlitebrowser.org/) to open the database
 
 The `LocationDays` table contains `LocationId`, `DateOfCount`, `Deaths`, `Recoveries`, and `NewCases`. These values can be summarized as below.
 
-**List Top 15 Regions With Most New Cases For Last Two Weeks
+### List Top 15 Regions With Most New Cases For Last Two Weeks
 
 ```sql
 select	
@@ -71,7 +71,7 @@ limit 20
 | Ireland        | 5968   |
 | Austria        | 5898   |
 
-**Get Totals for Australian States**
+### Get Totals for Australian States
 
 ```sql
 select	Provinces.Name,
@@ -91,7 +91,7 @@ group by Provinces.Name
 
 ![Summary Query](Images/SummaryQuery.png)
 
-**Get Totals for Australian States Filtered For April**
+### Get Totals for Australian States Filtered For April
 
 ```sql
 select	Provinces.Name,
