@@ -11,7 +11,7 @@ This database is in alpha. It contains errors. It should not be used for reporti
 ## COVID-19 SQLite Database 
 This GitHub repo has C# code which generates an SQLite database based on COVID-19 figures from CSSE at Johns Hopkins University. That data can be found [here](https://github.com/CSSEGISandData/COVID-19/tree/master/csse_covid_19_data/csse_covid_19_daily_reports). This is the [Github page](https://github.com/CSSEGISandData/COVID-19).
 
-The generated database is stored on dropbox and can be downloaded [here](https://www.dropbox.com/s/4fn90s1hcy73erh/Covid19Db%202020-04-12%20.db?dl=0).
+The generated database is stored on dropbox and can be downloaded [here](https://www.dropbox.com/s/k6jjugobvkgj9md/Covid19Db%202020-04-11%20.db?dl=0).
 
 ## Why a database?
 The current Johns Hopkins data is stored in CSV files and is split into daily sets. This makes it difficult to query the data. Databases provide a useful way to query the data with SQL. The code in this repo provides a replicable way to generate and update a database from the CSV files that John Hopkins provides daily. The database is currently an SQLite database, but the code allows for any database platform to generate the data. It is possible to generate the database as an SQL Server database, Oracle database, MySQL, or other database types. The code uses Entity Framework to create the database. Please change the connection string to use a different database.
