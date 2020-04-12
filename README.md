@@ -43,7 +43,7 @@ group by
 		Regions.Id,
 		Regions.Name
 order by NewCasesInLastTwOWeeks desc		
-limit 15	
+limit 20	
 ```
 
 *These figures have NOT been validated. This an example only
