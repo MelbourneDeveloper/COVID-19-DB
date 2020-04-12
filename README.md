@@ -23,6 +23,53 @@ Use the [DB Browser For SQLite](https://sqlitebrowser.org/) to open the database
 
 The `LocationDays` table contains `LocationId`, `DateOfCount`, `Deaths`, `Recoveries`, and `NewCases`. These values can be summarized as below.
 
+**List Top 15 Regions With Most New Cases For Last Two Weeks
+
+```sql
+select	
+		Regions.Name,
+		sum(newcases) as NewCasesInLastTwOWeeks
+from locationdays 
+inner join locations
+on locations.id = locationdays.locationid
+inner join Provinces
+on Provinces.id = locations.ProvinceId
+inner join Regions
+on Regions.id = Provinces.RegionId
+where 
+date(DateOfCount) >= date('2020-04-11','-14 days')
+AND date(DateOfCount) < date('2020-04-11')
+group by 		
+		Regions.Id,
+		Regions.Name
+order by NewCasesInLastTwOWeeks desc		
+limit 15	
+```
+
+*These figures have NOT been validated. This an example only
+
+|Region|New Cases In Last Two Weeks|
+|US|394190|
+|Spain|92554|
+|France|92529|
+|Germany|71300|
+|Italy|61079|
+|United Kingdom|59862|
+|Turkey|41331|
+|Iran|35860|
+|Belgium|19383|
+|Canada|17377|
+|Brazil|16221|
+|Netherlands|14602|
+|Switzerland|11623|
+|Portugal|11204|
+|Russia|10881|
+|Israel|7373|
+|India|6711|
+|Sweden|6616|
+|Ireland|5968|
+|Austria|5898|
+
 **Get Totals for Australian States**
 
 ```sql
