@@ -56,23 +56,28 @@ namespace Covid19DB
 
             foreach (var rowModel in rows)
             {
-                if (rowModel.Confirmed.HasValue && rowModel.Active.HasValue)
+                if (rowModel.Confirmed.HasValue)
                 {
-                    if ((rowModel.Active + rowModel.Deaths + rowModel.Recovered) != rowModel.Confirmed)
+                    if (rowModel.Active.HasValue && rowModel.Active > 0)
                     {
-                        _logger.Log(
-                            LogLevel.Warning,
-                            default,
-                            new IncorrectCountValue
-                            {
-                                Date = rowModel.Date,
-                                CsvRowNumber = rowModel.CsvRowNumber,
-                                Confirmed = rowModel.Confirmed,
-                                Recoveries = rowModel.Recovered,
-                                Deaths = rowModel.Deaths
-                            },
-                            null,
-                            null);
+                        if ((rowModel.Active + rowModel.Deaths + rowModel.Recovered) != rowModel.Confirmed)
+                        {
+                            _logger.Log(
+                                LogLevel.Warning,
+                                default,
+                                new CasesRowInbalance
+                                {
+                                    Date = rowModel.Date,
+                                    CsvRowNumber = rowModel.CsvRowNumber,
+                                    Confirmed = rowModel.Confirmed,
+                                    Recoveries = rowModel.Recovered,
+                                    Deaths = rowModel.Deaths,
+                                    Active = rowModel.Active,
+                                    Url = GetRowUrl(rowModel.Date, rowModel.CsvRowNumber)
+                                },
+                                null,
+                                null);
+                        }
                     }
                 }
 
@@ -144,12 +149,13 @@ namespace Covid19DB
             {
                 _logger.Log(LogLevel.Warning,
                     default,
-                    new CountAnomaly
+                    new CaseRowAdjustment
                     {
                         CsvRowNumber = csvRowNumber,
                         ColumnName = columnName,
                         Date = date,
-                        LocationId = locationId
+                        LocationId = locationId,
+                        Url = GetRowUrl(date, csvRowNumber)
                     },
                     null,
                     null);
@@ -219,6 +225,13 @@ namespace Covid19DB
             _regionsByName.Add(regionName, region);
 
             return region;
+        }
+
+        private static string GetRowUrl(DateTimeOffset date, int csvRowNumber)
+        {
+            var month = date.Month.ToString().PadLeft(2, '0');
+            var day = date.Day.ToString().PadLeft(2, '0');
+            return $"https://github.com/CSSEGISandData/COVID-19/blob/master/csse_covid_19_data/csse_covid_19_daily_reports/{month}-{day}-2020.csv#L{csvRowNumber}";
         }
         #endregion
     }
