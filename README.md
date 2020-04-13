@@ -14,7 +14,7 @@ This GitHub repo has C# code which generates an SQLite database based on COVID-1
 The generated database is stored on dropbox and can be downloaded [here](https://www.dropbox.com/s/dyk91ekouwct84d/Covid19Db%202020-04-12.db?dl=0).
 
 ## Why a database?
-The current Johns Hopkins data is stored in CSV files and is split into daily sets. This makes it difficult to query the data. Databases provide a useful way to query the data with SQL. The code in this repo provides a replicable way to generate and update a database from the CSV files that John Hopkins provides daily. The database is currently an SQLite database, but the code allows for any database platform to generate the data. It is possible to generate the database as an SQL Server database, Oracle database, MySQL, or other database types. The code uses Entity Framework to create the database. Please change the connection string to use a different database.
+The current Johns Hopkins data is stored in CSV files and is split into daily sets. This makes it difficult to query the data over time. Databases provide a useful way to query the data with SQL. The code in this repo provides a replicable way to generate the database from the CSV files that John Hopkins provides daily. The database is currently an SQLite database, but the code allows for any database platform to generate the data. It is possible to generate the database as an SQL Server database, Oracle database, MySQL, or other database types. The code uses Entity Framework to create the database. Please change the connection string to use a different database.
 
 ## Querying the Data
 Use the [DB Browser For SQLite](https://sqlitebrowser.org/) to open the database on any platform. The database structure looks like this:
@@ -106,27 +106,6 @@ Note: *Figures here highlight issues with the Johns Hopkins data. Notice that Ne
 | Tasmania                     | 133       | 4      | 48         |
 | Victoria                     | 1265      | 14     | 926        |
 | Western Australia            | 514       | 6      | 216        |
-
-### Get Totals for Australian States Filtered For April
-
-```sql
-select	Provinces.Name,
-		sum(newcases) as TotalCases,
-		sum(deaths) as TotalDeaths,
-		sum(Recoveries) as TotalRecoveries	
-from locationdays 
-inner join locations
-on locations.id = locationdays.locationid
-inner join Provinces
-on Provinces.id = locations.ProvinceId
-inner join Regions
-on Regions.id = Provinces.RegionId
-where Regions.Name='Australia' AND
-date(DateOfCount) between date('2020-04-01 00:00:00+00:00') and date('2020-04-31 23:59:00+00:00')
-group by Provinces.Name
-```
-
-![Summary Query](Images/SummaryQuery2.png)
 
 *More examples will be added here*
 
