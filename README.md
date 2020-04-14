@@ -7,7 +7,7 @@ This database is in alpha.  It should not be used for reporting. The onus is on 
 **The database structure and code may change and there may be bugs. Please help by reporting bugs and inconsistencies in the issues section. The aim is to get this database to be as reliable as possible**
 
 ## COVID-19 SQLite Database 
-This GitHub repo has C# code which generates an SQLite database based on COVID-19 figures from CSSE at Johns Hopkins University. That data can be found [here](https://github.com/CSSEGISandData/COVID-19/tree/master/csse_covid_19_data/csse_covid_19_daily_reports). This is the [Github page](https://github.com/CSSEGISandData/COVID-19).
+This GitHub repo has C# code which generates an SQLite database based on COVID-19 figures from CSSE at Johns Hopkins University. That data can be found [here](https://www.dropbox.com/s/mgwds88ix628cgp/Covid19Db%202020-04-13.db?dl=0). This is the [Github page](https://github.com/CSSEGISandData/COVID-19).
 
 The generated database is stored on dropbox and can be downloaded [here](https://www.dropbox.com/s/i1izgoz0uz4ow5j/Covid19Db%202020-04-12.db?dl=0).
 
