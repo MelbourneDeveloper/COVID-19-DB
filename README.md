@@ -1,15 +1,10 @@
-# COVID-19-DB - NOT FOR REPORTING PURPOSES
+# COVID-19-DB
 
 [Follow Me](https://twitter.com/CFDevelop) on Twitter for updates to this database and code.
 
-This database is in alpha.  It should not be used for reporting. The onus is on you to validate this data.
+The SQLite database can be downloaded [here](https://www.dropbox.com/s/i1izgoz0uz4ow5j/Covid19Db%202020-04-12.db?dl=0). This database aggregates data from the Johns Hopkins CSSE CSV [daily reports](https://github.com/CSSEGISandData/COVID-19/tree/master/csse_covid_19_data/csse_covid_19_daily_reports) in to a single SQLite database. It uses C#. This is the [COVID-19 Johns Hopkins CSSEGithub page](https://github.com/CSSEGISandData/COVID-19).
 
-**The database structure and code may change and there may be bugs. Please help by reporting bugs and inconsistencies in the issues section. The aim is to get this database to be as reliable as possible**
-
-## COVID-19 SQLite Database 
-This GitHub repo has C# code which generates an SQLite database based on COVID-19 figures from CSSE at Johns Hopkins University. That data can be found [here](https://www.dropbox.com/s/mgwds88ix628cgp/Covid19Db%202020-04-13.db?dl=0). This is the [Github page](https://github.com/CSSEGISandData/COVID-19).
-
-The generated database is stored on dropbox and can be downloaded [here](https://www.dropbox.com/s/i1izgoz0uz4ow5j/Covid19Db%202020-04-12.db?dl=0).
+**This database is in alpha. The database structure and code may change and there may be bugs. Please help by reporting bugs and inconsistencies in the issues section. The aim is to get this database to be as reliable as possible. NOT FOR REPORTING PURPOSES**
 
 ## Why a database?
 The current Johns Hopkins data is stored in CSV files and is split into daily sets. This makes it difficult to query the data over time. Databases provide a useful way to query the data with SQL. The code in this repo provides a replicable way to generate the database from the CSV files that John Hopkins provides daily. The database is currently an SQLite database, but the code allows for any database platform to generate the data. It is possible to generate the database as an SQL Server database, Oracle database, MySQL, or other database types. The code uses Entity Framework to create the database. Please change the connection string to use a different database.
