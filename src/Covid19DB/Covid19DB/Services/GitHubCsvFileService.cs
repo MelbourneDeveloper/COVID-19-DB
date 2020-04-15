@@ -12,7 +12,7 @@ namespace Covid19DB.Services
     public class GitHubCsvFileService : ICsvFileService
     {
         #region Fields
-        private Client _client { get; } = new Client(new NewtonsoftSerializationAdapter());
+        private readonly Client _client = new Client(new NewtonsoftSerializationAdapter());
         private Dictionary<string, string> _fileUrlsByName;
         #endregion
 
