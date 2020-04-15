@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Covid19DB
 {
@@ -23,18 +24,18 @@ namespace Covid19DB
         #endregion
 
         #region Public Methods
-        public IEnumerable<RowModel> ReadCsvFiles()
+        public async Task<IEnumerable<RowModel>> ReadCsvFiles()
         {
             var modelsByDate = new Dictionary<DateTimeOffset, List<RowModel>>();
 
             //Iterate through the files
-            foreach (var fileName in _csvFileService.GetFileNames())
+            foreach (var fileName in await _csvFileService.GetFileNamesAsync())
             {
                 //Get the date
                 var numbers = fileName.Replace(".csv", string.Empty, StringComparison.OrdinalIgnoreCase).Split('-').Select(int.Parse).ToList();
                 var date = new DateTimeOffset(numbers[2], numbers[0], numbers[1], 0, 0, 0, default);
 
-                var rawModels = ProcessFile(_csvFileService.OpenStream(fileName), date);
+                var rawModels = ProcessFile(await _csvFileService.GetFileTextAsync(fileName), date);
 
                 modelsByDate.Add(date, rawModels);
             }
@@ -55,8 +56,14 @@ namespace Covid19DB
         #endregion
 
         #region Private Methods
-        private static List<RowModel> ProcessFile(Stream stream, DateTimeOffset date)
+        private static List<RowModel> ProcessFile(string fileText, DateTimeOffset date)
         {
+            var stream = new MemoryStream();
+            using var writer = new StreamWriter(stream);
+            writer.Write(fileText);
+            writer.Flush();
+            stream.Position = 0;
+
             using var parser = new TextFieldParser(stream) { TextFieldType = FieldType.Delimited };
 
             parser.SetDelimiters(",");

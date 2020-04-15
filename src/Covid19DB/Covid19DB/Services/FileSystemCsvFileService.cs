@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Covid19DB.Services
 {
@@ -18,14 +19,14 @@ namespace Covid19DB.Services
         #endregion
 
         #region Public Methods
-        public IEnumerable<string> GetFileNames()
+        public Task<IEnumerable<string>> GetFileNamesAsync()
         {
-            return Directory.GetFiles(_directoryPath, "*.csv").Select(f => new FileInfo(f).Name);
+            return Task.FromResult(Directory.GetFiles(_directoryPath, "*.csv").Select(f => new FileInfo(f).Name));
         }
 
-        public Stream OpenStream(string fileName)
+        public Task<string> GetFileTextAsync(string fileName)
         {
-            return File.OpenRead(Path.Combine(_directoryPath, fileName));
+            return File.ReadAllTextAsync(Path.Combine(_directoryPath, fileName));
         }
         #endregion
     }
