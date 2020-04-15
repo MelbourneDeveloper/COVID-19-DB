@@ -4,6 +4,7 @@ using Covid19DB.Services;
 using System;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Covid19DB
 {
@@ -11,15 +12,26 @@ namespace Covid19DB
     {
         private static void Main(string[] args)
         {
-            var logger = new Logger<Processor>();
-
             var directoryPath = args.FirstOrDefault();
 
             if (string.IsNullOrEmpty(directoryPath)) throw new ArgumentException("Daily Reports Directory not specified");
 
             if (!Directory.Exists(directoryPath)) throw new ArgumentException($"The directory {directoryPath} does not exist. Please check the path");
 
-            var rows = CsvReader.ReadCsvFiles(directoryPath);
+            ProcessAsync(directoryPath).Wait();
+
+            Console.WriteLine("Done");
+        }
+
+        private static async Task ProcessAsync(string directoryPath)
+        {
+            var logger = new Logger<Processor>();
+
+            var fileSystemCsvFileService = new FileSystemCsvFileService(directoryPath);
+
+            var csvReader = new CsvReader(fileSystemCsvFileService);
+
+            var rows = await csvReader.ReadCsvFiles();
 
             using var covid19DbContext = new Covid19DbContext();
 
@@ -40,9 +52,7 @@ namespace Covid19DB
 
             covid19DbContext.SaveChanges();
 
-            logger.ToMarkdownTable();
-
-            Console.WriteLine("Done");
+            logger.ToMarkdownTables();
         }
     }
 }

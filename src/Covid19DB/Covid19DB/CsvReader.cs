@@ -1,28 +1,41 @@
 ﻿using Covid19DB.Exceptions;
 using Covid19DB.Models;
+using Covid19DB.Services;
 using Microsoft.VisualBasic.FileIO;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Covid19DB
 {
-    public static class CsvReader
+    public class CsvReader
     {
-        public static IEnumerable<RowModel> ReadCsvFiles(string dailyReportsDirectoryPath)
+        #region Fields
+        private readonly ICsvFileService _csvFileService;
+        #endregion
+
+        #region Constructor
+        public CsvReader(ICsvFileService csvFileService)
+        {
+            _csvFileService = csvFileService;
+        }
+        #endregion
+
+        #region Public Methods
+        public async Task<IEnumerable<RowModel>> ReadCsvFiles()
         {
             var modelsByDate = new Dictionary<DateTimeOffset, List<RowModel>>();
 
             //Iterate through the files
-            foreach (var fileName in Directory.GetFiles(dailyReportsDirectoryPath, "*.csv"))
+            foreach (var fileName in await _csvFileService.GetFileNamesAsync())
             {
                 //Get the date
-                var fileNameWithoutExtension = Path.GetFileNameWithoutExtension(fileName);
-                var numbers = fileNameWithoutExtension.Split('-').Select(int.Parse).ToList();
+                var numbers = fileName.Replace(".csv", string.Empty, StringComparison.OrdinalIgnoreCase).Split('-').Select(int.Parse).ToList();
                 var date = new DateTimeOffset(numbers[2], numbers[0], numbers[1], 0, 0, 0, default);
 
-                var rawModels = ProcessFile(fileName, date);
+                var rawModels = ProcessFile(await _csvFileService.GetFileTextAsync(fileName), date);
 
                 modelsByDate.Add(date, rawModels);
             }
@@ -40,10 +53,18 @@ namespace Covid19DB
 
             return rows;
         }
+        #endregion
 
-        private static List<RowModel> ProcessFile(string fileName, DateTimeOffset date)
+        #region Private Methods
+        private static List<RowModel> ProcessFile(string fileText, DateTimeOffset date)
         {
-            using var parser = new TextFieldParser(fileName) { TextFieldType = FieldType.Delimited };
+            var stream = new MemoryStream();
+            using var writer = new StreamWriter(stream);
+            writer.Write(fileText);
+            writer.Flush();
+            stream.Position = 0;
+
+            using var parser = new TextFieldParser(stream) { TextFieldType = FieldType.Delimited };
 
             parser.SetDelimiters(",");
 
@@ -83,7 +104,7 @@ namespace Covid19DB
 
                 if (columnValues.Count != headerNames.Count)
                 {
-                    throw new RowValidationException($"Filename: {fileName} Headers: {headerNames.Count} Tokens: {columnValues.Count} Line: {rowNumber}");
+                    throw new RowValidationException($"Filename: {stream} Headers: {headerNames.Count} Tokens: {columnValues.Count} Line: {rowNumber}");
                 }
 
                 var rowModel = ProcessRow(date, confirmedIndex, deathsIndex, countryRegionIndex, provinceStateIndex, latitudeIndex, longitudeIndex, admin2Index, recoveredIndex, activeIndex, columnValues);
@@ -158,6 +179,6 @@ namespace Covid19DB
                 Admin2 = admin2Text
             };
         }
-
+        #endregion
     }
 }
