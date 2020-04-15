@@ -19,7 +19,11 @@ namespace Covid19DB
 
             if (!Directory.Exists(directoryPath)) throw new ArgumentException($"The directory {directoryPath} does not exist. Please check the path");
 
-            var rows = CsvReader.ReadCsvFiles(directoryPath);
+            var fileSystemCsvFileService = new FileSystemCsvFileService(directoryPath);
+
+            var csvReader = new CsvReader(fileSystemCsvFileService);
+
+            var rows = csvReader.ReadCsvFiles();
 
             using var covid19DbContext = new Covid19DbContext();
 
