@@ -31,7 +31,7 @@ namespace Covid19DB
             foreach (var fileName in _csvFileService.GetFileNames())
             {
                 //Get the date
-                var numbers = fileName.Split('-').Select(int.Parse).ToList();
+                var numbers = fileName.Replace(".csv", string.Empty, StringComparison.OrdinalIgnoreCase).Split('-').Select(int.Parse).ToList();
                 var date = new DateTimeOffset(numbers[2], numbers[0], numbers[1], 0, 0, 0, default);
 
                 var rawModels = ProcessFile(_csvFileService.OpenStream(fileName), date);
