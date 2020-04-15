@@ -1,5 +1,4 @@
 ﻿
-/*
 using Covid19DB.Models.Github;
 using RestClient.Net;
 using RestClient.Net.Abstractions;
@@ -7,13 +6,12 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-
 namespace Covid19DB.Services
 {
     public class GitHubCsvFileService : ICsvFileService
     {
         #region Fields
-        private Client Client { get; } = new Client(new NewtonsoftSerializationAdapter(), new Uri("https://api.github.com/repos/CSSEGISandData/COVID-19/"));
+        private Client Client { get; } = new Client(new NewtonsoftSerializationAdapter());
         #endregion
 
         #region Constructor
@@ -28,7 +26,7 @@ namespace Covid19DB.Services
         {
             var fileNames = new List<string>();
 
-            var response = await Client.GetAsync<List<Contents>>("contents/Pluralsight");
+            var response = await Client.GetAsync<List<Contents>>(new Uri("https://api.github.com/repos/CSSEGISandData/COVID-19/contents/csse_covid_19_data/csse_covid_19_daily_reports?ref=master"));
 
             foreach (var contents in response.Body)
             {
@@ -43,15 +41,14 @@ namespace Covid19DB.Services
 
         public Task<string> GetFileTextAsync(string fileName)
         {
-            var length = Client.BaseUri.ToString().Length;
-            var resource = contents.url.Substring(length, contents.url.Length - length);
+            throw new NotImplementedException();
+            //var length = Client.BaseUri.ToString().Length;
+            //var resource = contents.url.Substring(length, contents.url.Length - length);
 
-            var file = Client.GetAsync<FileContents>(resource);
-            var data = Convert.FromBase64String(file.Body.content);
+            //var file = Client.GetAsync<FileContents>(resource);
+            //var data = Convert.FromBase64String(file.Body.content);
         }
         #endregion
 
     }
 }
-
-    */
