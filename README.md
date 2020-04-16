@@ -102,19 +102,21 @@ Note: *Figures here highlight issues with the Johns Hopkins data. Notice that Ne
 
 *More examples will be added here*
 
-## Run the Code (Generate the Database)
+## Getting Started (Generate the Database)
 
-- Clone the [Johns Hopkins repo](https://github.com/CSSEGISandData/COVID-19).
-- Modify the [launch settings](https://github.com/MelbourneDeveloper/COVID-19-DB/blob/4f27a3fa49e11a780fda1d5dbad2b616cd7d3cd6/src/Covid19DB/Covid19DB/Properties/launchSettings.json#L5) to point to the `csse_covid_19_data/csse_covid_19_daily_reports` folder of the repo
+Run these command at the command prompt or terminal
+
+- Clone the repo and source data. **This includes the [Johns Hopkins CSSE COVID-19 repo](https://github.com/CSSEGISandData/COVID-19).**
+
+> git clone --recursive https://github.com/MelbourneDeveloper/COVID-19-DB.git
+
+- Navigate to COVID-19-DB/src/Covid19DB
+
 - Run the app
 
-Alternatively, you can run the tool at the command prompt on Windows, OSX, or Linux.
+> dotnet run ../../CSSE-COVID-19/csse_covid_19_data/csse_covid_19_daily_reports
 
-- Go to the folder `src\Covid19DB\Covid19DB` (or `src/Covid19DB/Covid19DB`)
-- Run 
-`dotnet run C:\Code\COVID-19\csse_covid_19_data\csse_covid_19_daily_reports`
-
-*Note: replace the folder path with your folder path*
+Or, open the solution in Visual Studio 2019 and run the app.
 
 ## CSV Reader
 
