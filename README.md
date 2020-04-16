@@ -104,7 +104,7 @@ Note: *Figures here highlight issues with the Johns Hopkins data. Notice that Ne
 
 ## Getting Started (Generate the Database)
 
-Run these command at the command prompt or terminal
+Run these command at the command prompt or terminal. Make sure you run initialize the submodule if you clone with your favourite Git client.
 
 - Clone the repo and source data. **This includes the [Johns Hopkins CSSE COVID-19 repo](https://github.com/CSSEGISandData/COVID-19).**
 
