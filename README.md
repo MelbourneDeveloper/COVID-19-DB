@@ -2,14 +2,11 @@
 
 [Follow Me](https://twitter.com/CFDevelop) on Twitter for updates to this database and code.
 
-The SQLite database can be downloaded [here](https://www.dropbox.com/s/153iwehu3k8kbg5/Covid19Db%202020-04-14.db?dl=0). This database aggregates data from the Johns Hopkins CSSE CSV [daily reports](https://github.com/CSSEGISandData/COVID-19/tree/master/csse_covid_19_data/csse_covid_19_daily_reports) in to a single SQLite database. It uses C# to generate the database, but you can open it with [DB Browser For SQLite](https://sqlitebrowser.org/). This is the [COVID-19 Johns Hopkins CSSEGithub page](https://github.com/CSSEGISandData/COVID-19).
+Download the SQLite database [here](https://www.dropbox.com/s/153iwehu3k8kbg5/Covid19Db%202020-04-14.db?dl=0). This database aggregates data from the Johns Hopkins CSSE CSV [daily reports](https://github.com/CSSEGISandData/COVID-19/tree/master/csse_covid_19_data/csse_covid_19_daily_reports) in to a single SQLite database. It uses C# to generate the database, but you can open it with [DB Browser For SQLite](https://sqlitebrowser.org/). This is the [COVID-19 Johns Hopkins CSSEGithub page](https://github.com/CSSEGISandData/COVID-19).
 
 **This database is in alpha. The database structure and code may change and there may be bugs. Please help by reporting bugs and inconsistencies in the issues section. The aim is to get this database to be as reliable as possible. NOT FOR REPORTING PURPOSES**
 
-## Why a database?
-The current Johns Hopkins data is stored in CSV files and is split into daily sets. This makes it difficult to query the data over time. Databases provide a useful way to query the data with SQL. The code in this repo provides a replicable way to generate the database from the CSV files that John Hopkins provides daily. The database is currently an SQLite database, but the code allows for any database platform to generate the data. It is possible to generate the database as an SQL Server database, Oracle database, MySQL, or other database types. The code uses Entity Framework to create the database. Please change the connection string to use a different database.
-
-## Querying the Data
+## Query the Data
 Use the [DB Browser For SQLite](https://sqlitebrowser.org/) to open the database on any platform. The database structure looks like this:
 
 ![Database Structure](Images/DBStructure.png)
@@ -104,7 +101,7 @@ Note: *Figures here highlight issues with the Johns Hopkins data. Notice that Ne
 
 ## Getting Started (Generate the Database)
 
-Run these command at the command prompt or terminal. Make sure you run initialize the submodule if you clone with your favourite Git client.
+Run these commands at the command prompt or terminal. Make sure you run initialize the submodule if you clone with your favourite Git client.
 
 - Clone the repo and source data. **This includes the [Johns Hopkins CSSE COVID-19 repo](https://github.com/CSSEGISandData/COVID-19).**
 
@@ -117,6 +114,9 @@ Run these command at the command prompt or terminal. Make sure you run initializ
 > dotnet run ../../CSSE-COVID-19/csse_covid_19_data/csse_covid_19_daily_reports
 
 Or, open the solution in Visual Studio 2019 and run the app.
+
+## Why a database?
+The current Johns Hopkins data is stored in CSV files and is split into daily sets. This makes it difficult to query the data over time. Databases provide a useful way to query the data with SQL. The code in this repo provides a replicable way to generate the database from the CSV files that John Hopkins provides daily. The database is currently an SQLite database, but the code allows for any database platform to generate the data. It is possible to generate the database as an SQL Server database, Oracle database, MySQL, or other database types. The code uses Entity Framework to create the database. Please change the connection string to use a different database.
 
 ## CSV Reader
 
