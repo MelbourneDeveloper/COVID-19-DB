@@ -20,6 +20,7 @@ namespace Covid19DBApp
         private DateTimeOffset _minDate;
         IEnumerable<Location> _locations;
         IEnumerable<LocationDay> _locationDays;
+        private Dictionary<DateTimeOffset, IEnumerable<LocationDay>> _locationDaysByDate = new Dictionary<DateTimeOffset, IEnumerable<LocationDay>>();
         #endregion
 
         #region Public Properties
@@ -31,6 +32,7 @@ namespace Covid19DBApp
                 selectedDay = value;
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SelectedDay)));
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SelectedDate)));
+                Update();
             }
         }
 
@@ -45,11 +47,16 @@ namespace Covid19DBApp
             _locations = locations;
             _locationDays = locationDays;
 
-            var days = locationDays.GroupBy(ld => ld.DateOfCount).ToList();
-            DayCount = days.Count;
+            var locationDayGroupings = locationDays.GroupBy(ld => ld.DateOfCount).ToList();
+            DayCount = locationDayGroupings.Count;
             SelectedDay = DayCount - 1;
 
-            _minDate = days.Min(d => d.Key);
+            _minDate = locationDayGroupings.Min(d => d.Key);
+
+            foreach (var locationDayGrouping in locationDayGroupings)
+            {
+                _locationDaysByDate.Add(locationDayGrouping.Key, locationDayGrouping.Where(ld => ld.DateOfCount <= locationDayGrouping.Key).ToList());
+            }
 
             Update();
         }
@@ -60,28 +67,40 @@ namespace Covid19DBApp
             {
                 if (!location.Latitude.HasValue) continue;
 
-                var sumOfNewCases = _locationDays.Where(ld => ld.Location != null && ld.Location.Id == location.Id).Sum(ld => ld.NewCases);
+                if (!_locationDaysByDate.ContainsKey(SelectedDate)) return;
 
-                var basicGeoposition = new BasicGeoposition
+                var sumOfNewCases = _locationDaysByDate[SelectedDate].Where(ld => ld.Location != null && ld.Location.Id == location.Id).Sum(ld => ld.NewCases);
+
+                MapIcon mapIcon = null;
+
+                if (_mapIconsByLocation.ContainsKey(location.Id))
                 {
-                    Latitude = (double)location.Latitude.Value,
-                    Longitude = (double)location.Longitude.Value
-                };
-
-                var Geopoint = new Geopoint(basicGeoposition);
-
-                var mapIcon = new MapIcon
+                    mapIcon = _mapIconsByLocation[location.Id];
+                }
+                else
                 {
-                    Location = Geopoint,
-                    NormalizedAnchorPoint = new Point(0.5, 1.0),
-                    ZIndex = 0,
-                    Title = $"{location?.Province?.Name} - {sumOfNewCases}",
-                    Tag = new LocationInformation(location) { Confirmed = sumOfNewCases.Value }
-                };
+                    var basicGeoposition = new BasicGeoposition
+                    {
+                        Latitude = (double)location.Latitude.Value,
+                        Longitude = (double)location.Longitude.Value
+                    };
 
-                _mapIconsByLocation.Add(location.Id, mapIcon);
+                    var Geopoint = new Geopoint(basicGeoposition);
 
-                MapElements.Add(mapIcon);
+                    mapIcon = new MapIcon
+                    {
+                        Location = Geopoint,
+                        NormalizedAnchorPoint = new Point(0.5, 1.0),
+                        ZIndex = 0,
+                        Tag = new LocationInformation(location) { Confirmed = sumOfNewCases.Value }
+                    };
+
+                    _mapIconsByLocation.Add(location.Id, mapIcon);
+
+                    MapElements.Add(mapIcon);
+                }
+
+                mapIcon.Title = $"{location?.Province?.Name} - {sumOfNewCases}";
             }
         }
         #endregion
