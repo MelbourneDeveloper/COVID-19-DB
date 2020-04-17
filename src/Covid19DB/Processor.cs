@@ -10,15 +10,23 @@ using System.Linq;
 
 namespace Covid19DB
 {
+    public class RollingTotalsInfo
+    {
+        public int? RollingTotal { get; set; }
+        public DateTimeOffset PreviousDate { get; set; }
+        public int PreviousDateRowNumber { get; set; }
+    }
+
     public class Processor
     {
         #region Fields
         private const string EmptyValue = "N/A";
         private const string None = "NONE";
         //private const string Unassigned = "Unassigned";
-        private readonly Dictionary<Guid, int?> _confirmedCasesByLocation = new Dictionary<Guid, int?>();
-        private readonly Dictionary<Guid, int?> _recoveriesByLocation = new Dictionary<Guid, int?>();
-        private readonly Dictionary<Guid, int?> _deathsByLocation = new Dictionary<Guid, int?>();
+        private readonly Dictionary<Guid, RollingTotalsInfo> _confirmedCasesByLocation = new Dictionary<Guid, RollingTotalsInfo>();
+        private readonly Dictionary<Guid, RollingTotalsInfo> _recoveriesByLocation = new Dictionary<Guid, RollingTotalsInfo>();
+        private readonly Dictionary<Guid, RollingTotalsInfo> _deathsByLocation = new Dictionary<Guid, RollingTotalsInfo>();
+
         private readonly ICache<Region> _regionsByName = new Cache<Region>();
         private readonly ICache<Province> _provincesByRegionAndName = new Cache<Province>();
         private readonly ICache<Location> _locationsByRegionProvinceName = new Cache<Location>();
@@ -108,10 +116,7 @@ namespace Covid19DB
                 var currentDeaths = GetDailyValue(_deathsByLocation, location, rowModel.Deaths, "Deaths", rowModel.CsvRowNumber, rowModel.Date);
                 var currentRecoveries = GetDailyValue(_recoveriesByLocation, location, rowModel.Recovered, "Recoveries", rowModel.CsvRowNumber, rowModel.Date);
 
-
                 _ = _locationDayRepository.GetOrInsert(rowModel.Date, location, currentNewCases, currentDeaths, currentRecoveries);
-
-                if (!_confirmedCasesByLocation.ContainsKey(location.Id)) _confirmedCasesByLocation.Add(location.Id, rowModel.Confirmed);
             }
         }
 
@@ -137,22 +142,24 @@ namespace Covid19DB
         #endregion
 
         #region Private Methods
-        private int? GetDailyValue(Dictionary<Guid, int?> lastValuesByLocationId, Location location, int? rowValue, string columnName, int csvRowNumber, DateTimeOffset date)
+        private int? GetDailyValue(Dictionary<Guid, RollingTotalsInfo> lastValuesByLocationId, Location location, int? rowValue, string columnName, int csvRowNumber, DateTimeOffset date)
         {
-            _ = lastValuesByLocationId.TryGetValue(location.Id, out var lastValue);
+            _ = lastValuesByLocationId.TryGetValue(location.Id, out var lastRollingTotalsInfo);
             int? returnValue = null;
 
             if (rowValue.HasValue)
             {
-                if (lastValue.HasValue)
+                var newRollingTotalsInfo = new RollingTotalsInfo { PreviousDate = date, RollingTotal = rowValue, PreviousDateRowNumber = csvRowNumber };
+
+                if (lastRollingTotalsInfo != null && lastRollingTotalsInfo.RollingTotal.HasValue)
                 {
-                    returnValue = rowValue - lastValue;
-                    lastValuesByLocationId[location.Id] = rowValue;
+                    returnValue = rowValue - lastRollingTotalsInfo.RollingTotal;
+                    lastValuesByLocationId[location.Id] = newRollingTotalsInfo;
                 }
                 else
                 {
                     returnValue = rowValue;
-                    lastValuesByLocationId.Add(location.Id, rowValue);
+                    lastValuesByLocationId.Add(location.Id, newRollingTotalsInfo);
                 }
             }
 
@@ -169,6 +176,7 @@ namespace Covid19DB
                         Provice = location.Province.Name,
                         Region = location.Province.Region.Name,
                         Url = GetRowUrl(date, csvRowNumber),
+                        PreviousDayRowUrl = GetRowUrl(lastRollingTotalsInfo.PreviousDate, lastRollingTotalsInfo.PreviousDateRowNumber),
                         Discrepancy = returnValue.Value
                     },
                     null,
