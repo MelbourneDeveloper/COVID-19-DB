@@ -1,17 +1,16 @@
 ﻿using Covid19DB.Db;
 using Covid19DB.Entities;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Covid19DB.Repositories
 {
-    public class LocationDayRepository : ILocationDayRepository
+    public class LocationDayRepository : RepositoryBase<LocationDay>, ILocationDayRepository
     {
-        private readonly Covid19DbContext _covid19DbContext;
 
-        public LocationDayRepository(Covid19DbContext covid19DbContext)
+        public LocationDayRepository(Covid19DbContext covid19DbContext) : base(covid19DbContext)
         {
-            _covid19DbContext = covid19DbContext;
         }
 
         public LocationDay Get(Guid id)
@@ -41,17 +40,24 @@ namespace Covid19DB.Repositories
                 Recoveries = recoveries
             };
 
-            _covid19DbContext.LocationDays.Add(day);
+            Covid19DbContext.LocationDays.Add(day);
 
             return day;
         }
 
         public LocationDay Get(DateTimeOffset date, Guid locationId)
         {
-            return _covid19DbContext.LocationDays.FirstOrDefault(d =>
+            return Covid19DbContext.LocationDays.FirstOrDefault(d =>
             d.DateOfCount == date &&
             d.Location.Id == locationId
             );
+        }
+
+#pragma warning disable CA1024 // Use properties where appropriate
+        public IEnumerable<LocationDay> GetAll()
+#pragma warning restore CA1024 // Use properties where appropriate
+        {
+            return Covid19DbContext.LocationDays;
         }
     }
 }

@@ -118,6 +118,34 @@ namespace Covid19DB
 
                 _ = _locationDayRepository.GetOrInsert(rowModel.Date, location, currentNewCases, currentDeaths, currentRecoveries);
             }
+
+            var filteredRowModels = rows.OrderByDescending(r => r.Date).Where(r => r.Lat.HasValue && r.Lat > 0 && r.Long_.HasValue && r.Long_ > 0);
+
+            UpdateLocationCoordinates(filteredRowModels);
+        }
+        #endregion
+
+        #region Private Methods
+        private void UpdateLocationCoordinates(IEnumerable<RowModel> filteredRowModels)
+        {
+            var locations = _locationRepository.GetAll();
+            foreach (var location in locations)
+            {
+                if (!location.Latitude.HasValue || !location.Longitude.HasValue)
+                {
+                    var rowModel = filteredRowModels.FirstOrDefault(r =>
+                    string.Compare(r.Country_Region, location.Province.Region.Name, StringComparison.OrdinalIgnoreCase) == 0 &&
+                    string.Compare(r.Province_State, location.Province.Name, StringComparison.OrdinalIgnoreCase) == 0 &&
+                    ((location.Name == EmptyValue && string.IsNullOrEmpty(r.Admin2)) || string.Compare(r.Admin2, location.Name, StringComparison.OrdinalIgnoreCase) == 0));
+
+                    if (rowModel != null)
+                    {
+                        location.Latitude = rowModel.Lat;
+                        location.Longitude = rowModel.Long_;
+                        _locationRepository.Update(location);
+                    }
+                }
+            }
         }
 
         private void LogRowInbalance(RowModel rowModel, string message)
@@ -139,9 +167,7 @@ namespace Covid19DB
                 null,
                 null);
         }
-        #endregion
 
-        #region Private Methods
         private int? GetDailyValue(Dictionary<Guid, RollingTotalsInfo> lastValuesByLocationId, Location location, int? rowValue, string columnName, int csvRowNumber, DateTimeOffset date)
         {
             _ = lastValuesByLocationId.TryGetValue(location.Id, out var lastRollingTotalsInfo);

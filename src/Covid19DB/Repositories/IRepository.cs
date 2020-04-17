@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Covid19DB.Repositories
 {
@@ -6,5 +7,7 @@ namespace Covid19DB.Repositories
     {
         public T Get(Guid id);
         public void Insert(T item);
+        IEnumerable<T> GetAll();
+        void Update(T item);
     }
 }

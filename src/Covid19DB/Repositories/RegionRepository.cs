@@ -1,17 +1,15 @@
 ﻿using Covid19DB.Db;
 using Covid19DB.Entities;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Covid19DB.Repositories
 {
-    public class RegionRepository : IRepository<Region>, IRegionRepository
+    public class RegionRepository : RepositoryBase<Region>, IRegionRepository
     {
-        private readonly Covid19DbContext _covid19DbContext;
-
-        public RegionRepository(Covid19DbContext covid19DbContext)
+        public RegionRepository(Covid19DbContext covid19DbContext) : base(covid19DbContext)
         {
-            _covid19DbContext = covid19DbContext;
         }
 
         public Region Get(Guid id)
@@ -21,7 +19,7 @@ namespace Covid19DB.Repositories
 
         public void Insert(Region item)
         {
-            _covid19DbContext.Regions.Add(item);
+            Covid19DbContext.Regions.Add(item);
         }
 
         public Region GetOrInsert(string regionName)
@@ -39,7 +37,14 @@ namespace Covid19DB.Repositories
 
         public Region Get(string name)
         {
-            return _covid19DbContext.Regions.FirstOrDefault(r => r.Name == name);
+            return Covid19DbContext.Regions.FirstOrDefault(r => r.Name == name);
+        }
+
+#pragma warning disable CA1024 // Use properties where appropriate
+        public IEnumerable<Region> GetAll()
+#pragma warning restore CA1024 // Use properties where appropriate
+        {
+            return Covid19DbContext.Regions;
         }
     }
 }

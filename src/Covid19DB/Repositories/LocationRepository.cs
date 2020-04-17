@@ -1,17 +1,15 @@
 ﻿using Covid19DB.Db;
 using Covid19DB.Entities;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Covid19DB.Repositories
 {
-    public class LocationRepository : IRepository<Location>, ILocationRepository
+    public class LocationRepository : RepositoryBase<Location>, ILocationRepository
     {
-        private readonly Covid19DbContext _covid19DbContext;
-
-        public LocationRepository(Covid19DbContext covid19DbContext)
+        public LocationRepository(Covid19DbContext covid19DbContext) : base(covid19DbContext)
         {
-            _covid19DbContext = covid19DbContext;
         }
 
         public Location Get(Guid id)
@@ -21,12 +19,12 @@ namespace Covid19DB.Repositories
 
         public void Insert(Location item)
         {
-            _covid19DbContext.Locations.Add(item);
+            Covid19DbContext.Locations.Add(item);
         }
 
         public Location GetOrInsert(string locationName, Province province, decimal? latitude, decimal? longitude)
         {
-            var location = _covid19DbContext.Locations.FirstOrDefault(l =>
+            var location = Covid19DbContext.Locations.FirstOrDefault(l =>
             l.Name == locationName &&
             l.Province.Id == province.Id
             );
@@ -40,9 +38,18 @@ namespace Covid19DB.Repositories
                 Latitude = latitude,
                 Longitude = longitude
             };
-            _covid19DbContext.Locations.Add(location);
+            Covid19DbContext.Locations.Add(location);
 
             return location;
         }
+
+#pragma warning disable CA1024 // Use properties where appropriate
+        public IEnumerable<Location> GetAll()
+#pragma warning restore CA1024 // Use properties where appropriate
+        {
+            return Covid19DbContext.Locations;
+        }
+
+
     }
 }
