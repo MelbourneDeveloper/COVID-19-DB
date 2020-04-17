@@ -20,6 +20,8 @@ namespace Covid19DBApp
                 var locations = covid19DbContext.Locations.Where(p => p.Province.Region.Name == "Australia").Include(d => d.Province).ToList();
 
                 viewModel = new ViewModel(locations, covid19DbContext.LocationDays);
+
+                DataContext = viewModel;
             }
 
             var locationsLayer = new MapElementsLayer

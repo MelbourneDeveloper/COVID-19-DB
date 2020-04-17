@@ -9,16 +9,23 @@
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
     <Grid>
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        
         <Grid.RowDefinitions>
             <RowDefinition Height="30" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <maps:MapControl x:Name="TheMapControl" Grid.Row="1" >
+        <maps:MapControl x:Name="TheMapControl" Grid.Row="1" Grid.ColumnSpan="2" >
 
         </maps:MapControl>
 
-        <Slider x:Name="TheSlider"  />
+        <Slider x:Name="TheSlider" Maximum="{Binding DayCount, Mode=TwoWay}" Value="{Binding SelectedDay, Mode=TwoWay}"  />
+        <TextBlock Text="{Binding SelectedDate}" Grid.Column="1" HorizontalAlignment="Right" Margin="4" />
 
     </Grid>
 </Page>
