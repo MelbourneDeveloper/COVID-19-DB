@@ -124,7 +124,7 @@ The current Johns Hopkins data is stored in CSV files and is split into daily se
 
 ## CSV Reader
 
-The code is useful for anyone who wants to read the Johns Hopkins CSV files. It's easy aggregate all the files in to memory. This code loads data from the entire dataset in to memory and then filters it down to the state of Victoria, Australia and orders the data by date. It then dumps the data back out to a CSV file.
+The code is useful for anyone who wants to read the Johns Hopkins CSV files. It's easy aggregate all the files in to memory. This code loads data from the entire dataset in to memory and then filters it down to the state of Victoria, Australia and orders the data by date. It then dumps the data back out to a CSV or markdown file.
 
 ```cs
 private static async Task ProcessAsync(string directoryPath)
