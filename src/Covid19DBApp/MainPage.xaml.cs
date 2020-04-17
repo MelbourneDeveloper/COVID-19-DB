@@ -72,11 +72,32 @@ namespace Covid19DBApp
 
     public class ViewModel
     {
-        //private 
-
-        public ViewModel(IEnumerable<Location> locations)
+        public ViewModel(IEnumerable<Location> locations, IEnumerable<LocationDay> locationDays)
         {
+            foreach (var location in locations)
+            {
+                if (!location.Latitude.HasValue) continue;
 
+                var sumOfNewCases = locationDays.Where(ld => ld.Location!=null && ld.Location.Id == location.Id).Sum(ld => ld.NewCases);
+
+                var basicGeoposition = new BasicGeoposition
+                {
+                    Latitude = (double)location.Latitude.Value,
+                    Longitude = (double)location.Longitude.Value
+                };
+
+                var Geopoint = new Geopoint(basicGeoposition);
+
+                var mapIcon = new MapIcon
+                {
+                    Location = Geopoint,
+                    NormalizedAnchorPoint = new Point(0.5, 1.0),
+                    ZIndex = 0,
+                    Title = $"{location?.Province?.Name} - {sumOfNewCases}"
+                };
+
+                MapElements.Add(mapIcon);
+            }
         }
 
         public ObservableCollection<MapElement> MapElements { get; } = new ObservableCollection<MapElement>();
@@ -94,32 +115,7 @@ namespace Covid19DBApp
             {
                 var locations = covid19DbContext.Locations.Where(p => p.Province.Region.Name == "Australia").Include(d => d.Province).ToList();
 
-                viewModel = new ViewModel(locations);
-
-                foreach (var location in locations)
-                {
-                    if (!location.Latitude.HasValue) continue;
-
-                    var sumOfNewCases = covid19DbContext.LocationDays.Where(ld => ld.Location.Id == location.Id).Sum(ld => ld.NewCases);
-
-                    var basicGeoposition = new BasicGeoposition
-                    {
-                        Latitude = (double)location.Latitude.Value,
-                        Longitude = (double)location.Longitude.Value
-                    };
-
-                    var Geopoint = new Geopoint(basicGeoposition);
-
-                    var mapIcon = new MapIcon
-                    {
-                        Location = Geopoint,
-                        NormalizedAnchorPoint = new Point(0.5, 1.0),
-                        ZIndex = 0,
-                        Title = $"{location?.Province?.Name} - {sumOfNewCases}"
-                    };
-
-                    viewModel.MapElements.Add(mapIcon);
-                }
+                viewModel = new ViewModel(locations, covid19DbContext.LocationDays);
             }
 
             var locationsLayer = new MapElementsLayer
@@ -129,7 +125,6 @@ namespace Covid19DBApp
             };
 
             TheMapControl.Layers.Add(locationsLayer);
-
         }
     }
 }
