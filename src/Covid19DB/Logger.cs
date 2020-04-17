@@ -40,7 +40,7 @@ namespace Covid19DB
         public void ToMarkdownTables()
         {
             _casesRowInbalances.OrderBy(r => r.Date).ThenBy(r => r.CsvRowNumber).ToMarkdownTable("CasesRowInbalances.md");
-            _casesRowAdjustments.OrderBy(r => r.Date).ThenBy(r => r.CsvRowNumber).ToMarkdownTable("CasesRowAdjustments.md");
+            _casesRowAdjustments.OrderBy(a => a.Discrepancy).ThenBy(r => r.Date).ThenBy(r => r.CsvRowNumber).ToMarkdownTable("CasesRowAdjustments.md");
         }
     }
 

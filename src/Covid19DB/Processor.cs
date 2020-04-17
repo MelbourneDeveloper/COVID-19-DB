@@ -104,9 +104,9 @@ namespace Covid19DB
                 var province = GetProvince(provinceName, region);
                 var location = GetLocation(locationName, rowModel.Lat, rowModel.Long_, province);
 
-                var currentNewCases = GetDailyValue(_confirmedCasesByLocation, location.Id, rowModel.Confirmed, "New Cases", rowModel.CsvRowNumber, rowModel.Date);
-                var currentDeaths = GetDailyValue(_deathsByLocation, location.Id, rowModel.Deaths, "Deaths", rowModel.CsvRowNumber, rowModel.Date);
-                var currentRecoveries = GetDailyValue(_recoveriesByLocation, location.Id, rowModel.Recovered, "Recoveries", rowModel.CsvRowNumber, rowModel.Date);
+                var currentNewCases = GetDailyValue(_confirmedCasesByLocation, location, rowModel.Confirmed, "New Cases", rowModel.CsvRowNumber, rowModel.Date);
+                var currentDeaths = GetDailyValue(_deathsByLocation, location, rowModel.Deaths, "Deaths", rowModel.CsvRowNumber, rowModel.Date);
+                var currentRecoveries = GetDailyValue(_recoveriesByLocation, location, rowModel.Recovered, "Recoveries", rowModel.CsvRowNumber, rowModel.Date);
 
 
                 _ = _locationDayRepository.GetOrInsert(rowModel.Date, location, currentNewCases, currentDeaths, currentRecoveries);
@@ -137,9 +137,9 @@ namespace Covid19DB
         #endregion
 
         #region Private Methods
-        private int? GetDailyValue(Dictionary<Guid, int?> lastValuesByLocationId, Guid locationId, int? rowValue, string columnName, int csvRowNumber, DateTimeOffset date)
+        private int? GetDailyValue(Dictionary<Guid, int?> lastValuesByLocationId, Location location, int? rowValue, string columnName, int csvRowNumber, DateTimeOffset date)
         {
-            _ = lastValuesByLocationId.TryGetValue(locationId, out var lastValue);
+            _ = lastValuesByLocationId.TryGetValue(location.Id, out var lastValue);
             int? returnValue = null;
 
             if (rowValue.HasValue)
@@ -147,12 +147,12 @@ namespace Covid19DB
                 if (lastValue.HasValue)
                 {
                     returnValue = rowValue - lastValue;
-                    lastValuesByLocationId[locationId] = rowValue;
+                    lastValuesByLocationId[location.Id] = rowValue;
                 }
                 else
                 {
                     returnValue = rowValue;
-                    lastValuesByLocationId.Add(locationId, rowValue);
+                    lastValuesByLocationId.Add(location.Id, rowValue);
                 }
             }
 
@@ -165,8 +165,11 @@ namespace Covid19DB
                         CsvRowNumber = csvRowNumber,
                         ColumnName = columnName,
                         Date = date,
-                        LocationId = locationId,
-                        Url = GetRowUrl(date, csvRowNumber)
+                        Location = location.Name,
+                        Provice = location.Province.Name,
+                        Region = location.Province.Region.Name,
+                        Url = GetRowUrl(date, csvRowNumber),
+                        Discrepancy = returnValue.Value
                     },
                     null,
                     null);
