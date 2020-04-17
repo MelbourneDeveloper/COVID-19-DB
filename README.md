@@ -113,7 +113,7 @@ Run these commands at the command prompt or terminal. Make sure you run initiali
 
 > dotnet run ../../CSSE-COVID-19/csse_covid_19_data/csse_covid_19_daily_reports
 
-## Make sure you do a pull on the Johns Hopkins CSSE submodule to get the latest data!
+**Make sure you do a pull on the Johns Hopkins CSSE submodule to get the latest data!**
 
 Or, open the solution in Visual Studio 2019 and run the app.
 
