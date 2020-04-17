@@ -9,8 +9,14 @@
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
     <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="30" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        
+        <maps:MapControl x:Name="TheMapControl" Grid.Row="1" />
 
-        <maps:MapControl x:Name="TheMapControl"/>
+        <Slider x:Name="TheSlider"  />
 
     </Grid>
 </Page>

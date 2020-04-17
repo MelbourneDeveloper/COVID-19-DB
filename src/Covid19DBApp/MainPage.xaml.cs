@@ -1,5 +1,7 @@
 ﻿using Covid19DB.Db;
+using Covid19DB.Entities;
 using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Windows.Devices.Geolocation;
@@ -10,11 +12,21 @@ using Windows.UI.Xaml.Controls.Maps;
 
 namespace Covid19DBApp
 {
+    public class asdasd
+    {
+        public Location Location { get; set; }
+        public DateTimeOffset Date { get; set; }
+    }
+
     public sealed partial class MainPage : Page
     {
+        private List<MapIcon> _geoPoints = new List<MapIcon>();
+
         public MainPage()
         {
             InitializeComponent();
+
+            TheSlider.ValueChanged += TheSlider_ValueChanged;
 
             var locationMapElements = new List<MapElement>();
 
@@ -27,6 +39,7 @@ namespace Covid19DBApp
                     if (!location.Latitude.HasValue) continue;
 
                     var asdfasd = covid19DbContext.LocationDays.Where(ld => ld.Location.Id == location.Id).Sum(ld => ld.NewCases);
+                    var asdasdsd = covid19DbContext.LocationDays.Where(ld => ld.Location.Id == location.Id).Max(dsd => dsd.DateOfCount);
 
                     var basicGeoposition = new BasicGeoposition
                     {
@@ -41,8 +54,11 @@ namespace Covid19DBApp
                         Location = Geopoint,
                         NormalizedAnchorPoint = new Point(0.5, 1.0),
                         ZIndex = 0,
-                        Title = $"{location?.Province?.Name} - {asdfasd}"
+                        Title = $"{location?.Province?.Name} - {asdfasd}",
+                        Tag = new asdasd { Location = location, Date = asdasdsd }
                     };
+
+                    _geoPoints.Add(mapIcon);
 
                     locationMapElements.Add(mapIcon);
                 }
@@ -56,6 +72,11 @@ namespace Covid19DBApp
 
             TheMapControl.Layers.Add(locationsLayer);
 
+        }
+
+        private void TheSlider_ValueChanged(object sender, Windows.UI.Xaml.Controls.Primitives.RangeBaseValueChangedEventArgs e)
+        {
+            
         }
     }
 }
