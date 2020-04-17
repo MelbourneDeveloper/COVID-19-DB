@@ -127,37 +127,50 @@ The current Johns Hopkins data is stored in CSV files and is split into daily se
 The code is useful for anyone who wants to read the Johns Hopkins CSV files. It's easy aggregate all the files in to memory. This code loads data from the entire dataset in to memory and then filters it down to the state of Victoria, Australia and orders the data by date. It then dumps the data back out to a CSV file.
 
 ```cs
-using Covid19DB.Utilities;
-using System;
-using System.IO;
-using System.Linq;
-
-namespace Covid19DB
+private static async Task ProcessAsync(string directoryPath)
 {
-    internal class Program
-    {
-        private static void Main(string[] args)
-        {
-            var logger = new Logger<Processor>();
-
-            var directoryPath = args.FirstOrDefault();
-
-            if (string.IsNullOrEmpty(directoryPath)) throw new ArgumentException("Daily Reports Directory not specified");
-            
-            if (!Directory.Exists(directoryPath)) throw new ArgumentException($"The directory {directoryPath} does not exist. Please check the path");
-
-            var rows = CsvReader.ReadCsvFiles(directoryPath);
-
-            var victoriaRows = rows.Where(r => r.Province_State == "Victoria").OrderBy(r => r.Date).ToList();
-            victoriaRows.ToCsv("Victoria.csv");
-        }
-    }
+    var logger = new Logger<Processor>();
+    var fileSystemCsvFileService = new FileSystemCsvFileService(directoryPath);
+    var csvReader = new CsvReader(fileSystemCsvFileService);
+    var rows = await csvReader.ReadCsvFiles();
+    
+    //Filter by state and order by date
+    var victoriaRows = rows.Where(r => r.Province_State == "Victoria").OrderBy(r => r.Date).ToList();
+    victoriaRows.ToCsv("Victoria.csv");
 }
 ```
 
-Output:
+Output (Some data truncated):
 
-![Summary Query](Images/VictoriaExcel.png)
+|Country_Region|Province_State|Lat|Long_|Confirmed|Deaths|Recovered|Active|Date|Admin2|CsvRowNumber|
+|--|--|--|--|--|--|--|--|--|--|--|
+|Australia|Victoria|-37.8136|144.9631|296|0|70|226|2020/03/22||3192|
+|Australia|Victoria|-37.8136|144.9631|355|0|97|258|2020/03/23||3247|
+|Australia|Victoria|-37.8136|144.9631|411|0|97|314|2020/03/24||3247|
+|Australia|Victoria|-37.8136|144.9631|466|0|97|369|2020/03/25||3247|
+|Australia|Victoria|-37.8136|144.9631|520|3|149|368|2020/03/26||3245|
+|Australia|Victoria|-37.8136|144.9631|574|3|171|400|2020/03/27||3252|
+|Australia|Victoria|-37.8136|144.9631|685|3|191|491|2020/03/28||3252|
+|Australia|Victoria|-37.8136|144.9631|769|4|191|574|2020/03/29||3256|
+|Australia|Victoria|-37.8136|144.9631|821|4|191|626|2020/03/30||3260|
+|Australia|Victoria|-37.8136|144.9631|917|4|291|622|2020/03/31||2253|
+|Australia|Victoria|-37.8136|144.9631|968|4|343|621|2020/04/01||2302|
+|Australia|Victoria|-37.8136|144.9631|1036|5|422|609|2020/04/02||2386|
+|Australia|Victoria|-37.8136|144.9631|1085|7|476|602|2020/04/03||2442|
+|Australia|Victoria|-37.8136|144.9631|1115|8|527|580|2020/04/04||2496|
+|Australia|Victoria|-37.8136|144.9631|1135|8|573|554|2020/04/05||2579|
+|Australia|Victoria|-37.8136|144.9631|1158|10|620|528|2020/04/06||2623|
+|Australia|Victoria|-37.8136|144.9631|1191|11|620|560|2020/04/07||2672|
+|Australia|Victoria|-37.8136|144.9631|1212|12|620|580|2020/04/08||2698|
+|Australia|Victoria|-37.8136|144.9631|1228|12|736|480|2020/04/09||2726|
+|Australia|Victoria|-37.8136|144.9631|1241|13|926|302|2020/04/10||2755|
+|Australia|Victoria|-37.8136|144.9631|1265|14|926|325|2020/04/11||2779|
+|Australia|Victoria|-37.8136|144.9631|1268|14|926|328|2020/04/12||2802|
+|Australia|Victoria|-37.8136|144.9631|1281|14|926|341|2020/04/13||2816|
+|Australia|Victoria|-37.8136|144.9631|1291|14|1118|159|2020/04/14||2828|
+|Australia|Victoria|-37.8136|144.9631|1299|14|1118|167|2020/04/15||2841|
+|Australia|Victoria|-37.8136|144.9631|1299|14|1137|148|2020/04/16||2856|
+
 
 ## How  Can I Help?
 
