@@ -134,9 +134,31 @@ namespace Covid19DB
                 if (!location.Latitude.HasValue || !location.Longitude.HasValue)
                 {
                     var rowModel = filteredRowModels.FirstOrDefault(r =>
+
                     string.Compare(r.Country_Region, location.Province.Region.Name, StringComparison.OrdinalIgnoreCase) == 0 &&
-                    string.Compare(r.Province_State, location.Province.Name, StringComparison.OrdinalIgnoreCase) == 0 &&
-                    ((location.Name == EmptyValue && string.IsNullOrEmpty(r.Admin2)) || string.Compare(r.Admin2, location.Name, StringComparison.OrdinalIgnoreCase) == 0));
+                    (
+
+
+                        (
+                            //Province is empty
+                            location.Province.Name == EmptyValue &&
+                            string.IsNullOrEmpty(r.Province_State)
+                        ) ||
+                        //Province matches
+                        string.Compare(r.Province_State, location.Province.Name, StringComparison.OrdinalIgnoreCase) == 0
+
+
+                    ) &&
+
+                    (
+                        //Location is empty
+                        (((location.Name == EmptyValue) || string.Compare(location.Name, "unassigned", StringComparison.OrdinalIgnoreCase) == 0) && string.IsNullOrEmpty(r.Admin2)) ||
+                        //Location matches 
+                        string.Compare(r.Admin2, location.Name, StringComparison.OrdinalIgnoreCase) == 0
+                    )
+
+
+                    );
 
                     if (rowModel != null)
                     {
