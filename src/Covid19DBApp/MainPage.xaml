@@ -13,8 +13,10 @@
             <RowDefinition Height="30" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
-        
-        <maps:MapControl x:Name="TheMapControl" Grid.Row="1" />
+
+        <maps:MapControl x:Name="TheMapControl" Grid.Row="1" >
+
+        </maps:MapControl>
 
         <Slider x:Name="TheSlider"  />
 
