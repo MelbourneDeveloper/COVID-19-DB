@@ -2,7 +2,7 @@
 
 [Follow Me](https://twitter.com/CFDevelop) on Twitter for updates to this database and code.
 
-Download the SQLite database [here](https://www.dropbox.com/s/153iwehu3k8kbg5/Covid19Db%202020-04-14.db?dl=0). This database aggregates data from the Johns Hopkins CSSE CSV [daily reports](https://github.com/CSSEGISandData/COVID-19/tree/master/csse_covid_19_data/csse_covid_19_daily_reports) in to a single SQLite database. It uses C# to generate the database, but you can open it with [DB Browser For SQLite](https://sqlitebrowser.org/). This is the [COVID-19 Johns Hopkins CSSEGithub page](https://github.com/CSSEGISandData/COVID-19).
+Download the SQLite database [here](https://www.dropbox.com/s/58ayrvl1p98n7bg/Covid19Db%202020-04-16.db?dl=0). This database aggregates data from the Johns Hopkins CSSE CSV [daily reports](https://github.com/CSSEGISandData/COVID-19/tree/master/csse_covid_19_data/csse_covid_19_daily_reports) in to a single SQLite database. It uses C# to generate the database, but you can open it with [DB Browser For SQLite](https://sqlitebrowser.org/). This is the [COVID-19 Johns Hopkins CSSEGithub page](https://github.com/CSSEGISandData/COVID-19).
 
 **This database is in alpha. The database structure and code may change and there may be bugs. Please help by reporting bugs and inconsistencies in the issues section. The aim is to get this database to be as reliable as possible. NOT FOR REPORTING PURPOSES**
 
@@ -13,12 +13,12 @@ Use the [DB Browser For SQLite](https://sqlitebrowser.org/) to open the database
 
 The `LocationDays` table contains `LocationId`, `DateOfCount`, `Deaths`, `Recoveries`, and `NewCases`. These values can be summarized as below.
 
-### List Top 20 Regions With Most New Cases For Last Two Weeks
+### List Top 20 Regions With Most New Cases In Last Week
 
 ```sql
 select	
 		Regions.Name,
-		sum(newcases) as NewCasesInLastTwOWeeks
+		sum(newcases) as NewCasesLastWeek
 from locationdays 
 inner join locations
 on locations.id = locationdays.locationid
@@ -27,39 +27,41 @@ on Provinces.id = locations.ProvinceId
 inner join Regions
 on Regions.id = Provinces.RegionId
 where 
-date(DateOfCount) >= date('2020-04-11','-14 days')
-AND date(DateOfCount) < date('2020-04-11')
+date(DateOfCount) >= date('now','-7 days')
+AND date(DateOfCount) < date('now')
 group by 		
 		Regions.Id,
 		Regions.Name
-order by NewCasesInLastTwOWeeks desc		
+order by NewCasesLastWeek desc		
 limit 20	
 ```
 
+As of 2020-04-16
+
 **These figures have NOT been validated. This an example only**
 
-|Region|New Cases In Last Two Weeks|
-|----------------|--------|
-| US             | 394190 |
-| Spain          | 92554  |
-| France         | 92529  |
-| Germany        | 71300  |
-| Italy          | 61079  |
-| United Kingdom | 59862  |
-| Turkey         | 41331  |
-| Iran           | 35860  |
-| Belgium        | 19383  |
-| Canada         | 17377  |
-| Brazil         | 16221  |
-| Netherlands    | 14602  |
-| Switzerland    | 11623  |
-| Portugal       | 11204  |
-| Russia         | 10881  |
-| Israel         | 7373   |
-| India          | 6711   |
-| Sweden         | 6616   |
-| Ireland        | 5968   |
-| Austria        | 5898   |
+| Region         | NewCasesLastWeek |
+|----------------|------------------|
+| US             | 206364           |
+| United Kingdom | 38273            |
+| Turkey         | 31911            |
+| Spain          | 31726            |
+| France         | 28310            |
+| Italy          | 25315            |
+| Germany        | 19517            |
+| Russia         | 17807            |
+| Brazil         | 12333            |
+| Iran           | 11775            |
+| Canada         | 10155            |
+| Belgium        | 9826             |
+| Netherlands    | 7480             |
+| Peru           | 7235             |
+| India          | 6705             |
+| Ireland        | 6697             |
+| Portugal       | 4885             |
+| Japan          | 3959             |
+| Sweden         | 3399             |
+| Ecuador        | 3260             |
 
 ### Get Totals for Australian States
 
@@ -122,40 +124,53 @@ The current Johns Hopkins data is stored in CSV files and is split into daily se
 
 ## CSV Reader
 
-The code is useful for anyone who wants to read the Johns Hopkins CSV files. It's easy aggregate all the files in to memory. This code loads data from the entire dataset in to memory and then filters it down to the state of Victoria, Australia and orders the data by date. It then dumps the data back out to a CSV file.
+The code is useful for anyone who wants to read the Johns Hopkins CSV files. It's easy aggregate all the files in to memory. This code loads data from the entire dataset in to memory and then filters it down to the state of Victoria, Australia and orders the data by date. It then dumps the data back out to a CSV or markdown file.
 
 ```cs
-using Covid19DB.Utilities;
-using System;
-using System.IO;
-using System.Linq;
-
-namespace Covid19DB
+private static async Task ProcessAsync(string directoryPath)
 {
-    internal class Program
-    {
-        private static void Main(string[] args)
-        {
-            var logger = new Logger<Processor>();
+    var logger = new Logger<Processor>();
+    var fileSystemCsvFileService = new FileSystemCsvFileService(directoryPath);
+    var csvReader = new CsvReader(fileSystemCsvFileService);
+    var rows = await csvReader.ReadCsvFiles();
 
-            var directoryPath = args.FirstOrDefault();
-
-            if (string.IsNullOrEmpty(directoryPath)) throw new ArgumentException("Daily Reports Directory not specified");
-            
-            if (!Directory.Exists(directoryPath)) throw new ArgumentException($"The directory {directoryPath} does not exist. Please check the path");
-
-            var rows = CsvReader.ReadCsvFiles(directoryPath);
-
-            var victoriaRows = rows.Where(r => r.Province_State == "Victoria").OrderBy(r => r.Date).ToList();
-            victoriaRows.ToCsv("Victoria.csv");
-        }
-    }
+    //Filter by state and order by date
+    var victoriaRows = rows.Where(r => r.Province_State == "Victoria").OrderBy(r => r.Date).ToList();
+    victoriaRows.ToMarkdownTable("Victoria.md");
 }
 ```
 
-Output:
+Output (Some data truncated):
 
-![Summary Query](Images/VictoriaExcel.png)
+|Country_Region|Province_State|Lat|Long_|Confirmed|Deaths|Recovered|Active|Date|Admin2|CsvRowNumber|
+|--|--|--|--|--|--|--|--|--|--|--|
+|Australia|Victoria|-37.8136|144.9631|296|0|70|226|2020/03/22||3192|
+|Australia|Victoria|-37.8136|144.9631|355|0|97|258|2020/03/23||3247|
+|Australia|Victoria|-37.8136|144.9631|411|0|97|314|2020/03/24||3247|
+|Australia|Victoria|-37.8136|144.9631|466|0|97|369|2020/03/25||3247|
+|Australia|Victoria|-37.8136|144.9631|520|3|149|368|2020/03/26||3245|
+|Australia|Victoria|-37.8136|144.9631|574|3|171|400|2020/03/27||3252|
+|Australia|Victoria|-37.8136|144.9631|685|3|191|491|2020/03/28||3252|
+|Australia|Victoria|-37.8136|144.9631|769|4|191|574|2020/03/29||3256|
+|Australia|Victoria|-37.8136|144.9631|821|4|191|626|2020/03/30||3260|
+|Australia|Victoria|-37.8136|144.9631|917|4|291|622|2020/03/31||2253|
+|Australia|Victoria|-37.8136|144.9631|968|4|343|621|2020/04/01||2302|
+|Australia|Victoria|-37.8136|144.9631|1036|5|422|609|2020/04/02||2386|
+|Australia|Victoria|-37.8136|144.9631|1085|7|476|602|2020/04/03||2442|
+|Australia|Victoria|-37.8136|144.9631|1115|8|527|580|2020/04/04||2496|
+|Australia|Victoria|-37.8136|144.9631|1135|8|573|554|2020/04/05||2579|
+|Australia|Victoria|-37.8136|144.9631|1158|10|620|528|2020/04/06||2623|
+|Australia|Victoria|-37.8136|144.9631|1191|11|620|560|2020/04/07||2672|
+|Australia|Victoria|-37.8136|144.9631|1212|12|620|580|2020/04/08||2698|
+|Australia|Victoria|-37.8136|144.9631|1228|12|736|480|2020/04/09||2726|
+|Australia|Victoria|-37.8136|144.9631|1241|13|926|302|2020/04/10||2755|
+|Australia|Victoria|-37.8136|144.9631|1265|14|926|325|2020/04/11||2779|
+|Australia|Victoria|-37.8136|144.9631|1268|14|926|328|2020/04/12||2802|
+|Australia|Victoria|-37.8136|144.9631|1281|14|926|341|2020/04/13||2816|
+|Australia|Victoria|-37.8136|144.9631|1291|14|1118|159|2020/04/14||2828|
+|Australia|Victoria|-37.8136|144.9631|1299|14|1118|167|2020/04/15||2841|
+|Australia|Victoria|-37.8136|144.9631|1299|14|1137|148|2020/04/16||2856|
+
 
 ## How  Can I Help?
 
