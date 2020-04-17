@@ -162,12 +162,6 @@
       <Version>6.2.9</Version>
     </PackageReference>
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Covid19DB\Covid19DB.csproj">
-      <Project>{fc1dde4b-b454-41ff-a035-7d8d7c23672d}</Project>
-      <Name>Covid19DB</Name>
-    </ProjectReference>
-  </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>
   </PropertyGroup>
