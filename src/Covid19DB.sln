@@ -3,9 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30002.166
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Covid19DB", "Covid19DB\Covid19DB.csproj", "{81138403-9AFC-4F73-98BC-DE2FA3E1825D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Covid19DBConsole", "Covid19DBConsole\Covid19DBConsole.csproj", "{81138403-9AFC-4F73-98BC-DE2FA3E1825D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Covid19DBApp", "Covid19DBApp\Covid19DBApp.csproj", "{E640801E-5933-44DE-B3F6-4A6C0BA32966}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Covid19DB", "Covid19DB\Covid19DB.csproj", "{FC1DDE4B-B454-41FF-A035-7D8D7C23672D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -69,6 +71,26 @@ Global
 		{E640801E-5933-44DE-B3F6-4A6C0BA32966}.Release|x86.ActiveCfg = Release|x86
 		{E640801E-5933-44DE-B3F6-4A6C0BA32966}.Release|x86.Build.0 = Release|x86
 		{E640801E-5933-44DE-B3F6-4A6C0BA32966}.Release|x86.Deploy.0 = Release|x86
+		{FC1DDE4B-B454-41FF-A035-7D8D7C23672D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FC1DDE4B-B454-41FF-A035-7D8D7C23672D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FC1DDE4B-B454-41FF-A035-7D8D7C23672D}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{FC1DDE4B-B454-41FF-A035-7D8D7C23672D}.Debug|ARM.Build.0 = Debug|Any CPU
+		{FC1DDE4B-B454-41FF-A035-7D8D7C23672D}.Debug|ARM64.ActiveCfg = Debug|Any CPU
+		{FC1DDE4B-B454-41FF-A035-7D8D7C23672D}.Debug|ARM64.Build.0 = Debug|Any CPU
+		{FC1DDE4B-B454-41FF-A035-7D8D7C23672D}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{FC1DDE4B-B454-41FF-A035-7D8D7C23672D}.Debug|x64.Build.0 = Debug|Any CPU
+		{FC1DDE4B-B454-41FF-A035-7D8D7C23672D}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{FC1DDE4B-B454-41FF-A035-7D8D7C23672D}.Debug|x86.Build.0 = Debug|Any CPU
+		{FC1DDE4B-B454-41FF-A035-7D8D7C23672D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FC1DDE4B-B454-41FF-A035-7D8D7C23672D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FC1DDE4B-B454-41FF-A035-7D8D7C23672D}.Release|ARM.ActiveCfg = Release|Any CPU
+		{FC1DDE4B-B454-41FF-A035-7D8D7C23672D}.Release|ARM.Build.0 = Release|Any CPU
+		{FC1DDE4B-B454-41FF-A035-7D8D7C23672D}.Release|ARM64.ActiveCfg = Release|Any CPU
+		{FC1DDE4B-B454-41FF-A035-7D8D7C23672D}.Release|ARM64.Build.0 = Release|Any CPU
+		{FC1DDE4B-B454-41FF-A035-7D8D7C23672D}.Release|x64.ActiveCfg = Release|Any CPU
+		{FC1DDE4B-B454-41FF-A035-7D8D7C23672D}.Release|x64.Build.0 = Release|Any CPU
+		{FC1DDE4B-B454-41FF-A035-7D8D7C23672D}.Release|x86.ActiveCfg = Release|Any CPU
+		{FC1DDE4B-B454-41FF-A035-7D8D7C23672D}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
