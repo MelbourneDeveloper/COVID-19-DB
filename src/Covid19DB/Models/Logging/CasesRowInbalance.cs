@@ -6,6 +6,12 @@
     /// </summary>
     public class CasesRowInbalance : ValidationWarningBase
     {
+        public string Message { get; set; }
+        public int? Confirmed { get; set; }
+        public int? Deaths { get; set; }
+        public int? Recoveries { get; set; }
+        public int? Active { get; set; }
+        public int CsvRowNumber { get; set; }
 
     }
 }

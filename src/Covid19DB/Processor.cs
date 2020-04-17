@@ -10,15 +10,23 @@ using System.Linq;
 
 namespace Covid19DB
 {
+    public class RollingTotalsInfo
+    {
+        public int? RollingTotal { get; set; }
+        public DateTimeOffset PreviousDate { get; set; }
+        public int PreviousDateRowNumber { get; set; }
+    }
+
     public class Processor
     {
         #region Fields
         private const string EmptyValue = "N/A";
         private const string None = "NONE";
         //private const string Unassigned = "Unassigned";
-        private readonly Dictionary<Guid, int?> _confirmedCasesByLocation = new Dictionary<Guid, int?>();
-        private readonly Dictionary<Guid, int?> _recoveriesByLocation = new Dictionary<Guid, int?>();
-        private readonly Dictionary<Guid, int?> _deathsByLocation = new Dictionary<Guid, int?>();
+        private readonly Dictionary<Guid, RollingTotalsInfo> _confirmedCasesByLocation = new Dictionary<Guid, RollingTotalsInfo>();
+        private readonly Dictionary<Guid, RollingTotalsInfo> _recoveriesByLocation = new Dictionary<Guid, RollingTotalsInfo>();
+        private readonly Dictionary<Guid, RollingTotalsInfo> _deathsByLocation = new Dictionary<Guid, RollingTotalsInfo>();
+
         private readonly ICache<Region> _regionsByName = new Cache<Region>();
         private readonly ICache<Province> _provincesByRegionAndName = new Cache<Province>();
         private readonly ICache<Location> _locationsByRegionProvinceName = new Cache<Location>();
@@ -104,14 +112,11 @@ namespace Covid19DB
                 var province = GetProvince(provinceName, region);
                 var location = GetLocation(locationName, rowModel.Lat, rowModel.Long_, province);
 
-                var currentNewCases = GetDailyValue(_confirmedCasesByLocation, location.Id, rowModel.Confirmed, "New Cases", rowModel.CsvRowNumber, rowModel.Date);
-                var currentDeaths = GetDailyValue(_deathsByLocation, location.Id, rowModel.Deaths, "Deaths", rowModel.CsvRowNumber, rowModel.Date);
-                var currentRecoveries = GetDailyValue(_recoveriesByLocation, location.Id, rowModel.Recovered, "Recoveries", rowModel.CsvRowNumber, rowModel.Date);
-
+                var currentNewCases = GetDailyValue(_confirmedCasesByLocation, location, rowModel.Confirmed, "New Cases", rowModel.CsvRowNumber, rowModel.Date);
+                var currentDeaths = GetDailyValue(_deathsByLocation, location, rowModel.Deaths, "Deaths", rowModel.CsvRowNumber, rowModel.Date);
+                var currentRecoveries = GetDailyValue(_recoveriesByLocation, location, rowModel.Recovered, "Recoveries", rowModel.CsvRowNumber, rowModel.Date);
 
                 _ = _locationDayRepository.GetOrInsert(rowModel.Date, location, currentNewCases, currentDeaths, currentRecoveries);
-
-                if (!_confirmedCasesByLocation.ContainsKey(location.Id)) _confirmedCasesByLocation.Add(location.Id, rowModel.Confirmed);
             }
         }
 
@@ -137,22 +142,24 @@ namespace Covid19DB
         #endregion
 
         #region Private Methods
-        private int? GetDailyValue(Dictionary<Guid, int?> lastValuesByLocationId, Guid locationId, int? rowValue, string columnName, int csvRowNumber, DateTimeOffset date)
+        private int? GetDailyValue(Dictionary<Guid, RollingTotalsInfo> lastValuesByLocationId, Location location, int? rowValue, string columnName, int csvRowNumber, DateTimeOffset date)
         {
-            _ = lastValuesByLocationId.TryGetValue(locationId, out var lastValue);
+            _ = lastValuesByLocationId.TryGetValue(location.Id, out var lastRollingTotalsInfo);
             int? returnValue = null;
 
             if (rowValue.HasValue)
             {
-                if (lastValue.HasValue)
+                var newRollingTotalsInfo = new RollingTotalsInfo { PreviousDate = date, RollingTotal = rowValue, PreviousDateRowNumber = csvRowNumber };
+
+                if (lastRollingTotalsInfo != null && lastRollingTotalsInfo.RollingTotal.HasValue)
                 {
-                    returnValue = rowValue - lastValue;
-                    lastValuesByLocationId[locationId] = rowValue;
+                    returnValue = rowValue - lastRollingTotalsInfo.RollingTotal;
+                    lastValuesByLocationId[location.Id] = newRollingTotalsInfo;
                 }
                 else
                 {
                     returnValue = rowValue;
-                    lastValuesByLocationId.Add(locationId, rowValue);
+                    lastValuesByLocationId.Add(location.Id, newRollingTotalsInfo);
                 }
             }
 
@@ -162,11 +169,14 @@ namespace Covid19DB
                     default,
                     new CaseRowAdjustment
                     {
-                        CsvRowNumber = csvRowNumber,
-                        ColumnName = columnName,
+                        Column = columnName,
                         Date = date,
-                        LocationId = locationId,
-                        Url = GetRowUrl(date, csvRowNumber)
+                        Location = location.Name,
+                        Provice = location.Province.Name,
+                        Region = location.Province.Region.Name,
+                        Url = GetRowUrl(date, csvRowNumber),
+                        PreviousUrl = GetRowUrl(lastRollingTotalsInfo.PreviousDate, lastRollingTotalsInfo.PreviousDateRowNumber),
+                        Discrepancy = returnValue.Value
                     },
                     null,
                     null);
@@ -242,7 +252,7 @@ namespace Covid19DB
         {
             var month = date.Month.ToString().PadLeft(2, '0');
             var day = date.Day.ToString().PadLeft(2, '0');
-            return $"[Row {csvRowNumber}](https://github.com/CSSEGISandData/COVID-19/blob/master/csse_covid_19_data/csse_covid_19_daily_reports/{month}-{day}-2020.csv#L{csvRowNumber})";
+            return $"[{csvRowNumber}](https://github.com/CSSEGISandData/COVID-19/blob/master/csse_covid_19_data/csse_covid_19_daily_reports/{month}-{day}-2020.csv#L{csvRowNumber})";
         }
         #endregion
     }
