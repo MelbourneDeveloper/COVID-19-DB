@@ -126,39 +126,18 @@ namespace Covid19DB
         #region Private Methods
         private void UpdateLocationCoordinates(IEnumerable<RowModel> rows)
         {
-            var filteredRowModels = rows.OrderByDescending(r => r.Date).Where(r => r.Lat.HasValue && r.Lat > 0 && r.Long_.HasValue && r.Long_ > 0);
+            var filteredRowModels = rows.OrderByDescending(r => r.Date).Where(r =>
+            r.Lat.HasValue &&
+            r.Lat.Value != 0 &&
+            r.Long_.HasValue &&
+            r.Long_.Value != 0);
 
             var locations = _locationRepository.GetAll();
             foreach (var location in locations)
             {
                 if (!location.Latitude.HasValue || !location.Longitude.HasValue)
                 {
-                    var rowModel = filteredRowModels.FirstOrDefault(r =>
-
-                    string.Compare(r.Country_Region, location.Province.Region.Name, StringComparison.OrdinalIgnoreCase) == 0 &&
-                    (
-
-
-                        (
-                            //Province is empty
-                            location.Province.Name == EmptyValue &&
-                            string.IsNullOrEmpty(r.Province_State)
-                        ) ||
-                        //Province matches
-                        string.Compare(r.Province_State, location.Province.Name, StringComparison.OrdinalIgnoreCase) == 0
-
-
-                    ) &&
-
-                    (
-                        //Location is empty
-                        (((location.Name == EmptyValue) || string.Compare(location.Name, "unassigned", StringComparison.OrdinalIgnoreCase) == 0) && string.IsNullOrEmpty(r.Admin2)) ||
-                        //Location matches 
-                        string.Compare(r.Admin2, location.Name, StringComparison.OrdinalIgnoreCase) == 0
-                    )
-
-
-                    );
+                    var rowModel = filteredRowModels.FirstOrDefault(r => string.Compare(r.Country_Region, location.Province.Region.Name, StringComparison.OrdinalIgnoreCase) == 0 && CompareLocationToRowModel(r, location));
 
                     if (rowModel != null)
                     {
@@ -168,6 +147,27 @@ namespace Covid19DB
                     }
                 }
             }
+        }
+
+        private static bool CompareLocationToRowModel(RowModel rowModel, Location location)
+        {
+            return
+            string.Compare(rowModel.Country_Region, location.Province.Region.Name, StringComparison.OrdinalIgnoreCase) == 0 &&
+            (
+                (
+                    //Province is empty
+                    location.Province.Name == EmptyValue &&
+                    string.IsNullOrEmpty(rowModel.Province_State)
+                ) ||
+                //Province matches
+                string.Compare(rowModel.Province_State, location.Province.Name, StringComparison.OrdinalIgnoreCase) == 0
+            ) &&
+            (
+                //Location is empty
+                (((location.Name == EmptyValue) || string.Compare(location.Name, "unassigned", StringComparison.OrdinalIgnoreCase) == 0) && string.IsNullOrEmpty(rowModel.Admin2)) ||
+                //Location matches 
+                string.Compare(rowModel.Admin2, location.Name, StringComparison.OrdinalIgnoreCase) == 0
+            );
         }
 
         private void LogRowInbalance(RowModel rowModel, string message)
