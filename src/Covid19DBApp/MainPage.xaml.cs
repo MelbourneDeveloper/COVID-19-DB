@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Covid19DB.Db;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -28,30 +29,45 @@ namespace Covid19DBApp
         {
             this.InitializeComponent();
 
-            var MyLandmarks = new List<MapElement>();
+            var locationMapElements = new List<MapElement>();
 
-            BasicGeoposition snPosition = new BasicGeoposition { Latitude = 47.620, Longitude = -122.349 };
-            Geopoint snPoint = new Geopoint(snPosition);
-
-            var spaceNeedleIcon = new MapIcon
+            using (var covid19DbContext = new Covid19DbContext())
             {
-                Location = snPoint,
-                NormalizedAnchorPoint = new Point(0.5, 1.0),
-                ZIndex = 0,
-                Title = "Space Needle"
-            };
+                var locations = covid19DbContext.Locations.Where(p => p.Province.Region.Name == "Australia");
 
-            MyLandmarks.Add(spaceNeedleIcon);
+                foreach (var location in locations)
+                {
+                    if (!location.Latitude.HasValue) continue;
 
-            var LandmarksLayer = new MapElementsLayer
+                    var snPosition = new BasicGeoposition 
+                    { 
+                        Latitude = (double)location.Latitude.Value, 
+                        Longitude = (double)location.Longitude.Value
+                    };
+
+                    var snPoint = new Geopoint(snPosition);
+
+                    var mapIcon = new MapIcon
+                    {
+                        Location = snPoint,
+                        NormalizedAnchorPoint = new Point(0.5, 1.0),
+                        ZIndex = 0,
+                        Title = location.Name
+                    };
+
+                    locationMapElements.Add(mapIcon);
+                }
+            }
+
+            var locationsLayer = new MapElementsLayer
             {
                 ZIndex = 1,
-                MapElements = MyLandmarks
+                MapElements = locationMapElements
             };
 
-            TheMapControl.Layers.Add(LandmarksLayer);
+            TheMapControl.Layers.Add(locationsLayer);
 
-            TheMapControl.Center = snPoint;
+            //TheMapControl.Center = snPoint;
             TheMapControl.ZoomLevel = 14;
 
         }
