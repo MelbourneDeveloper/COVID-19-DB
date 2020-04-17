@@ -133,10 +133,10 @@ private static async Task ProcessAsync(string directoryPath)
     var fileSystemCsvFileService = new FileSystemCsvFileService(directoryPath);
     var csvReader = new CsvReader(fileSystemCsvFileService);
     var rows = await csvReader.ReadCsvFiles();
-    
+
     //Filter by state and order by date
     var victoriaRows = rows.Where(r => r.Province_State == "Victoria").OrderBy(r => r.Date).ToList();
-    victoriaRows.ToCsv("Victoria.csv");
+    victoriaRows.ToMarkdownTable("Victoria.md");
 }
 ```
 
