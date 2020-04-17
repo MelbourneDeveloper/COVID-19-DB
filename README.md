@@ -36,6 +36,8 @@ order by NewCasesLastWeek desc
 limit 20	
 ```
 
+As of 2020-04-16
+
 **These figures have NOT been validated. This an example only**
 
 | Region         | NewCasesLastWeek |
