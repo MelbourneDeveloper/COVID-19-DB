@@ -52,6 +52,12 @@ namespace Covid19DB.Utilities
                 var rowText = string.Join('|', headers.Select(h =>
                 {
                     var value = h.GetValue(row, null);
+
+                    if (value is DateTimeOffset dateTimeOffset)
+                    {
+                        value = dateTimeOffset.ToString("yyyy/MM/dd");
+                    }
+
                     return value?.ToString();
                 }));
                 WriteText(fileStream, "|" + rowText + "|\r\n");

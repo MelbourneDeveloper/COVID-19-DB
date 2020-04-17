@@ -8,8 +8,8 @@
         public string Region { get; set; }
         public string Provice { get; set; }
         public string Location { get; set; }
-        public string ColumnName { get; set; }
+        public string Column { get; set; }
         public int Discrepancy { get; set; }
-        public string PreviousDayRowUrl { get; set; }
+        public string PreviousUrl { get; set; }
     }
 }

@@ -169,14 +169,13 @@ namespace Covid19DB
                     default,
                     new CaseRowAdjustment
                     {
-                        CsvRowNumber = csvRowNumber,
-                        ColumnName = columnName,
+                        Column = columnName,
                         Date = date,
                         Location = location.Name,
                         Provice = location.Province.Name,
                         Region = location.Province.Region.Name,
                         Url = GetRowUrl(date, csvRowNumber),
-                        PreviousDayRowUrl = GetRowUrl(lastRollingTotalsInfo.PreviousDate, lastRollingTotalsInfo.PreviousDateRowNumber),
+                        PreviousUrl = GetRowUrl(lastRollingTotalsInfo.PreviousDate, lastRollingTotalsInfo.PreviousDateRowNumber),
                         Discrepancy = returnValue.Value
                     },
                     null,
@@ -253,7 +252,7 @@ namespace Covid19DB
         {
             var month = date.Month.ToString().PadLeft(2, '0');
             var day = date.Day.ToString().PadLeft(2, '0');
-            return $"[Row {csvRowNumber}](https://github.com/CSSEGISandData/COVID-19/blob/master/csse_covid_19_data/csse_covid_19_daily_reports/{month}-{day}-2020.csv#L{csvRowNumber})";
+            return $"[{csvRowNumber}](https://github.com/CSSEGISandData/COVID-19/blob/master/csse_covid_19_data/csse_covid_19_daily_reports/{month}-{day}-2020.csv#L{csvRowNumber})";
         }
         #endregion
     }

@@ -11,5 +11,7 @@
         public int? Deaths { get; set; }
         public int? Recoveries { get; set; }
         public int? Active { get; set; }
+        public int CsvRowNumber { get; set; }
+
     }
 }
