@@ -18,14 +18,16 @@ namespace Covid19DBApp
         private Dictionary<Guid, MapIcon> _mapIconsByLocation = new Dictionary<Guid, MapIcon>();
         private int selectedDay;
         private DateTimeOffset _minDate;
+        IEnumerable<Location> _locations;
+        IEnumerable<LocationDay> _locationDays;
         #endregion
 
         #region Public Properties
         public int SelectedDay
         {
             get => selectedDay;
-            set 
-            { 
+            set
+            {
                 selectedDay = value;
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SelectedDay)));
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SelectedDate)));
@@ -40,17 +42,25 @@ namespace Covid19DBApp
         #region Constructor
         public ViewModel(IEnumerable<Location> locations, IEnumerable<LocationDay> locationDays)
         {
-            foreach (var location in locations)
+            _locations = locations;
+            _locationDays = locationDays;
+
+            var days = locationDays.GroupBy(ld => ld.DateOfCount).ToList();
+            DayCount = days.Count;
+            SelectedDay = DayCount - 1;
+
+            _minDate = days.Min(d => d.Key);
+
+            Update();
+        }
+
+        private void Update()
+        {
+            foreach (var location in _locations)
             {
                 if (!location.Latitude.HasValue) continue;
 
-                var sumOfNewCases = locationDays.Where(ld => ld.Location != null && ld.Location.Id == location.Id).Sum(ld => ld.NewCases);
-
-                var days = locationDays.GroupBy(ld => ld.DateOfCount).ToList();
-                DayCount = days.Count;
-                SelectedDay = DayCount - 1;
-
-                _minDate = days.Min(d => d.Key);
+                var sumOfNewCases = _locationDays.Where(ld => ld.Location != null && ld.Location.Id == location.Id).Sum(ld => ld.NewCases);
 
                 var basicGeoposition = new BasicGeoposition
                 {
@@ -65,7 +75,8 @@ namespace Covid19DBApp
                     Location = Geopoint,
                     NormalizedAnchorPoint = new Point(0.5, 1.0),
                     ZIndex = 0,
-                    Title = $"{location?.Province?.Name} - {sumOfNewCases}"
+                    Title = $"{location?.Province?.Name} - {sumOfNewCases}",
+                    Tag = new LocationInformation(location) { Confirmed = sumOfNewCases.Value }
                 };
 
                 _mapIconsByLocation.Add(location.Id, mapIcon);
