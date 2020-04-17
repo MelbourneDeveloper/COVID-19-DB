@@ -13,12 +13,12 @@ Use the [DB Browser For SQLite](https://sqlitebrowser.org/) to open the database
 
 The `LocationDays` table contains `LocationId`, `DateOfCount`, `Deaths`, `Recoveries`, and `NewCases`. These values can be summarized as below.
 
-### List Top 20 Regions With Most New Cases For Last Two Weeks
+### List Top 20 Regions With Most New Cases In Last Week
 
 ```sql
 select	
 		Regions.Name,
-		sum(newcases) as NewCasesInLastTwOWeeks
+		sum(newcases) as NewCasesLastWeek
 from locationdays 
 inner join locations
 on locations.id = locationdays.locationid
@@ -27,39 +27,39 @@ on Provinces.id = locations.ProvinceId
 inner join Regions
 on Regions.id = Provinces.RegionId
 where 
-date(DateOfCount) >= date('2020-04-11','-14 days')
-AND date(DateOfCount) < date('2020-04-11')
+date(DateOfCount) >= date('now','-7 days')
+AND date(DateOfCount) < date('now')
 group by 		
 		Regions.Id,
 		Regions.Name
-order by NewCasesInLastTwOWeeks desc		
+order by NewCasesLastWeek desc		
 limit 20	
 ```
 
 **These figures have NOT been validated. This an example only**
 
-|Region|New Cases In Last Two Weeks|
-|----------------|--------|
-| US             | 394190 |
-| Spain          | 92554  |
-| France         | 92529  |
-| Germany        | 71300  |
-| Italy          | 61079  |
-| United Kingdom | 59862  |
-| Turkey         | 41331  |
-| Iran           | 35860  |
-| Belgium        | 19383  |
-| Canada         | 17377  |
-| Brazil         | 16221  |
-| Netherlands    | 14602  |
-| Switzerland    | 11623  |
-| Portugal       | 11204  |
-| Russia         | 10881  |
-| Israel         | 7373   |
-| India          | 6711   |
-| Sweden         | 6616   |
-| Ireland        | 5968   |
-| Austria        | 5898   |
+| Region         | NewCasesLastWeek |
+|----------------|------------------|
+| US             | 206364           |
+| United Kingdom | 38273            |
+| Turkey         | 31911            |
+| Spain          | 31726            |
+| France         | 28310            |
+| Italy          | 25315            |
+| Germany        | 19517            |
+| Russia         | 17807            |
+| Brazil         | 12333            |
+| Iran           | 11775            |
+| Canada         | 10155            |
+| Belgium        | 9826             |
+| Netherlands    | 7480             |
+| Peru           | 7235             |
+| India          | 6705             |
+| Ireland        | 6697             |
+| Portugal       | 4885             |
+| Japan          | 3959             |
+| Sweden         | 3399             |
+| Ecuador        | 3260             |
 
 ### Get Totals for Australian States
 
