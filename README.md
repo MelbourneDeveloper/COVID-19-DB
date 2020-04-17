@@ -113,9 +113,9 @@ Run these commands at the command prompt or terminal. Make sure you run initiali
 
 > dotnet run ../../CSSE-COVID-19/csse_covid_19_data/csse_covid_19_daily_reports
 
-**Make sure you do a pull on the Johns Hopkins CSSE submodule to get the latest data!**
-
 Or, open the solution in Visual Studio 2019 and run the app.
+
+**Make sure you do a pull on the Johns Hopkins CSSE submodule to get the latest data!**
 
 ## Why a database?
 The current Johns Hopkins data is stored in CSV files and is split into daily sets. This makes it difficult to query the data over time. Databases provide a useful way to query the data with SQL. The code in this repo provides a replicable way to generate the database from the CSV files that John Hopkins provides daily. The database is currently an SQLite database, but the code allows for any database platform to generate the data. It is possible to generate the database as an SQL Server database, Oracle database, MySQL, or other database types. The code uses Entity Framework to create the database. Please change the connection string to use a different database.
