@@ -23,6 +23,7 @@ namespace Covid19DBApp
         DbSet<LocationDay> _locationDays;
         //private Dictionary<DateTimeOffset, IEnumerable<LocationDay>> _locationDaysByDate = new Dictionary<DateTimeOffset, IEnumerable<LocationDay>>();
         private Dictionary<Guid, IEnumerable<LocationDay>> _locationDaysByLocation = new Dictionary<Guid, IEnumerable<LocationDay>>();
+        private Dictionary<string, int> _totalConfirmedByLocation = new Dictionary<string, int>();
         #endregion
 
         #region Public Properties
@@ -78,45 +79,56 @@ namespace Covid19DBApp
             {
                 if (!location.Latitude.HasValue) continue;
 
-                //if (!_locationDaysByDate.ContainsKey(SelectedDate)) return;
+                var key = $"{SelectedDate}.{location.Id}";
 
-                //var lds = _locationDaysByDate[SelectedDate].Where(ld => ld.Location != null && ld.Location.Id == location.Id).ToList();
-                //var sumOfNewCases = lds.Sum(ld => ld.NewCases);
-
-                var asdasd = _locationDaysByLocation[location.Id];
-
-                var sumOfNewCases = asdasd.Where(ld => ld.DateOfCount <= SelectedDate).Sum(ld => ld.NewCases);
+                int sumOfNewCases = 0;
 
                 MapIcon mapIcon = null;
 
-                if (_mapIconsByLocation.ContainsKey(location.Id))
+                if (_totalConfirmedByLocation.ContainsKey(key))
                 {
                     mapIcon = _mapIconsByLocation[location.Id];
+                    sumOfNewCases = _totalConfirmedByLocation[key];
                 }
                 else
                 {
-                    var basicGeoposition = new BasicGeoposition
+                    var locationDays = _locationDaysByLocation[location.Id];
+
+                    sumOfNewCases = locationDays.Where(ld => ld.DateOfCount <= SelectedDate).Sum(ld => ld.NewCases).Value;
+
+
+                    if (_mapIconsByLocation.ContainsKey(location.Id))
                     {
-                        Latitude = (double)location.Latitude.Value,
-                        Longitude = (double)location.Longitude.Value
-                    };
-
-                    var Geopoint = new Geopoint(basicGeoposition);
-
-                    mapIcon = new MapIcon
+                        mapIcon = _mapIconsByLocation[location.Id];
+                    }
+                    else
                     {
-                        Location = Geopoint,
-                        NormalizedAnchorPoint = new Point(0.5, 1.0),
-                        ZIndex = 0,
-                        Tag = new LocationInformation(location) { Confirmed = sumOfNewCases.Value }
-                    };
+                        var basicGeoposition = new BasicGeoposition
+                        {
+                            Latitude = (double)location.Latitude.Value,
+                            Longitude = (double)location.Longitude.Value
+                        };
 
-                    _mapIconsByLocation.Add(location.Id, mapIcon);
+                        var Geopoint = new Geopoint(basicGeoposition);
 
-                    MapElements.Add(mapIcon);
+                        mapIcon = new MapIcon
+                        {
+                            Location = Geopoint,
+                            NormalizedAnchorPoint = new Point(0.5, 1.0),
+                            ZIndex = 0,
+                            Tag = new LocationInformation(location) { Confirmed = sumOfNewCases }
+                        };
+
+                        _mapIconsByLocation.Add(location.Id, mapIcon);
+
+                        MapElements.Add(mapIcon);
+                    }
+
+                    _totalConfirmedByLocation.Add(key, sumOfNewCases);
                 }
 
-                mapIcon.Title = $"{location?.Province?.Name} - {sumOfNewCases}";
+                //mapIcon.Title = $"{location?.Province?.Region?.Name} - {location?.Province?.Name} - {location?.Name} - {sumOfNewCases}";
+                mapIcon.Title = $"{location?.Province?.Region?.Name} - {sumOfNewCases}";
             }
         }
         #endregion
