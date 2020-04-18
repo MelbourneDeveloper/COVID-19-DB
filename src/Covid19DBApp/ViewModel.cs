@@ -1,4 +1,5 @@
 ﻿using Covid19DB.Entities;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -19,8 +20,9 @@ namespace Covid19DBApp
         private int selectedDay;
         private DateTimeOffset _minDate;
         IEnumerable<Location> _locations;
-        IEnumerable<LocationDay> _locationDays;
-        private Dictionary<DateTimeOffset, IEnumerable<LocationDay>> _locationDaysByDate = new Dictionary<DateTimeOffset, IEnumerable<LocationDay>>();
+        DbSet<LocationDay> _locationDays;
+        //private Dictionary<DateTimeOffset, IEnumerable<LocationDay>> _locationDaysByDate = new Dictionary<DateTimeOffset, IEnumerable<LocationDay>>();
+        private Dictionary<Guid, IEnumerable<LocationDay>> _locationDaysByLocation = new Dictionary<Guid, IEnumerable<LocationDay>>();
         #endregion
 
         #region Public Properties
@@ -42,21 +44,30 @@ namespace Covid19DBApp
         #endregion
 
         #region Constructor
-        public ViewModel(IEnumerable<Location> locations, IEnumerable<LocationDay> locationDays)
+        public ViewModel(IEnumerable<Location> locations, DbSet<LocationDay> locationDays)
         {
             _locations = locations;
             _locationDays = locationDays;
 
-            var locationDayGroupings = locationDays.GroupBy(ld => ld.DateOfCount).ToList();
-            DayCount = locationDayGroupings.Count;
-            SelectedDay = DayCount - 1;
+            var locationDayGroupings = locationDays.Include(ld => ld.Location).ToList().GroupBy(ld => ld.DateOfCount);
+            var locationDayLocationGroupings = locationDays.Include(ld => ld.Location).ToList().GroupBy(ld => ld.Location);
 
-            _minDate = locationDayGroupings.Min(d => d.Key);
+            _minDate = locationDayGroupings.First().Key;
 
-            foreach (var locationDayGrouping in locationDayGroupings)
+            foreach (var locationDayGrouping in locationDayGroupings.OrderBy(ld => ld.Key))
             {
-                _locationDaysByDate.Add(locationDayGrouping.Key, locationDayGrouping.Where(ld => ld.DateOfCount <= locationDayGrouping.Key).ToList());
+                var lds = locationDayGrouping.Where(ld => ld.DateOfCount <= locationDayGrouping.Key).ToList();
+                //_locationDaysByDate.Add(locationDayGrouping.Key, lds);
+                DayCount++;
             }
+
+            foreach (var locationDayLocationGrouping in locationDayLocationGroupings)
+            {
+                var locationsDays = locationDayLocationGrouping.ToList();
+                _locationDaysByLocation.Add(locationDayLocationGrouping.Key.Id, locationsDays);
+            }
+
+            SelectedDay = DayCount - 1;
 
             Update();
         }
@@ -67,9 +78,14 @@ namespace Covid19DBApp
             {
                 if (!location.Latitude.HasValue) continue;
 
-                if (!_locationDaysByDate.ContainsKey(SelectedDate)) return;
+                //if (!_locationDaysByDate.ContainsKey(SelectedDate)) return;
 
-                var sumOfNewCases = _locationDaysByDate[SelectedDate].Where(ld => ld.Location != null && ld.Location.Id == location.Id).Sum(ld => ld.NewCases);
+                //var lds = _locationDaysByDate[SelectedDate].Where(ld => ld.Location != null && ld.Location.Id == location.Id).ToList();
+                //var sumOfNewCases = lds.Sum(ld => ld.NewCases);
+
+                var asdasd = _locationDaysByLocation[location.Id];
+
+                var sumOfNewCases = asdasd.Where(ld => ld.DateOfCount <= SelectedDate).Sum(ld => ld.NewCases);
 
                 MapIcon mapIcon = null;
 
