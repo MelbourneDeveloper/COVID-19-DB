@@ -118,13 +118,11 @@ namespace Covid19DB
 
                 _ = _locationDayRepository.GetOrInsert(rowModel.Date, location, currentNewCases, currentDeaths, currentRecoveries);
             }
-
-            UpdateLocationCoordinates(rows);
         }
         #endregion
 
         #region Private Methods
-        private void UpdateLocationCoordinates(IEnumerable<RowModel> rows)
+        public void UpdateLocationCoordinates(IEnumerable<RowModel> rows)
         {
             var filteredRowModels = rows.OrderByDescending(r => r.Date).Where(r =>
             r.Lat.HasValue &&
