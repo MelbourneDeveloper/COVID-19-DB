@@ -88,18 +88,18 @@ Note: *Figures here highlight issues with the Johns Hopkins data. Notice that Ne
 
 | State                        | Confirmed | Deaths | Recoveries |
 |------------------------------|-----------|--------|------------|
-| Australian Capital Territory | 103       | 2      | 59         |
-| External territories         | 0         | 0      | 0          |
-| From Diamond Princess        | 0         | 0      | 0          |
-| Jervis Bay Territory         | 0         | 0      | 0          |
-| N/A                          | 4         |        |            |
-| New South Wales              | 2857      | 23     | 4          |
-| Northern Territory           | 28        | 0      | 2          |
-| Queensland                   | 974       | 5      | 372        |
-| South Australia              | 429       | 3      | 179        |
-| Tasmania                     | 133       | 4      | 48         |
-| Victoria                     | 1265      | 14     | 926        |
-| Western Australia            | 514       | 6      | 216        |
+**Australian Capital Territory**|**103**|**3**|**81**
+External territories|0|0|0
+From Diamond Princess|0|0|0
+Jervis Bay Territory|0|0|0
+N/A|4| | 
+New South Wales|2926|26|1379
+Northern Territory|28|0|9
+Queensland|1007|5|442
+South Australia|435|4|331
+Tasmania|180|7|67
+Victoria|1302|14|1159
+Western Australia|541|7|340
 
 #### Database Structure
 
