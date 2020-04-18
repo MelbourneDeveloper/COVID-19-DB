@@ -50,7 +50,7 @@ namespace Covid19DBApp
             _locations = locations;
             _locationDays = locationDays;
 
-            var locationDayGroupings = locationDays.Include(ld => ld.Location).ToList().GroupBy(ld => ld.DateOfCount);
+            var locationDayGroupings = locationDays.Where(ld => ld.NewCases.HasValue && ld.NewCases > 0).Include(ld => ld.Location).ToList().GroupBy(ld => ld.DateOfCount);
             var locationDayLocationGroupings = locationDays.Include(ld => ld.Location).ToList().GroupBy(ld => ld.Location);
 
             _minDate = locationDayGroupings.First().Key;
@@ -94,9 +94,8 @@ namespace Covid19DBApp
                 {
                     var locationDays = _locationDaysByLocation[location.Id];
 
-                    var locationDay = locationDays.FirstOrDefault(ld => ld.DateOfCount == SelectedDate);
-                    if (locationDay == null) continue;
-                    sumOfNewCases = (double)locationDay.NewCases;
+                    //var locationDay = locationDays.FirstOrDefault(ld => ld.DateOfCount == SelectedDate);
+                    sumOfNewCases = (double)locationDays.Where(ld => ld.DateOfCount <= SelectedDate).Sum(ld => ld.NewCases);
 
                     if (_mapIconsByLocation.ContainsKey(location.Id))
                     {
@@ -128,8 +127,8 @@ namespace Covid19DBApp
                     _totalConfirmedByLocation.Add(key, sumOfNewCases);
                 }
 
-                //mapIcon.Title = $"{location?.Province?.Region?.Name} - {location?.Province?.Name} - {location?.Name} - {sumOfNewCases}";
-                mapIcon.Title = $"{location?.Province?.Region?.Name} - {sumOfNewCases.ToString("0.##")}";
+                mapIcon.Title = $"{location?.Name} - {sumOfNewCases}";
+                //mapIcon.Title = $"{location?.Province?.Region?.Name} - {sumOfNewCases.ToString("0.##")}";
             }
         }
         #endregion
