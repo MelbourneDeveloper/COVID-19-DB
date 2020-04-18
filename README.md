@@ -82,9 +82,7 @@ on Regions.id = Provinces.RegionId
 where Regions.Name='Australia'
 group by Provinces.Name
 ```
-As of 2020 - 4 - 12
-
-Note: *Figures here highlight issues with the Johns Hopkins data. Notice that New South Wales only has 4 recoveries. This is incorrect. See the incorrect value in the Johns Hopkins data [here](https://github.com/CSSEGISandData/COVID-19/blob/master/csse_covid_19_data/csse_covid_19_daily_reports/04-12-2020.csv#L2771)*
+As of 2020 - 4 - 17 GMT
 
 | State                        | Confirmed | Deaths | Recoveries |
 |------------------------------|-----------|--------|------------|
