@@ -2,13 +2,15 @@
 
 [Follow Me](https://twitter.com/CFDevelop) on Twitter for updates to this database and code.
 
-Download the SQLite database [here](https://www.dropbox.com/s/58ayrvl1p98n7bg/Covid19Db%202020-04-16.db?dl=0). This database aggregates data from the Johns Hopkins CSSE CSV [daily reports](https://github.com/CSSEGISandData/COVID-19/tree/master/csse_covid_19_data/csse_covid_19_daily_reports) in to a single SQLite database. It uses C# to generate the database, but you can open it with [DB Browser For SQLite](https://sqlitebrowser.org/). This is the [COVID-19 Johns Hopkins CSSEGithub page](https://github.com/CSSEGISandData/COVID-19).
+Download the SQLite database [here](https://www.dropbox.com/s/gdvwv48tpbro38s/Covid19Db%202020-04-17.db?dl=0). This database aggregates data from the Johns Hopkins CSSE CSV [daily reports](https://github.com/CSSEGISandData/COVID-19/tree/master/csse_covid_19_data/csse_covid_19_daily_reports) in to a single SQLite database. It uses C# to generate the database, but you can open it with [DB Browser For SQLite](https://sqlitebrowser.org/). This is the [COVID-19 Johns Hopkins CSSEGithub page](https://github.com/CSSEGISandData/COVID-19).
 
 **This database is in alpha. The database structure and code may change and there may be bugs. Please help by reporting bugs and inconsistencies in the issues section. The aim is to get this database to be as reliable as possible. NOT FOR REPORTING PURPOSES**
 
 ## What Can It Do? ##
 
-This is an app I am building that plots the data on a map. It allows the user to slide through time and see new cases by day in each European country. This app should be available soon and allow users to plor data from any SQL query on the map.
+You should use this database to answer questions about COVID-19 over time. The daily figures show confirmed cases, deaths and recoveries for a given location day. The figures are not totals which means they can be averaged or used for other calculations. This database is about having the tools you need to tell a story and educate people about the recent history of the virus. 
+
+This is an app I am building that plots the data on a map. It allows the user to slide through time and see new cases by day in each European country. This app should be available soon and allow users to plot data from any SQL query on the map.
 
 ![Europe Daily New Cases](https://christianfindlay.files.wordpress.com/2020/04/europesmaller.gif)
 
@@ -82,24 +84,22 @@ on Regions.id = Provinces.RegionId
 where Regions.Name='Australia'
 group by Provinces.Name
 ```
-As of 2020 - 4 - 12
-
-Note: *Figures here highlight issues with the Johns Hopkins data. Notice that New South Wales only has 4 recoveries. This is incorrect. See the incorrect value in the Johns Hopkins data [here](https://github.com/CSSEGISandData/COVID-19/blob/master/csse_covid_19_data/csse_covid_19_daily_reports/04-12-2020.csv#L2771)*
+As of 2020 - 4 - 17 GMT
 
 | State                        | Confirmed | Deaths | Recoveries |
 |------------------------------|-----------|--------|------------|
-| Australian Capital Territory | 103       | 2      | 59         |
-| External territories         | 0         | 0      | 0          |
-| From Diamond Princess        | 0         | 0      | 0          |
-| Jervis Bay Territory         | 0         | 0      | 0          |
-| N/A                          | 4         |        |            |
-| New South Wales              | 2857      | 23     | 4          |
-| Northern Territory           | 28        | 0      | 2          |
-| Queensland                   | 974       | 5      | 372        |
-| South Australia              | 429       | 3      | 179        |
-| Tasmania                     | 133       | 4      | 48         |
-| Victoria                     | 1265      | 14     | 926        |
-| Western Australia            | 514       | 6      | 216        |
+Australian Capital Territory|103|3|81
+External territories|0|0|0
+From Diamond Princess|0|0|0
+Jervis Bay Territory|0|0|0
+N/A|4| | 
+New South Wales|2926|26|1379
+Northern Territory|28|0|9
+Queensland|1007|5|442
+South Australia|435|4|331
+Tasmania|180|7|67
+Victoria|1302|14|1159
+Western Australia|541|7|340
 
 #### Database Structure
 
