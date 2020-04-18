@@ -86,7 +86,7 @@ As of 2020 - 4 - 17 GMT
 
 | State                        | Confirmed | Deaths | Recoveries |
 |------------------------------|-----------|--------|------------|
-**Australian Capital Territory**|**103**|**3**|**81**
+Australian Capital Territory|103|3|81
 External territories|0|0|0
 From Diamond Princess|0|0|0
 Jervis Bay Territory|0|0|0
