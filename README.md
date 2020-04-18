@@ -6,12 +6,14 @@ Download the SQLite database [here](https://www.dropbox.com/s/58ayrvl1p98n7bg/Co
 
 **This database is in alpha. The database structure and code may change and there may be bugs. Please help by reporting bugs and inconsistencies in the issues section. The aim is to get this database to be as reliable as possible. NOT FOR REPORTING PURPOSES**
 
+## What Can It Do? ##
+
+This is an app I am building that plots the data on a map. It allows the user to slide through time and see new cases by day in each European country. This app should be available soon and allow users to plor data from any SQL query on the map.
+
+![Europe Daily New Cases](https://christianfindlay.files.wordpress.com/2020/04/europesmaller.gif)
+
 ## Query the Data
-Use the [DB Browser For SQLite](https://sqlitebrowser.org/) to open the database on any platform. The database structure looks like this:
-
-![Database Structure](Images/DBStructure.png)
-
-The `LocationDays` table contains `LocationId`, `DateOfCount`, `Deaths`, `Recoveries`, and `NewCases`. These values can be summarized as below.
+Use [DB Browser For SQLite](https://sqlitebrowser.org/) to open the database on any platform. The database structure looks like this:
 
 ### List Top 20 Regions With Most New Cases In Last Week
 
@@ -99,7 +101,11 @@ Note: *Figures here highlight issues with the Johns Hopkins data. Notice that Ne
 | Victoria                     | 1265      | 14     | 926        |
 | Western Australia            | 514       | 6      | 216        |
 
-*More examples will be added here*
+#### Database Structure
+
+![Database Structure](Images/DBStructure.png)
+
+The `LocationDays` table contains `LocationId`, `DateOfCount`, `Deaths`, `Recoveries`, and `NewCases`. These values can be summarized as below.
 
 ## Getting Started (Generate the Database)
 
