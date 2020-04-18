@@ -94,12 +94,9 @@ namespace Covid19DBApp
                 {
                     var locationDays = _locationDaysByLocation[location.Id];
 
-                    var filteredLocationDays = locationDays.Where(ld => ld.DateOfCount >= SelectedDate.AddDays(-3) && ld.DateOfCount <= SelectedDate).ToList();
-
-                    if (filteredLocationDays.Count == 0) continue;
-
-                    sumOfNewCases = filteredLocationDays.Average(ld => ld.NewCases.HasValue ? ld.NewCases.Value : 0);
-
+                    var locationDay = locationDays.FirstOrDefault(ld => ld.DateOfCount == SelectedDate);
+                    if (locationDay == null) continue;
+                    sumOfNewCases = (double)locationDay.NewCases;
 
                     if (_mapIconsByLocation.ContainsKey(location.Id))
                     {
