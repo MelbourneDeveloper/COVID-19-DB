@@ -52,6 +52,10 @@ namespace Covid19DB
 
             covid19DbContext.SaveChanges();
 
+            processor.UpdateLocationCoordinates(rows);
+
+            covid19DbContext.SaveChanges();
+
             logger.ToMarkdownTables();
         }
     }
