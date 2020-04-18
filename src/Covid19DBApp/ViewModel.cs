@@ -23,7 +23,7 @@ namespace Covid19DBApp
         DbSet<LocationDay> _locationDays;
         //private Dictionary<DateTimeOffset, IEnumerable<LocationDay>> _locationDaysByDate = new Dictionary<DateTimeOffset, IEnumerable<LocationDay>>();
         private Dictionary<Guid, IEnumerable<LocationDay>> _locationDaysByLocation = new Dictionary<Guid, IEnumerable<LocationDay>>();
-        private Dictionary<string, int> _totalConfirmedByLocation = new Dictionary<string, int>();
+        private Dictionary<string, double> _totalConfirmedByLocation = new Dictionary<string, double>();
         #endregion
 
         #region Public Properties
@@ -81,7 +81,7 @@ namespace Covid19DBApp
 
                 var key = $"{SelectedDate}.{location.Id}";
 
-                int sumOfNewCases = 0;
+                double sumOfNewCases = 0;
 
                 MapIcon mapIcon = null;
 
@@ -94,7 +94,11 @@ namespace Covid19DBApp
                 {
                     var locationDays = _locationDaysByLocation[location.Id];
 
-                    sumOfNewCases = locationDays.Where(ld => ld.DateOfCount <= SelectedDate).Sum(ld => ld.NewCases).Value;
+                    var filteredLocationDays = locationDays.Where(ld => ld.DateOfCount >= SelectedDate.AddDays(-3) && ld.DateOfCount <= SelectedDate).ToList();
+
+                    if (filteredLocationDays.Count == 0) continue;
+
+                    sumOfNewCases = filteredLocationDays.Average(ld => ld.NewCases.HasValue ? ld.NewCases.Value : 0);
 
 
                     if (_mapIconsByLocation.ContainsKey(location.Id))
@@ -116,7 +120,7 @@ namespace Covid19DBApp
                             Location = Geopoint,
                             NormalizedAnchorPoint = new Point(0.5, 1.0),
                             ZIndex = 0,
-                            Tag = new LocationInformation(location) { Confirmed = sumOfNewCases }
+                            //Tag = new LocationInformation(location) { Confirmed = sumOfNewCases }
                         };
 
                         _mapIconsByLocation.Add(location.Id, mapIcon);
@@ -128,7 +132,7 @@ namespace Covid19DBApp
                 }
 
                 //mapIcon.Title = $"{location?.Province?.Region?.Name} - {location?.Province?.Name} - {location?.Name} - {sumOfNewCases}";
-                mapIcon.Title = $"{location?.Province?.Region?.Name} - {sumOfNewCases}";
+                mapIcon.Title = $"{location?.Province?.Region?.Name} - {sumOfNewCases.ToString("0.##")}";
             }
         }
         #endregion
