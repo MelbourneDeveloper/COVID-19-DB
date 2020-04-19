@@ -10,7 +10,7 @@ Download the SQLite database [here](https://www.dropbox.com/s/jbo4d1m2ehsumsl/Co
 
 You should use this database to answer questions about COVID-19 over time. The daily figures show confirmed cases, deaths and recoveries for a given location day. The figures are not totals which means they can be averaged or used for other calculations. This gives you the tools you need to tell a story and educate people about the recent history of the virus. 
 
-This is an app I am building that plots the data on a map. It allows the user to slide through time and see new cases by day in each European country. This app should be available soon and allow users to plot data from any SQL query on the map. You use the database with embedded maps on a we page with JavaScript.
+This is an app I am building that plots the data on a map. It allows the user to slide through time and see new cases by day in each European country. This app should be available soon and allow users to plot data from any SQL query on the map. You can use the database with embedded maps on a we page with JavaScript.
 
 ![Europe Daily New Cases](https://christianfindlay.files.wordpress.com/2020/04/europesmaller.gif)
 
