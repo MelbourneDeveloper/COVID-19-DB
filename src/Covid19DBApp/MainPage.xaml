@@ -1,0 +1,31 @@
+﻿<Page
+    x:Class="Covid19DBApp.MainPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Covid19DBApp"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:maps="using:Windows.UI.Xaml.Controls.Maps"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <Grid>
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        
+        <Grid.RowDefinitions>
+            <RowDefinition Height="30" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <maps:MapControl x:Name="TheMapControl" Grid.Row="1" Grid.ColumnSpan="2" >
+
+        </maps:MapControl>
+
+        <Slider x:Name="TheSlider" Maximum="{Binding DayCount, Mode=TwoWay}" Value="{Binding SelectedDay, Mode=TwoWay}"  />
+        <TextBlock Text="{Binding SelectedDate}" Grid.Column="1" HorizontalAlignment="Right" Margin="4" />
+
+    </Grid>
+</Page>
