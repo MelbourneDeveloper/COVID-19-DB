@@ -2,15 +2,15 @@
 
 [Follow Me](https://twitter.com/CFDevelop) on Twitter for updates to this database and code.
 
-Download the SQLite database [here](https://www.dropbox.com/s/jbo4d1m2ehsumsl/Covid19Db%202020-04-18.db?dl=0). This database aggregates data from the Johns Hopkins CSSE CSV [daily reports](https://github.com/CSSEGISandData/COVID-19/tree/master/csse_covid_19_data/csse_covid_19_daily_reports) in to a single SQLite database. It uses C# to generate the database, but you can open it with [DB Browser For SQLite](https://sqlitebrowser.org/). This is the [COVID-19 Johns Hopkins CSSEGithub page](https://github.com/CSSEGISandData/COVID-19).
+Download the SQLite database [here](https://www.dropbox.com/s/jbo4d1m2ehsumsl/Covid19Db%202020-04-18.db?dl=0). This database aggregates data from the Johns Hopkins CSSE CSV [daily reports](https://github.com/CSSEGISandData/COVID-19/tree/master/csse_covid_19_data/csse_covid_19_daily_reports) in to a single SQLite database with C#. Open it with [DB Browser For SQLite](https://sqlitebrowser.org/). This is the [COVID-19 Johns Hopkins CSSEGithub page](https://github.com/CSSEGISandData/COVID-19).
 
-**This database is in alpha. The database structure and code may change and there may be bugs. Please help by reporting bugs and inconsistencies in the issues section. The aim is to get this database to be as reliable as possible. NOT FOR REPORTING PURPOSES**
+**This database is in beta. Please help by reporting bugs and inconsistencies in the issues section. The aim is to get this database to be as reliable as possible. NOT FOR REPORTING PURPOSES**
 
 ## What Can It Do? ##
 
-You should use this database to answer questions about COVID-19 over time. The daily figures show confirmed cases, deaths and recoveries for a given location day. The figures are not totals which means they can be averaged or used for other calculations. This database is about having the tools you need to tell a story and educate people about the recent history of the virus. 
+You should use this database to answer questions about COVID-19 over time. The daily figures show confirmed cases, deaths and recoveries for a given location day. The figures are not totals which means they can be averaged or used for other calculations. This gives you the tools you need to tell a story and educate people about the recent history of the virus. 
 
-This is an app I am building that plots the data on a map. It allows the user to slide through time and see new cases by day in each European country. This app should be available soon and allow users to plot data from any SQL query on the map.
+This is an app I am building that plots the data on a map. It allows the user to slide through time and see new cases by day in each European country. This app should be available soon and allow users to plot data from any SQL query on the map. You use the database with embedded maps on a we page with JavaScript.
 
 ![Europe Daily New Cases](https://christianfindlay.files.wordpress.com/2020/04/europesmaller.gif)
 
