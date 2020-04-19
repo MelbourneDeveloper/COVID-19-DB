@@ -42,30 +42,28 @@ limit 20
 
 As of 2020-04-16
 
-**These figures have NOT been validated. This an example only**
-
 | Region         | NewCasesLastWeek |
 |----------------|------------------|
-| US             | 206364           |
-| United Kingdom | 38273            |
-| Turkey         | 31911            |
-| Spain          | 31726            |
-| France         | 28310            |
-| Italy          | 25315            |
-| Germany        | 19517            |
-| Russia         | 17807            |
-| Brazil         | 12333            |
-| Iran           | 11775            |
-| Canada         | 10155            |
-| Belgium        | 9826             |
-| Netherlands    | 7480             |
-| Peru           | 7235             |
-| India          | 6705             |
-| Ireland        | 6697             |
-| Portugal       | 4885             |
-| Japan          | 3959             |
-| Sweden         | 3399             |
-| Ecuador        | 3260             |
+| US             | 205870           |
+| United Kingdom | 35440            |
+| Turkey         | 30162            |
+| Spain          | 28699            |
+| Italy          | 23654            |
+| Russia         | 23209            |
+| Germany        | 18434            |
+| France         | 18422            |
+| Brazil         | 15931            |
+| Canada         | 11040            |
+| Iran           | 10839            |
+| Belgium        | 9165             |
+| Peru           | 7572             |
+| India          | 7276             |
+| Netherlands    | 7195             |
+| Ireland        | 5830             |
+| Japan          | 4291             |
+| Saudi Arabia   | 4241             |
+| Portugal       | 3698             |
+| Singapore      | 3693             |
 
 ### Get Totals for Australian States
 
