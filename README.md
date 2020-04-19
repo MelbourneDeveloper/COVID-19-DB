@@ -40,7 +40,7 @@ order by NewCasesLastWeek desc
 limit 20	
 ```
 
-As of 2020-04-16
+As of 2020-04-18
 
 | Region         | NewCasesLastWeek |
 |----------------|------------------|
