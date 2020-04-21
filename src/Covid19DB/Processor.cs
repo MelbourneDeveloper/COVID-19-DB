@@ -93,13 +93,13 @@ namespace Covid19DB
                 {
                     //Deal with cases where there is a comma in the Province field. This means that we're dealing with a US county/state
 
-                    //var tokens = provinceName.Split(",").ToList();
-                    //locationName = tokens[0].
-                    //    Replace(" County", string.Empty, StringComparison.OrdinalIgnoreCase). // Remove county so figures are merged. E.g. Hudson County -> Hudson
-                    //    Trim();
-                    //var provinceToken = tokens[1].
-                    //    Replace("(From Diamond Princess)", string.Empty, StringComparison.OrdinalIgnoreCase);  //Get rid of From Diamond Princess //TODO: Mark data with source somehow 
-                    //provinceName = _provinceLookupService.GetProvinceName(region.Name, provinceToken.Trim());
+                    var tokens = provinceName.Split(",").ToList();
+                    locationName = tokens[0].
+                        Replace(" County", string.Empty, StringComparison.OrdinalIgnoreCase). // Remove county so figures are merged. E.g. Hudson County -> Hudson
+                        Trim();
+                    var provinceToken = tokens[1].
+                        Replace("(From Diamond Princess)", string.Empty, StringComparison.OrdinalIgnoreCase);  //Get rid of From Diamond Princess //TODO: Mark data with source somehow 
+                    provinceName = _provinceLookupService.GetProvinceName(region.Name, provinceToken.Trim());
                 }
 
                 var province = GetProvince(provinceName, region);
