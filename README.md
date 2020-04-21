@@ -2,15 +2,15 @@
 
 [Follow Me](https://twitter.com/CFDevelop) on Twitter for updates to this database and code.
 
-Download the SQLite database [here](https://www.dropbox.com/s/gdvwv48tpbro38s/Covid19Db%202020-04-17.db?dl=0). This database aggregates data from the Johns Hopkins CSSE CSV [daily reports](https://github.com/CSSEGISandData/COVID-19/tree/master/csse_covid_19_data/csse_covid_19_daily_reports) in to a single SQLite database. It uses C# to generate the database, but you can open it with [DB Browser For SQLite](https://sqlitebrowser.org/). This is the [COVID-19 Johns Hopkins CSSEGithub page](https://github.com/CSSEGISandData/COVID-19).
+Download the SQLite database [here](https://www.dropbox.com/s/pn62qfrkqkb741a/Covid19Db%202020-04-20.db?dl=0). This database aggregates data from the Johns Hopkins CSSE CSV [daily reports](https://github.com/CSSEGISandData/COVID-19/tree/master/csse_covid_19_data/csse_covid_19_daily_reports) in to a single SQLite database with C#. Open it with [DB Browser For SQLite](https://sqlitebrowser.org/). This is the [COVID-19 Johns Hopkins CSSEGithub page](https://github.com/CSSEGISandData/COVID-19).
 
-**This database is in alpha. The database structure and code may change and there may be bugs. Please help by reporting bugs and inconsistencies in the issues section. The aim is to get this database to be as reliable as possible. NOT FOR REPORTING PURPOSES**
+**This database is in beta. Please help by reporting bugs and inconsistencies in the issues section. The aim is to get this database to be as reliable as possible. NOT FOR REPORTING PURPOSES**
 
 ## What Can It Do? ##
 
-You should use this database to answer questions about COVID-19 over time. The daily figures show confirmed cases, deaths and recoveries for a given location day. The figures are not totals which means they can be averaged or used for other calculations. This database is about having the tools you need to tell a story and educate people about the recent history of the virus. 
+You should use this database to answer questions about COVID-19 over time. The daily figures show confirmed cases, deaths and recoveries for a given location day. The figures are not totals which means they can be averaged or used for other calculations. This gives you the tools you need to tell a story and educate people about the recent history of the virus. 
 
-This is an app I am building that plots the data on a map. It allows the user to slide through time and see new cases by day in each European country. This app should be available soon and allow users to plot data from any SQL query on the map.
+This is an app I am building that plots the data on a map. It allows the user to slide through time and see new cases by day in each European country. This app should be available soon and allow users to plot data from any SQL query on the map. You can use the database with embedded maps on a we page with JavaScript.
 
 ![Europe Daily New Cases](https://christianfindlay.files.wordpress.com/2020/04/europesmaller.gif)
 
@@ -40,32 +40,30 @@ order by NewCasesLastWeek desc
 limit 20	
 ```
 
-As of 2020-04-16
-
-**These figures have NOT been validated. This an example only**
+As of 2020-04-18
 
 | Region         | NewCasesLastWeek |
 |----------------|------------------|
-| US             | 206364           |
-| United Kingdom | 38273            |
-| Turkey         | 31911            |
-| Spain          | 31726            |
-| France         | 28310            |
-| Italy          | 25315            |
-| Germany        | 19517            |
-| Russia         | 17807            |
-| Brazil         | 12333            |
-| Iran           | 11775            |
-| Canada         | 10155            |
-| Belgium        | 9826             |
-| Netherlands    | 7480             |
-| Peru           | 7235             |
-| India          | 6705             |
-| Ireland        | 6697             |
-| Portugal       | 4885             |
-| Japan          | 3959             |
-| Sweden         | 3399             |
-| Ecuador        | 3260             |
+| US             | 205870           |
+| United Kingdom | 35440            |
+| Turkey         | 30162            |
+| Spain          | 28699            |
+| Italy          | 23654            |
+| Russia         | 23209            |
+| Germany        | 18434            |
+| France         | 18422            |
+| Brazil         | 15931            |
+| Canada         | 11040            |
+| Iran           | 10839            |
+| Belgium        | 9165             |
+| Peru           | 7572             |
+| India          | 7276             |
+| Netherlands    | 7195             |
+| Ireland        | 5830             |
+| Japan          | 4291             |
+| Saudi Arabia   | 4241             |
+| Portugal       | 3698             |
+| Singapore      | 3693             |
 
 ### Get Totals for Australian States
 
