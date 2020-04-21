@@ -78,18 +78,14 @@ namespace Covid19DB
                 var provinceName = rowModel.Province_State;
                 var locationName = rowModel.Admin2;
 
-                if (region.Name == "Netherlands")
-                {
-                    //ISSUE
-
-                    //There is a comma in some of the Netherlands' provinces
-                }
-                else if (provinceName == "Virgin Islands, U.S.")
+                if (provinceName == "Virgin Islands, U.S.")
                 {
                     //ISSUE: https://github.com/CSSEGISandData/COVID-19/issues/2119
                     provinceName = "Virgin Islands";
                 }
-                else if (provinceName != null && provinceName.Contains(',', StringComparison.OrdinalIgnoreCase))
+                else if (provinceName != null && provinceName.Contains(',', StringComparison.OrdinalIgnoreCase) &&
+                    //This may be valid province name. It represents three islands
+                    provinceName != "Bonaire, Sint Eustatius and Saba")
                 {
                     //Deal with cases where there is a comma in the Province field. This means that we're dealing with a US county/state
 
