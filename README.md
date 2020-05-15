@@ -2,7 +2,7 @@
 
 [Follow Me](https://twitter.com/CFDevelop) on Twitter for updates to this database and code.
 
-Download the SQLite database [here](https://www.dropbox.com/s/nffdi4y65llhnao/Covid19Db%202020-05-05.db?dl=0). This database aggregates data from the Johns Hopkins CSSE CSV [daily reports](https://github.com/CSSEGISandData/COVID-19/tree/master/csse_covid_19_data/csse_covid_19_daily_reports) in to a single SQLite database with C#. Open it with [DB Browser For SQLite](https://sqlitebrowser.org/). This is the [COVID-19 Johns Hopkins CSSEGithub page](https://github.com/CSSEGISandData/COVID-19).
+Download the SQLite database [here](https://www.dropbox.com/s/nffdi4y65llhnao/Covid19Db%202020-05-15.db?dl=0). This database aggregates data from the Johns Hopkins CSSE CSV [daily reports](https://github.com/CSSEGISandData/COVID-19/tree/master/csse_covid_19_data/csse_covid_19_daily_reports) in to a single SQLite database with C#. Open it with [DB Browser For SQLite](https://sqlitebrowser.org/). This is the [COVID-19 Johns Hopkins CSSEGithub page](https://github.com/CSSEGISandData/COVID-19).
 
 **This database is in beta. Please help by reporting bugs and inconsistencies in the issues section**
 
