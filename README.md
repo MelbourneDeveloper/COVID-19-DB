@@ -1,6 +1,6 @@
 # COVID-19-DB
 
-## [Download Database Here](https://www.dropbox.com/s/fspzdiknttn79kf/Covid19Db%202020-08-02.db?dl=0)
+## [Download Database Here](https://www.dropbox.com/s/02obmee01wgz2at/Covid19Db%202020-09-02.db?dl=0)
 
 [Follow Me](https://twitter.com/CFDevelop) on Twitter for updates to this database and code.
 
